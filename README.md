@@ -1,24 +1,27 @@
-# datasig-pdv-frontend
+# Setup inicial
+Antes de rodar o projeto, crie uma cópia do arquivo .env.example no mesmo diretório, com o nome .env, e preencha os valores de conexão de acordo com a necessidade
 
-## Project setup
+# Instalando dependências
+No terminal, na raiz do repositório, rodar o seguinte comando:
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+#  Rodando o projeto localmente
+No terminal, na raiz do repositório, rodar o seguinte comando:
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+# Compilando o Projeto
+No terminal, na raiz do repositório, rodar o seguinte comando:
 ```
 npm run build
 ```
+Dessa forma, o pacote gerado para ser utilizado estará na raiz do repositório, na pasta `dist/`.
 
-### Lints and fixes files
+# Rodar Lint
+No terminal, na raiz do repositório, rodar o seguinte comando:
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
