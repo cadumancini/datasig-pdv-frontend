@@ -25,3 +25,6 @@ No terminal, na raiz do repositório, rodar o seguinte comando:
 ```
 npm run lint
 ```
+
+# Alterando Logo
+Para alterar a logo que aparece nas páginas, substituir o arquivo `src/assets/logo.png` com o arquivo da logo desejada. **Importante: manter o mesmo nome de aquivo para ser reconhecido.**
