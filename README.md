@@ -1,5 +1,5 @@
 # Setup inicial
-Antes de rodar o projeto, crie uma cópia do arquivo .env.example no mesmo diretório, com o nome .env, e preencha os valores de conexão de acordo com a necessidade
+Antes de rodar o projeto, crie uma cópia do arquivo `.env.example` no mesmo diretório, com o nome `.env`, e preencha os valores de conexão de acordo com a necessidade
 
 # Instalando dependências
 No terminal, na raiz do repositório, rodar o seguinte comando:
