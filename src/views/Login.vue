@@ -1,8 +1,8 @@
 <template>
   <div class="text-center login-page">
     <form class="form-signin" @submit.prevent="handleSubmit">
-      <img src="../assets/logo.png" class="mb-4">
-      <h1 class="h3 mb-3 font-weight-normal">DataSIG - PDV</h1>
+      <img src="../assets/logo.png" class="mb-4" width="100%" height="100%">
+      <h1 class="h3 mb-3 font-weight-normal">Sistema PDV</h1>
       <input class="form-control" type="text" id="inputUsuario" placeholder="Usuário" required autofocus v-model="user" ref="inputUser">
       <input class="form-control" type="password" id="inputSenha" placeholder="Senha" required v-model="password">
       <button id="btnLogin" class="btn btn-lg btn-block btn-secondary">Login</button>
@@ -111,5 +111,11 @@ export default {
   .btn-block {
     display: block;
     width: 100%;
+  }
+  img {
+    object-fit: contain;
+    background-color: #6c757d;
+    padding: 0.75em;
+    border-radius: 0.375rem;
   }
 </style>
