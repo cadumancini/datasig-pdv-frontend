@@ -1,10 +1,9 @@
 <template>
   <nav class="navbar navbar-expand-md navbar-light mb-2" style="background-color: #dedede;">
-    <a class="navbar-brand logo" href="#"><img alt="Feeling" src="../assets/logo.png"></a>
-    <h1 class="h5 mx-5 pt-2">{{ this.title }}</h1>
+    <a class="navbar-brand logo" href="#"><img alt="Logo DataSIG" width="20%" height="20%" src="../assets/logo.png"></a>
     <ul class="navbar-nav ms-auto actions">
-      <li class="nav-item mx-2" v-if="this.title !== 'Portal Web'">
-        <a class="nav-link" href="#" @click="return">Voltar</a>
+      <li class="nav-item mx-2">
+        <a class="nav-link" href="#" v-bind:class="{ disable: this.title === 'Menu'}" @click="return">Voltar</a>
       </li>
       <li class="nav-item mx-2">
         <a class="nav-link" href="#" @click="logout">Logout</a>
@@ -32,7 +31,16 @@ export default {
 </script>
 
 <style scoped>
-  @media (max-width: 400px) {
+  .logo {
+    padding-left: 4px;
+  }
+
+  .disable {
+    pointer-events: none;
+    color: #dedede;
+  }
+
+  @media (max-width: 450px) {
     .logo {
       display: none;
     }
