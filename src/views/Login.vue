@@ -50,9 +50,13 @@ export default {
           }
         })
         .catch((err) => {
+          if(err.response.data.message) {
+            alert('Erro ' + err.response.status + ': ' + err.response.data.message)
+          }
+        })
+        .finally(() => {
           document.getElementsByTagName('body')[0].style.cursor = 'wait'
           document.getElementById('btnLogin').disabled = false
-          console.log(err)
         })
     }
   }
