@@ -31,16 +31,25 @@
 
 <script>
 import Navbar from '../components/Navbar.vue'
+import api from '../utils/api'
+
 export default {
   name: 'Venda',
   components: { Navbar },
   data () {
     return {
+      // api
+      api_url: '',
+      token: '',
+
+      // representantes
       ideRep: '',
       codRep: '',
-      representantes: '',
+      representantes: null,
       representantesFiltro: '',
       representantesFiltrados: '',
+      
+      //clientes
       ideCli: '',
       codCli: '',
       clientes: '',
@@ -48,12 +57,32 @@ export default {
       clientesFiltrados: '',
     }
   },
+  created () {
+    this.api_url = process.env.VUE_APP_API_URL
+    this.token = sessionStorage.getItem('token')
+  },
   mounted () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
     }
+
+    this.initRepresentantes()    
   },
   methods: {
+    initRepresentantes() {
+      if (!sessionStorage.getItem('representantes')) {
+        api.getRepresentantes(this.api_url, this.token)
+        .then((response) => {
+          this.representantes = response.data
+          sessionStorage.setItem('representantes', JSON.stringify(representantes))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
+      }
+    }
   }
 }
 </script>
