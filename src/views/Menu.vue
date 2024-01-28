@@ -27,32 +27,52 @@ export default {
   components: { Navbar },
   data () {
     return {
-      api_url: '',
-      token: '',
     }
   },
   created () {
-    this.api_url = process.env.VUE_APP_API_URL
-  },
-  mounted () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
-    }
+    }    
+  },
+  mounted () {
+    this.populateRepresentantes()
+    this.populateClientes()
+    this.populateProdutos()
+  },
+  methods: {
+    access (form) {
+      this.$router.push({ name: form })
+    },
 
-    const token = sessionStorage.getItem('token')
-
-    api.getRepresentantes(this.api_url, token)
+    populateRepresentantes () {
+      api.getRepresentantes()
       .then((response) => {
         sessionStorage.setItem('representantes', JSON.stringify(response.data))
       })
       .catch((err) => {
         console.log(err)
       })
-  },
-  methods: {
-    access (form) {
-      this.$router.push({ name: form })
-    }
+    },
+
+    populateClientes () {
+      api.getClientes()
+      .then((response) => {
+        sessionStorage.setItem('clientes', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+
+    populateProdutos () {
+      api.getProdutos()
+      .then((response) => {
+        sessionStorage.setItem('produtos', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
   }
 }
 </script>

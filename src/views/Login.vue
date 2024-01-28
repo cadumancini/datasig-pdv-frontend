@@ -39,8 +39,6 @@ export default {
       formData.append('pswd', this.password)
       axios.post(this.api_url + '/users/login', formData)
         .then((response) => {
-          document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          document.getElementById('btnLogin').disabled = false
           if (response.data === 'Credenciais inválidas') {
             alert(response.data)
             this.$refs.inputUser.focus()
@@ -55,7 +53,7 @@ export default {
           }
         })
         .finally(() => {
-          document.getElementsByTagName('body')[0].style.cursor = 'wait'
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnLogin').disabled = false
         })
     }

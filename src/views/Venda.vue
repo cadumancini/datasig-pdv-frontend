@@ -23,6 +23,113 @@
         </div>
         <div class="col-8">
           <span class="fw-bold fs-5">Produtos</span>
+          <div class="row my-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Cód. de Barras</span>
+              <input class="form-control" type="text" ref="codBar" v-model="codBar" v-on:keyup.enter="onBarcodeEnter" >
+              <button id="btnBuscaProdutos" class="btn btn-secondary input-group-btn btn-busca" @click="buscaProdutos" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
+            </div>
+          </div>
+          <div class="row table-wrapper border">
+            <table class="table table-striped table-hover table-sm table-responsive table-items">
+              <thead>
+                <tr>
+                  <th class="sm-header" style="width: 70%;"><small>Produto</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Quantidade</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Valor Total.</small></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
+                  <th class="fw-normal sm">{{ row.desPro }}</th>
+                  <th class="fw-normal sm">{{ row.qtdPed }}</th> <!-- TODO: inserir input -->
+                  <th class="fw-normal sm">10</th> <!-- TODO: buscar valor e usar mascara -->
+                  <th class="fw-normal sm">{{ 10 * row.qtdPed }}</th> <!-- TODO: usar mascara -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Representantes -->
+  <div class="modal fade" id="representantesModal" tabindex="-1" aria-labelledby="representantesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="representantesModalLabel">Representantes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalRepresentantes"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="representantes != null">
+            <input type="text" class="form-control mb-3" v-on:keyup="filtrarRepresentantes" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 40%;">Nome</th>
+                  <th class="sm-header" scope="col" style="width: 40%;">Apelido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in representantesFiltrados" :key="row.codRep" class="mouseHover" @click="selectRepresentante(row)">
+                  <th class="fw-normal sm" scope="row">{{ row.codRep }}</th>
+                  <th class="fw-normal sm">{{ row.nomRep }}</th>
+                  <th class="fw-normal sm">{{ row.apeRep }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando representantes ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Clientes -->
+  <div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="clientesModalLabel">Clientes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalClientes"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="clientes != null">
+            <input type="text" class="form-control mb-3" v-on:keyup="filtrarClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 10%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">Nome</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">CPF/CNPJ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in clientesFiltrados" :key="row.codCli" class="mouseHover" @click="selectCliente(row)">
+                  <th class="fw-normal sm" scope="row">{{ row.codCli }}</th>
+                  <th class="fw-normal sm">{{ row.nomCli }}</th>
+                  <th class="fw-normal sm">{{ row.apeCli }}</th>
+                  <th class="fw-normal sm">{{ row.cgcCpf }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando representantes ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
     </div>
@@ -38,28 +145,27 @@ export default {
   components: { Navbar },
   data () {
     return {
-      // api
-      api_url: '',
-      token: '',
-
       // representantes
       ideRep: '',
       codRep: '',
-      representantes: null,
+      representantes: [],
       representantesFiltro: '',
       representantesFiltrados: '',
       
       //clientes
       ideCli: '',
       codCli: '',
-      clientes: '',
+      clientes: [],
       clientesFiltro: '',
       clientesFiltrados: '',
+      
+      //produtos
+      codBar: '',
+      produtos: [],
+      produtosFiltro: '',
+      produtosFiltrados: '',
+      itensCarrinho: []
     }
-  },
-  created () {
-    this.api_url = process.env.VUE_APP_API_URL
-    this.token = sessionStorage.getItem('token')
   },
   mounted () {
     if (!sessionStorage.getItem('token')) {
@@ -67,13 +173,16 @@ export default {
     }
 
     this.initRepresentantes()    
+    this.initClientes()    
+    this.initProdutos()    
   },
   methods: {
     initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
-        api.getRepresentantes(this.api_url, this.token)
+        api.getRepresentantes()
         .then((response) => {
           this.representantes = response.data
+          this.representantesFiltrados = this.representantes
           sessionStorage.setItem('representantes', JSON.stringify(representantes))
         })
         .catch((err) => {
@@ -81,7 +190,91 @@ export default {
         })
       } else {
         this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
+        this.representantesFiltrados = this.representantes
       }
+    },
+
+    initClientes() {
+      if (!sessionStorage.getItem('clientes')) {
+        api.getClientes()
+        .then((response) => {
+          this.clientes = response.data
+          this.clientesFiltrados = this.clientes
+          sessionStorage.setItem('clientes', JSON.stringify(clientes))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
+        this.clientesFiltrados = this.clientes
+      }
+    },
+
+    initProdutos() {
+      if (!sessionStorage.getItem('produtos')) {
+        api.getProdutos()
+        .then((response) => {
+          this.produtos = response.data
+          sessionStorage.setItem('produtos', JSON.stringify(produtos))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.produtos = JSON.parse(sessionStorage.getItem('produtos'))
+      }
+    },
+
+    onBarcodeEnter() {
+      const item = this.produtos.find(prod => prod.codBa2 === this.codBar)
+      if (item) {
+        const itemCar = this.itensCarrinho.find(itemCar => itemCar.codBa2 === item.codBa2)
+        if (itemCar)
+          itemCar.qtdPed += 1
+        else {
+          item.qtdPed = 1
+          this.itensCarrinho.push(item)
+        }
+      } else {
+        alert('Código de barras não encontrado na lista de produtos!')
+      }
+      this.codBar = ''
+    },
+
+    buscaRepresentantes() {
+      if(!this.representantes.length)
+        this.initRepresentantes()
+    },
+
+    selectRepresentante(row) {
+      this.ideRep = row.codRep + ' - ' + row.nomRep
+      this.codRep = row.codRep
+      document.getElementById('closeModalRepresentantes').click()
+    },
+
+    filtrarRepresentantes() {
+      this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep.startsWith(this.representantesFiltro) ||
+                  rep.nomRep.startsWith(this.representantesFiltro) ||
+                  rep.apeRep.startsWith(this.representantesFiltro)))
+    },
+
+    buscaClientes() {
+      if(!this.clientes.length)
+        this.initClientes()
+    },
+
+    selectCliente(row) {
+      this.ideCli = row.codCli + ' - ' + row.nomCli
+      this.codCli = row.codCli
+      document.getElementById('closeModalClientes').click()
+    },
+
+    filtrarClientes() {
+      this.clientesFiltrados = this.clientes.filter(cli => (cli.codCli.startsWith(this.clientesFiltro) ||
+                  cli.nomCli.startsWith(this.clientesFiltro) ||
+                  cli.apeCli.startsWith(this.clientesFiltro) ||
+                  cli.cgcCpf.startsWith(this.clientesFiltro)))
     }
   }
 }
@@ -104,6 +297,22 @@ export default {
   }
   .btn-busca {
     width: 1.75rem !important;
+  }
+  .table-wrapper {
+    height: 25rem;
+    width: 100%;
+    margin: 0px auto 0px auto;
+    overflow: auto;
+  }
+  .table-items {
+    width: 100%;
+    max-height: 1rem;
+  }
+  .sm {
+    font-size: 0.8rem !important;
+  }
+  .sm-header {
+    font-size: 0.9rem !important;
   }
 
 </style>
