@@ -2,15 +2,27 @@
   <div class="venda-tela">
     <Navbar title="Venda"/>
     <div class="venda mx-4">
-      <span class="fw-bold fs-1">Relizar Venda</span>
+      <div class="row">
+        <div class="col-2">
+          <span class="fw-bold fs-1">Relizar Venda</span>
+        </div>
+        <div class="col-2">
+          <div class="border options">
+            <div class="row"><span>Opções</span></div>
+            <div class="row"><span>R -> Representante</span></div>
+            <div class="row"><span>C -> Cliente</span></div>
+            <div class="row"><span>P -> Produto</span></div>
+          </div>
+        </div>
+      </div>
       <div class="row">
         <div class="col-4">
           <span class="fw-bold fs-5">Identificação</span>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
-              <input class="form-control" type="text" disabled v-model="ideRep">
-              <button id="btnBuscaRepresentantes" class="btn btn-secondary input-group-btn btn-busca" @click="buscaRepresentantes" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
+              <input autocomplete="off" id="inputIdeRep" class="form-control" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep">
+              <button id="btnBuscaRepresentantes" class="btn btn-secondary input-group-btn btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
           <div class="row my-4">
@@ -65,7 +77,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="representantes != null">
-            <input type="text" class="form-control mb-3" v-on:keyup="filtrarRepresentantes" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro" v-on:keydown="filtrarModal" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
@@ -76,9 +88,9 @@
               </thead>
               <tbody>
                 <tr v-for="row in representantesFiltrados" :key="row.codRep" class="mouseHover" @click="selectRepresentante(row)">
-                  <th class="fw-normal sm" scope="row">{{ row.codRep }}</th>
-                  <th class="fw-normal sm">{{ row.nomRep }}</th>
-                  <th class="fw-normal sm">{{ row.apeRep }}</th>
+                  <th :id="'tabRep' + row.tabIndex"  :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm">{{ row.nomRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm">{{ row.apeRep }}</th>
                 </tr>
               </tbody>
             </table>
@@ -150,7 +162,8 @@ export default {
       codRep: '',
       representantes: [],
       representantesFiltro: '',
-      representantesFiltrados: '',
+      representantesFiltrados: [],
+      tableIndex: 0,
       
       //clientes
       ideCli: '',
@@ -174,7 +187,12 @@ export default {
 
     this.initRepresentantes()    
     this.initClientes()    
-    this.initProdutos()    
+    this.initProdutos()   
+    
+    let self = this
+    window.addEventListener('keyup', function(ev) {
+        self.handleOption(ev);
+    });
   },
   methods: {
     initRepresentantes() {
@@ -226,6 +244,18 @@ export default {
       }
     },
 
+    handleOption(key) {
+      if (key.key === 'r' || key.key === 'R') {
+        this.beginRepresentante()
+      }
+    },
+
+    beginRepresentante() {
+      this.ideRep = ''
+      this.representantesFiltro = ''
+      document.getElementById('inputIdeRep').focus()
+    },
+
     onBarcodeEnter() {
       const item = this.produtos.find(prod => prod.codBa2 === this.codBar)
       if (item) {
@@ -242,9 +272,25 @@ export default {
       this.codBar = ''
     },
 
+    async searchRepresentantes() {
+      this.buscaRepresentantes()
+      while(!this.representantes.length) {
+        console.log('delay')
+        await delay(1000)
+      }
+      this.filtrarRepresentantes(this.ideRep)
+      if (this.representantesFiltrados.length === 1) { // encontramos, selecionar
+        this.selectRepresentante(this.representantesFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openRepresentantesModal()
+      }
+    },
+
     buscaRepresentantes() {
       if(!this.representantes.length)
         this.initRepresentantes()
+      else
+        console.log('representantes ok')
     },
 
     selectRepresentante(row) {
@@ -253,10 +299,52 @@ export default {
       document.getElementById('closeModalRepresentantes').click()
     },
 
-    filtrarRepresentantes() {
-      this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep.startsWith(this.representantesFiltro) ||
-                  rep.nomRep.startsWith(this.representantesFiltro) ||
-                  rep.apeRep.startsWith(this.representantesFiltro)))
+    filtrarRepresentantes(filter) {
+      this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep === filter ||
+                  rep.nomRep.includes(filter) ||
+                  rep.apeRep.includes(filter)))
+
+      let index = 0
+      this.representantesFiltrados.forEach(rep => {
+        rep.tabIndex = index
+        index++
+      })
+    },
+
+    openRepresentantesModal() {
+      this.representantesFiltro = this.ideRep
+      document.getElementById('btnBuscaRepresentantes').click()
+      const modalElement = document.getElementById('representantesModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputRepresentantesFiltro').focus()
+      })
+    },
+
+    filtrarModal(key) {
+      if (key.keyCode === 38) this.focusTableRep(-1)
+      else if (key.keyCode === 40) this.focusTableRep(1)
+      else if (key.keyCode === 13) this.repListHit()
+      else this.filtrarRepresentantes(this.representantesFiltro)
+    },
+
+    focusTableRep(value) {
+        this.tableIndex += value
+        if (this.tableIndex < 0) 
+          this.tableIndex = 0
+        else if (this.tableIndex >= this.representantesFiltrados.length)
+          this.tableIndex = (this.representantesFiltrados.length - 1)
+
+        const rowToScroll = document.getElementById('tabRep' + this.tableIndex)
+        rowToScroll.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'start'
+        })
+    },  
+
+    repListHit() {
+      const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndex)
+      this.selectRepresentante(rep)
     },
 
     buscaClientes() {
@@ -296,7 +384,7 @@ export default {
     width: 40px !important;
   }
   .btn-busca {
-    width: 1.75rem !important;
+    display: none;
   }
   .table-wrapper {
     height: 25rem;
@@ -313,6 +401,14 @@ export default {
   }
   .sm-header {
     font-size: 0.9rem !important;
+  }
+  .active {
+    background-color: rgb(166, 166, 166);
+  }
+  .options {
+    border-radius: 10px;
+    padding: 1rem;
+    background-color: #dedede;
   }
 
 </style>
