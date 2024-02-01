@@ -28,8 +28,8 @@
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
-              <input class="form-control" type="text" disabled v-model="ideCli">
-              <button id="btnBuscaClientes" class="btn btn-secondary input-group-btn btn-busca" @click="buscaClientes" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
+              <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli">
+              <button id="btnBuscaClientes" class="btn btn-secondary input-group-btn btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
         </div>
@@ -88,7 +88,7 @@
               </thead>
               <tbody>
                 <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectRepresentante(row)">
-                  <th :id="'tabRep' + row.tabIndex"  :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
+                  <th :id="'tabRep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.nomRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.apeRep }}</th>
                 </tr>
@@ -116,7 +116,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="clientes != null">
-            <input type="text" class="form-control mb-3" v-on:keyup="filtrarClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro" v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
@@ -127,17 +127,17 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in clientesFiltrados" :key="row.codCli" class="mouseHover" @click="selectCliente(row)">
-                  <th class="fw-normal sm" scope="row">{{ row.codCli }}</th>
-                  <th class="fw-normal sm">{{ row.nomCli }}</th>
-                  <th class="fw-normal sm">{{ row.apeCli }}</th>
-                  <th class="fw-normal sm">{{ row.cgcCpf }}</th>
+                <tr v-for="row in clientesFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectCliente(row)">
+                  <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.cgcCpf }}</th>
                 </tr>
               </tbody>
             </table>
           </div>
           <div v-else>
-            <label>Buscando representantes ...</label>
+            <label>Buscando Clientes ...</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -170,7 +170,8 @@ export default {
       codCli: '',
       clientes: [],
       clientesFiltro: '',
-      clientesFiltrados: '',
+      clientesFiltrados: [],
+      tableIndexCli: 0,
       
       //produtos
       codBar: '',
@@ -189,17 +190,26 @@ export default {
     this.initClientes()    
     this.initProdutos()   
     
-    let self = this
-    window.addEventListener('keyup', function(ev) {
-        self.handleOption(ev);
-    });
-
-    const inputIdeRep = document.getElementById('inputIdeRep')
-    inputIdeRep.addEventListener('focus', (event) => {
-      this.beginRepresentante()
-    });
+    this.addEvents()
   },
   methods: {
+    addEvents() {
+      let self = this
+      window.addEventListener('keyup', function(ev) {
+          self.handleOption(ev);
+      });
+
+      const inputIdeRep = document.getElementById('inputIdeRep')
+      inputIdeRep.addEventListener('focus', (event) => {
+        this.beginRepresentante()
+      });
+
+      const inputIdeCli = document.getElementById('inputIdeCli')
+      inputIdeCli.addEventListener('focus', (event) => {
+        this.beginCliente()
+      });
+    },
+
     async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
         api.getRepresentantes()
@@ -217,7 +227,7 @@ export default {
       }
     },
 
-    initClientes() {
+    async initClientes() {
       if (!sessionStorage.getItem('clientes')) {
         api.getClientes()
         .then((response) => {
@@ -251,9 +261,12 @@ export default {
 
     handleOption(key) {
       if(this.noInputIsFocused()) {
-        if (key.key === 'r' || key.key === 'R') {
-          document.getElementById('inputIdeRep').focus()
-        }
+        let inputToFocus = ''
+
+        if (key.key === 'r' || key.key === 'R') inputToFocus = 'inputIdeRep'
+        else if (key.key === 'c' || key.key === 'C') inputToFocus = 'inputIdeCli'
+        
+        document.getElementById(inputToFocus).focus()
       }
     },
 
@@ -266,25 +279,26 @@ export default {
       return true
     },
 
+    populateTabIndex(list) {
+      let index = 0
+      list.forEach(item => {
+        item.tabIndex = index
+        index++
+      })
+    },
+
+    scrollToElement(element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'start'
+      })
+    },
+
+    /* Representantes */
     beginRepresentante() {
       this.ideRep = ''
       this.representantesFiltro = ''
-    },
-
-    onBarcodeEnter() {
-      const item = this.produtos.find(prod => prod.codBa2 === this.codBar)
-      if (item) {
-        const itemCar = this.itensCarrinho.find(itemCar => itemCar.codBa2 === item.codBa2)
-        if (itemCar)
-          itemCar.qtdPed += 1
-        else {
-          item.qtdPed = 1
-          this.itensCarrinho.push(item)
-        }
-      } else {
-        alert('Código de barras não encontrado na lista de produtos!')
-      }
-      this.codBar = ''
     },
 
     async searchRepresentantes() {
@@ -310,15 +324,11 @@ export default {
 
     filtrarRepresentantes(filter) {
       this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep === filter ||
-                  rep.nomRep.includes(filter) ||
-                  rep.apeRep.includes(filter)))
-
-      let index = 0
+                  rep.nomRep.toUpperCase().includes(filter.toUpperCase()) ||
+                  rep.apeRep.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexRep = 0
-      this.representantesFiltrados.forEach(rep => {
-        rep.tabIndex = index
-        index++
-      })
+
+      this.populateTabIndex(this.representantesFiltrados)
     },
 
     openRepresentantesModal() {
@@ -354,11 +364,7 @@ export default {
       else 
         elementToScroll = document.getElementById('inputRepresentantesFiltro')
       
-      elementToScroll.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start'
-      })
+      this.scrollToElement(elementToScroll)
     },  
 
     repListHit() {
@@ -366,23 +372,100 @@ export default {
       this.selectRepresentante(rep)
     },
 
-    buscaClientes() {
+    /* Clientes */
+    beginCliente() {
+      this.ideCli = ''
+      this.clientesFiltro = ''
+    },
+
+    async searchClientes() {
+      await this.buscaClientes()
+      this.filtrarClientes(this.ideCli)
+      if (this.clientesFiltrados.length === 1) { // encontramos, selecionar
+        this.selectCliente(this.clientesFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openClientesModal()
+      }
+    },
+
+    async buscaClientes() {
       if(!this.clientes.length)
-        this.initClientes()
+        await this.initClientes()
     },
 
     selectCliente(row) {
-      this.ideCli = row.codCli + ' - ' + row.nomCli
+      this.ideCli = row.nomCli
       this.codCli = row.codCli
       document.getElementById('closeModalClientes').click()
     },
 
-    filtrarClientes() {
-      this.clientesFiltrados = this.clientes.filter(cli => (cli.codCli.startsWith(this.clientesFiltro) ||
-                  cli.nomCli.startsWith(this.clientesFiltro) ||
-                  cli.apeCli.startsWith(this.clientesFiltro) ||
-                  cli.cgcCpf.startsWith(this.clientesFiltro)))
-    }
+    filtrarClientes(filter) {
+      this.clientesFiltrados = this.clientes.filter(cli => (cli.codCli === filter ||
+                  cli.nomCli.toUpperCase().includes(filter.toUpperCase()) ||
+                  cli.apeCli.toUpperCase().includes(filter.toUpperCase()) ||
+                  cli.cgcCpf.startsWith(filter)))
+      this.tableIndexCli = 0
+
+      this.populateTabIndex(this.clientesFiltrados)
+    },
+
+    openClientesModal() {
+      this.clientesFiltro = this.ideCli
+      document.getElementById('btnBuscaClientes').click()
+      const modalElement = document.getElementById('clientesModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputClientesFiltro').focus()
+      })
+    },
+
+    navegarModalClientes(key) {
+      if (key.keyCode === 38) this.focusTableCli(-1)
+      else if (key.keyCode === 40) this.focusTableCli(1)
+      else if (key.keyCode === 13) this.cliListHit()
+    },
+
+    filtrarModalClientes(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarClientes(this.clientesFiltro)
+    },
+
+    focusTableCli(value) {
+      this.tableIndexCli += value
+      if (this.tableIndexCli < 0) 
+        this.tableIndexCli = 0
+      else if (this.tableIndexCli >= this.clientesFiltrados.length)
+        this.tableIndexCli = (this.clientesFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexCli > 0)
+        elementToScroll = document.getElementById('tabCli' + this.tableIndexCli)
+      else 
+        elementToScroll = document.getElementById('inputClientesFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    cliListHit() {
+      const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
+      this.selectCliente(cli)
+    },
+
+    /* Produtos */
+    onBarcodeEnter() {
+      const item = this.produtos.find(prod => prod.codBa2 === this.codBar)
+      if (item) {
+        const itemCar = this.itensCarrinho.find(itemCar => itemCar.codBa2 === item.codBa2)
+        if (itemCar)
+          itemCar.qtdPed += 1
+        else {
+          item.qtdPed = 1
+          this.itensCarrinho.push(item)
+        }
+      } else {
+        alert('Código de barras não encontrado na lista de produtos!')
+      }
+      this.codBar = ''
+    },
   }
 }
 </script>
