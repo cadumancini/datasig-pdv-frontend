@@ -196,7 +196,7 @@ export default {
     addEvents() {
       let self = this
       window.addEventListener('keyup', function(ev) {
-          self.handleOption(ev);
+          self.handleOption(ev)
       });
 
       const inputIdeRep = document.getElementById('inputIdeRep')
@@ -261,12 +261,8 @@ export default {
 
     handleOption(key) {
       if(this.noInputIsFocused()) {
-        let inputToFocus = ''
-
-        if (key.key === 'r' || key.key === 'R') inputToFocus = 'inputIdeRep'
-        else if (key.key === 'c' || key.key === 'C') inputToFocus = 'inputIdeCli'
-        
-        document.getElementById(inputToFocus).focus()
+        if (key.key === 'r' || key.key === 'R') document.getElementById('inputIdeRep').focus()
+        else if (key.key === 'c' || key.key === 'C') document.getElementById('inputIdeCli').focus()
       }
     },
 
