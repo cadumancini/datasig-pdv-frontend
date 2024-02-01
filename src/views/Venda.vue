@@ -77,7 +77,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="representantes != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro" v-on:keydown="filtrarModal" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro" v-on:keydown="navegarModalRepresentantes" v-on:keyup="filtrarModalRepresentantes" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
@@ -87,7 +87,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in representantesFiltrados" :key="row.codRep" class="mouseHover" @click="selectRepresentante(row)">
+                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectRepresentante(row)">
                   <th :id="'tabRep' + row.tabIndex"  :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm">{{ row.nomRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm">{{ row.apeRep }}</th>
@@ -195,13 +195,13 @@ export default {
     });
   },
   methods: {
-    initRepresentantes() {
+    async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
         api.getRepresentantes()
         .then((response) => {
           this.representantes = response.data
           this.representantesFiltrados = this.representantes
-          sessionStorage.setItem('representantes', JSON.stringify(representantes))
+          sessionStorage.setItem('representantes', JSON.stringify(this.representantes))
         })
         .catch((err) => {
           console.log(err)
@@ -218,7 +218,7 @@ export default {
         .then((response) => {
           this.clientes = response.data
           this.clientesFiltrados = this.clientes
-          sessionStorage.setItem('clientes', JSON.stringify(clientes))
+          sessionStorage.setItem('clientes', JSON.stringify(this.clientes))
         })
         .catch((err) => {
           console.log(err)
@@ -234,7 +234,7 @@ export default {
         api.getProdutos()
         .then((response) => {
           this.produtos = response.data
-          sessionStorage.setItem('produtos', JSON.stringify(produtos))
+          sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
         })
         .catch((err) => {
           console.log(err)
@@ -245,9 +245,20 @@ export default {
     },
 
     handleOption(key) {
-      if (key.key === 'r' || key.key === 'R') {
-        this.beginRepresentante()
+      if(this.noInputIsFocused()) {
+        if (key.key === 'r' || key.key === 'R') {
+          this.beginRepresentante()
+        }
       }
+    },
+
+    noInputIsFocused() {
+      const inputs = document.getElementsByClassName('form-control')
+      for(let i = 0; i < inputs.length; i++) {
+        if(document.activeElement === inputs[i])
+          return false
+      }
+      return true
     },
 
     beginRepresentante() {
@@ -273,11 +284,7 @@ export default {
     },
 
     async searchRepresentantes() {
-      this.buscaRepresentantes()
-      while(!this.representantes.length) {
-        console.log('delay')
-        await delay(1000)
-      }
+      await this.buscaRepresentantes()
       this.filtrarRepresentantes(this.ideRep)
       if (this.representantesFiltrados.length === 1) { // encontramos, selecionar
         this.selectRepresentante(this.representantesFiltrados[0])
@@ -286,11 +293,9 @@ export default {
       }
     },
 
-    buscaRepresentantes() {
+    async buscaRepresentantes() {
       if(!this.representantes.length)
-        this.initRepresentantes()
-      else
-        console.log('representantes ok')
+        await this.initRepresentantes()
     },
 
     selectRepresentante(row) {
@@ -305,6 +310,7 @@ export default {
                   rep.apeRep.includes(filter)))
 
       let index = 0
+      this.tableIndex = 0
       this.representantesFiltrados.forEach(rep => {
         rep.tabIndex = index
         index++
@@ -320,26 +326,35 @@ export default {
       })
     },
 
-    filtrarModal(key) {
+    navegarModalRepresentantes(key) {
       if (key.keyCode === 38) this.focusTableRep(-1)
       else if (key.keyCode === 40) this.focusTableRep(1)
       else if (key.keyCode === 13) this.repListHit()
-      else this.filtrarRepresentantes(this.representantesFiltro)
+    },
+
+    filtrarModalRepresentantes(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarRepresentantes(this.representantesFiltro)
     },
 
     focusTableRep(value) {
-        this.tableIndex += value
-        if (this.tableIndex < 0) 
-          this.tableIndex = 0
-        else if (this.tableIndex >= this.representantesFiltrados.length)
-          this.tableIndex = (this.representantesFiltrados.length - 1)
+      this.tableIndex += value
+      if (this.tableIndex < 0) 
+        this.tableIndex = 0
+      else if (this.tableIndex >= this.representantesFiltrados.length)
+        this.tableIndex = (this.representantesFiltrados.length - 1)
 
-        const rowToScroll = document.getElementById('tabRep' + this.tableIndex)
-        rowToScroll.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start'
-        })
+      let elementToScroll
+      if (this.tableIndex > 0)
+        elementToScroll = document.getElementById('tabRep' + this.tableIndex)
+      else 
+        elementToScroll = document.getElementById('inputRepresentantesFiltro')
+      
+      elementToScroll.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'start'
+      })
     },  
 
     repListHit() {
