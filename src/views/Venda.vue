@@ -88,9 +88,9 @@
               </thead>
               <tbody>
                 <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectRepresentante(row)">
-                  <th :id="'tabRep' + row.tabIndex"  :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm">{{ row.nomRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndex}" class="fw-normal sm">{{ row.apeRep }}</th>
+                  <th :id="'tabRep' + row.tabIndex"  :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.nomRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.apeRep }}</th>
                 </tr>
               </tbody>
             </table>
@@ -163,7 +163,7 @@ export default {
       representantes: [],
       representantesFiltro: '',
       representantesFiltrados: [],
-      tableIndex: 0,
+      tableIndexRep: 0,
       
       //clientes
       ideCli: '',
@@ -192,6 +192,11 @@ export default {
     let self = this
     window.addEventListener('keyup', function(ev) {
         self.handleOption(ev);
+    });
+
+    const inputIdeRep = document.getElementById('inputIdeRep')
+    inputIdeRep.addEventListener('focus', (event) => {
+      this.beginRepresentante()
     });
   },
   methods: {
@@ -247,7 +252,7 @@ export default {
     handleOption(key) {
       if(this.noInputIsFocused()) {
         if (key.key === 'r' || key.key === 'R') {
-          this.beginRepresentante()
+          document.getElementById('inputIdeRep').focus()
         }
       }
     },
@@ -264,7 +269,6 @@ export default {
     beginRepresentante() {
       this.ideRep = ''
       this.representantesFiltro = ''
-      document.getElementById('inputIdeRep').focus()
     },
 
     onBarcodeEnter() {
@@ -299,7 +303,7 @@ export default {
     },
 
     selectRepresentante(row) {
-      this.ideRep = row.codRep + ' - ' + row.nomRep
+      this.ideRep = row.nomRep
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
     },
@@ -310,7 +314,7 @@ export default {
                   rep.apeRep.includes(filter)))
 
       let index = 0
-      this.tableIndex = 0
+      this.tableIndexRep = 0
       this.representantesFiltrados.forEach(rep => {
         rep.tabIndex = index
         index++
@@ -338,15 +342,15 @@ export default {
     },
 
     focusTableRep(value) {
-      this.tableIndex += value
-      if (this.tableIndex < 0) 
-        this.tableIndex = 0
-      else if (this.tableIndex >= this.representantesFiltrados.length)
-        this.tableIndex = (this.representantesFiltrados.length - 1)
+      this.tableIndexRep += value
+      if (this.tableIndexRep < 0) 
+        this.tableIndexRep = 0
+      else if (this.tableIndexRep >= this.representantesFiltrados.length)
+        this.tableIndexRep = (this.representantesFiltrados.length - 1)
 
       let elementToScroll
-      if (this.tableIndex > 0)
-        elementToScroll = document.getElementById('tabRep' + this.tableIndex)
+      if (this.tableIndexRep > 0)
+        elementToScroll = document.getElementById('tabRep' + this.tableIndexRep)
       else 
         elementToScroll = document.getElementById('inputRepresentantesFiltro')
       
@@ -358,7 +362,7 @@ export default {
     },  
 
     repListHit() {
-      const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndex)
+      const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
       this.selectRepresentante(rep)
     },
 
