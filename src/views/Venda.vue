@@ -22,24 +22,24 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
               <input autocomplete="off" id="inputIdeRep" class="form-control" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep">
-              <button id="btnBuscaRepresentantes" class="btn btn-secondary input-group-btn btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
+              <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli">
-              <button id="btnBuscaClientes" class="btn btn-secondary input-group-btn btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
+              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
         </div>
         <div class="col-8">
-          <span class="fw-bold fs-5">Produtos</span>
+          <span class="fw-bold fs-5">Carrinho</span>
           <div class="row my-4">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Cód. de Barras</span>
-              <input class="form-control" type="text" ref="codBar" v-model="codBar" v-on:keyup.enter="onBarcodeEnter" >
-              <button id="btnBuscaProdutos" class="btn btn-secondary input-group-btn btn-busca" @click="buscaProdutos" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
+              <span class="input-group-text">Produto</span>
+              <input autocomplete="off" id="inputProduto" class="form-control" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar">
+              <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
           </div>
           <div class="row table-wrapper border">
@@ -146,6 +146,47 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Produtos -->
+  <div class="modal fade" id="produtosModal" tabindex="-1" aria-labelledby="produtosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="produtosModalLabel">Produtos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalProdutos"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="produtos != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputProdutosFiltro" v-on:keydown="navegarModalProdutos" v-on:keyup="filtrarModalProdutos" v-model="produtosFiltro" placeholder="Digite para buscar o produto abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 10%;">Derivação</th>
+                  <th class="sm-header" scope="col" style="width: 60%;">Descrição</th>
+                  <th class="sm-header" scope="col" style="width: 10%;">Valor Unit.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectProduto(row)">
+                  <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">10,00</th> <!--TODO: trazer preco unit -->
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando Produtos ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -177,8 +218,9 @@ export default {
       codBar: '',
       produtos: [],
       produtosFiltro: '',
-      produtosFiltrados: '',
-      itensCarrinho: []
+      produtosFiltrados: [],
+      itensCarrinho: [],
+      tableIndexPro: 0,
     }
   },
   mounted () {
@@ -208,61 +250,18 @@ export default {
       inputIdeCli.addEventListener('focus', (event) => {
         this.beginCliente()
       });
-    },
 
-    async initRepresentantes() {
-      if (!sessionStorage.getItem('representantes')) {
-        api.getRepresentantes()
-        .then((response) => {
-          this.representantes = response.data
-          this.representantesFiltrados = this.representantes
-          sessionStorage.setItem('representantes', JSON.stringify(this.representantes))
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      } else {
-        this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
-        this.representantesFiltrados = this.representantes
-      }
-    },
-
-    async initClientes() {
-      if (!sessionStorage.getItem('clientes')) {
-        api.getClientes()
-        .then((response) => {
-          this.clientes = response.data
-          this.clientesFiltrados = this.clientes
-          sessionStorage.setItem('clientes', JSON.stringify(this.clientes))
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      } else {
-        this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
-        this.clientesFiltrados = this.clientes
-      }
-    },
-
-    initProdutos() {
-      if (!sessionStorage.getItem('produtos')) {
-        api.getProdutos()
-        .then((response) => {
-          this.produtos = response.data
-          sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      } else {
-        this.produtos = JSON.parse(sessionStorage.getItem('produtos'))
-      }
+      const inputProdutos = document.getElementById('inputProduto')
+      inputIdeCli.addEventListener('focus', (event) => {
+        this.beginProduto()
+      });
     },
 
     handleOption(key) {
       if(this.noInputIsFocused()) {
-        if (key.key === 'r' || key.key === 'R') document.getElementById('inputIdeRep').focus()
-        else if (key.key === 'c' || key.key === 'C') document.getElementById('inputIdeCli').focus()
+        if (key.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
+        else if (key.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
+        else if (key.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
       }
     },
 
@@ -292,6 +291,23 @@ export default {
     },
 
     /* Representantes */
+    async initRepresentantes() {
+      if (!sessionStorage.getItem('representantes')) {
+        api.getRepresentantes()
+        .then((response) => {
+          this.representantes = response.data
+          this.representantesFiltrados = this.representantes
+          sessionStorage.setItem('representantes', JSON.stringify(this.representantes))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
+        this.representantesFiltrados = this.representantes
+      }
+    },
+
     beginRepresentante() {
       this.ideRep = ''
       this.representantesFiltro = ''
@@ -369,6 +385,23 @@ export default {
     },
 
     /* Clientes */
+    async initClientes() {
+      if (!sessionStorage.getItem('clientes')) {
+        api.getClientes()
+        .then((response) => {
+          this.clientes = response.data
+          this.clientesFiltrados = this.clientes
+          sessionStorage.setItem('clientes', JSON.stringify(this.clientes))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
+        this.clientesFiltrados = this.clientes
+      }
+    },
+
     beginCliente() {
       this.ideCli = ''
       this.clientesFiltro = ''
@@ -447,20 +480,105 @@ export default {
     },
 
     /* Produtos */
-    onBarcodeEnter() {
-      const item = this.produtos.find(prod => prod.codBa2 === this.codBar)
-      if (item) {
-        const itemCar = this.itensCarrinho.find(itemCar => itemCar.codBa2 === item.codBa2)
-        if (itemCar)
-          itemCar.qtdPed += 1
-        else {
-          item.qtdPed = 1
-          this.itensCarrinho.push(item)
-        }
+    async initProdutos() {
+      if (!sessionStorage.getItem('produtos')) {
+        api.getProdutos()
+        .then((response) => {
+          this.produtos = response.data
+          this.produtosFiltrados = this.produtos
+          sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
       } else {
-        alert('Código de barras não encontrado na lista de produtos!')
+        this.produtos = JSON.parse(sessionStorage.getItem('produtos'))
+        this.produtosFiltrados = this.produtos
       }
+    },
+    
+    beginProduto() {
       this.codBar = ''
+      this.produtosFiltro = ''
+    },
+
+    async searchProdutos() {
+      await this.buscaProdutos()
+      this.filtrarProdutos(this.codBar)
+      if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
+        this.selectProduto(this.produtosFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openProdutosModal()
+      }
+    },
+
+    async buscaProdutos() {
+      if(!this.produtos.length)
+        await this.initProdutos()
+    },
+
+    selectProduto(row) {
+      const newItem = row
+      const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
+      if (itemDoCarrinho) 
+        itemDoCarrinho.qtdPed += 1
+      else {
+        newItem.qtdPed = 1
+        this.itensCarrinho.push(newItem)
+      }
+      document.getElementById('closeModalProdutos').click()
+      this.codBar = ''
+      document.getElementById('inputProduto').focus()
+    },
+
+    filtrarProdutos(filter) {
+      this.produtosFiltrados = this.produtos.filter(pro => (pro.codBa2 === filter ||
+                  pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
+                  pro.desPro.toUpperCase().includes(filter.toUpperCase())))
+      this.tableIndexPro = 0
+
+      this.populateTabIndex(this.produtosFiltrados)
+    },
+
+    openProdutosModal() {
+      this.produtosFiltro = this.codBar
+      document.getElementById('btnBuscaProdutos').click()
+      const modalElement = document.getElementById('produtosModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputProdutosFiltro').focus()
+      })
+    },
+
+    navegarModalProdutos(key) {
+      if (key.keyCode === 38) this.focusTablePro(-1)
+      else if (key.keyCode === 40) this.focusTablePro(1)
+      else if (key.keyCode === 13) this.proListHit()
+    },
+
+    filtrarModalProdutos(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarProdutos(this.produtosFiltro)
+    },
+
+    focusTablePro(value) {
+      this.tableIndexPro += value
+      if (this.tableIndexPro < 0) 
+        this.tableIndexPro = 0
+      else if (this.tableIndexPro >= this.produtosFiltrados.length)
+        this.tableIndexPro = (this.produtosFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexPro > 0)
+        elementToScroll = document.getElementById('tabPro' + this.tableIndexPro)
+      else 
+        elementToScroll = document.getElementById('inputProdutosFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    proListHit() {
+      const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
+      this.selectProduto(pro)
     },
   }
 }
