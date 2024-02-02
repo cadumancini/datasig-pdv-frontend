@@ -257,11 +257,13 @@ export default {
       });
     },
 
-    handleOption(key) {
+    handleOption(event) {
       if(this.noInputIsFocused()) {
-        if (key.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
-        else if (key.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
-        else if (key.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
+        if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
+        else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
+        else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
+      } else {
+        if (event.key === 'Escape') document.activeElement.blur()
       }
     },
 
