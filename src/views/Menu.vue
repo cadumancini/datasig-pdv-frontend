@@ -37,7 +37,6 @@ export default {
   mounted () {
     this.populateRepresentantes()
     this.populateClientes()
-    this.populateProdutos()
   },
   methods: {
     access (form) {
@@ -58,16 +57,6 @@ export default {
       api.getClientes()
       .then((response) => {
         sessionStorage.setItem('clientes', JSON.stringify(response.data))
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    },
-
-    populateProdutos () {
-      api.getProdutos()
-      .then((response) => {
-        sessionStorage.setItem('produtos', JSON.stringify(response.data))
       })
       .catch((err) => {
         console.log(err)

@@ -10,6 +10,7 @@
           <div class="border options">
             <div class="row"><span>Opções</span></div>
             <div class="row"><span>R -> Representante</span></div>
+            <div class="row"><span>T -> Tabela de Preço</span></div>
             <div class="row"><span>C -> Cliente</span></div>
             <div class="row"><span>P -> Produto</span></div>
           </div>
@@ -27,6 +28,13 @@
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
+              <span class="input-group-text">Tabela de Preço</span> 
+              <input autocomplete="off" id="inputIdeTpr" class="form-control" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="codTpr">
+              <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
+            </div>
+          </div>
+          <div class="row my-4">
+            <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli">
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
@@ -34,11 +42,11 @@
           </div>
         </div>
         <div class="col-8">
-          <span class="fw-bold fs-5">Carrinho</span>
+          <span class="fw-bold fs-5">Carrinho</span> <span v-if="loadingProdutos" class="loading-products">Carregando Produtos ...</span>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
-              <input autocomplete="off" id="inputProduto" class="form-control" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar">
+              <input autocomplete="off" :disabled="loadingProdutos" id="inputProduto" class="form-control" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
           </div>
@@ -187,6 +195,41 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Tabelas Preco -->
+  <div class="modal fade" id="tabelasPrecoModal" tabindex="-1" aria-labelledby="tabelasPrecoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tabelasPrecoModal">Tabelas de Preço</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalTabelasPreco"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="tabelasPreco != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputTabelasPrecoFiltro" v-on:keydown="navegarModalTabelasPreco" v-on:keyup="filtrarModalTabelasPreco" v-model="tabelasPrecoFiltro" placeholder="Digite para buscar a tabela de preço abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col">Código</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in tabelasPrecoFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectTabelaPreco(row)">
+                  <th :id="'tabTpr' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexTpr}" class="fw-normal sm" scope="row">{{ row.codTpr }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando Tabelas de Preço ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -221,6 +264,14 @@ export default {
       produtosFiltrados: [],
       itensCarrinho: [],
       tableIndexPro: 0,
+      loadingProdutos: false,
+      
+      //tabelas preco
+      codTpr: '',
+      tabelasPreco: [],
+      tabelasPrecoFiltro: '',
+      tabelasPrecoFiltrados: [],
+      tableIndexTpr: 0,
     }
   },
   mounted () {
@@ -230,7 +281,7 @@ export default {
 
     this.initRepresentantes()    
     this.initClientes()    
-    this.initProdutos()   
+    // this.initProdutos()   
     
     this.addEvents()
   },
@@ -255,6 +306,11 @@ export default {
       inputIdeCli.addEventListener('focus', (event) => {
         this.beginProduto()
       });
+
+      const inputIdeTpr = document.getElementById('inputIdeTpr')
+      inputIdeTpr.addEventListener('focus', (event) => {
+        this.beginTabelasPreco()
+      });
     },
 
     handleOption(event) {
@@ -262,9 +318,14 @@ export default {
         if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
         else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
         else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
+        else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
       } else {
-        if (event.key === 'Escape') document.activeElement.blur()
+        if (event.key === 'Escape') this.clearFocus()
       }
+    },
+
+    clearFocus() {
+      document.activeElement.blur()
     },
 
     noInputIsFocused() {
@@ -295,7 +356,7 @@ export default {
     /* Representantes */
     async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
-        api.getRepresentantes()
+        await api.getRepresentantes()
         .then((response) => {
           this.representantes = response.data
           this.representantesFiltrados = this.representantes
@@ -334,6 +395,7 @@ export default {
       this.ideRep = row.nomRep
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
+      this.clearFocus()
     },
 
     filtrarRepresentantes(filter) {
@@ -389,7 +451,7 @@ export default {
     /* Clientes */
     async initClientes() {
       if (!sessionStorage.getItem('clientes')) {
-        api.getClientes()
+        await api.getClientes()
         .then((response) => {
           this.clientes = response.data
           this.clientesFiltrados = this.clientes
@@ -428,6 +490,7 @@ export default {
       this.ideCli = row.nomCli
       this.codCli = row.codCli
       document.getElementById('closeModalClientes').click()
+      this.clearFocus()
     },
 
     filtrarClientes(filter) {
@@ -483,29 +546,32 @@ export default {
 
     /* Produtos */
     async initProdutos() {
-      if (!sessionStorage.getItem('produtos')) {
-        api.getProdutos()
-        .then((response) => {
-          this.produtos = response.data
-          this.produtosFiltrados = this.produtos
-          sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      } else {
-        this.produtos = JSON.parse(sessionStorage.getItem('produtos'))
+      this.loadingProdutos = true
+      await api.getProdutos(this.codTpr)
+      .then((response) => {
+        this.produtos = response.data
         this.produtosFiltrados = this.produtos
-      }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      .finally(() => {
+        this.loadingProdutos = false
+      }) 
     },
     
     beginProduto() {
-      this.codBar = ''
-      this.produtosFiltro = ''
+      if(!this.codTpr.length) {
+        alert('Favor informar uma tabela de preço!')
+        document.getElementById('inputIdeTpr').focus()
+      } else {
+        this.codBar = ''
+        this.produtosFiltro = ''
+      }
     },
 
     async searchProdutos() {
-      await this.buscaProdutos()
+      if (!this.loadingProdutos) await this.buscaProdutos()
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
         this.selectProduto(this.produtosFiltrados[0])
@@ -582,6 +648,96 @@ export default {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
       this.selectProduto(pro)
     },
+
+    /* Tabelas Preco */
+    async initTabelasPreco() {
+      await api.getTabelasPreco(this.codRep)
+      .then((response) => {
+        this.tabelasPreco = response.data
+        this.tabelasPrecoFiltrados = this.tabelasPreco
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+
+    beginTabelasPreco() {
+      if(!this.codRep.length) {
+        alert('Favor informar um representante!')
+        document.getElementById('inputIdeRep').focus()
+      } else {
+        this.codTpr = ''
+        this.tabelasPrecoFiltro = ''
+      }
+    },
+
+    async searchTabelasPreco() {
+      await this.initTabelasPreco()
+      this.filtrarTabelasPreco(this.codTpr)
+      if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
+        this.selectTabelaPreco(this.tabelasPrecoFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openTabelasPrecoModal()
+      }
+    },
+
+    async selectTabelaPreco(row) {
+      let loadProdutos = false
+      if (this.codTpr !== row.codTpr) loadProdutos = true 
+      this.codTpr = row.codTpr
+      document.getElementById('closeModalTabelasPreco').click()
+      this.clearFocus()
+
+      if (loadProdutos) await this.initProdutos()
+    },
+
+    filtrarTabelasPreco(filter) {
+      this.tabelasPrecoFiltrados = this.tabelasPreco.filter(tpr => (tpr.codTpr.toUpperCase().startsWith(filter.toUpperCase())))
+      this.tableIndexTpr = 0
+
+      this.populateTabIndex(this.tabelasPrecoFiltrados)
+    },
+
+    openTabelasPrecoModal() {
+      this.tabelasPrecoFiltro = this.codTpr
+      document.getElementById('btnBuscaTabelasPreco').click()
+      const modalElement = document.getElementById('tabelasPrecoModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputTabelasPrecoFiltro').focus()
+      })
+    },
+
+    navegarModalTabelasPreco(key) {
+      if (key.keyCode === 38) this.focusTableTpr(-1)
+      else if (key.keyCode === 40) this.focusTableTpr(1)
+      else if (key.keyCode === 13) this.tprListHit()
+    },
+
+    filtrarModalTabelasPreco(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarTabelasPreco(this.tabelasPrecoFiltro)
+    },
+
+    focusTableTpr(value) {
+      this.tableIndexTpr += value
+      if (this.tableIndexTpr < 0) 
+        this.tableIndexTpr = 0
+      else if (this.tableIndexTpr >= this.tabelasPrecoFiltrados.length)
+        this.tableIndexTpr = (this.tabelasPrecoFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexTpr > 0)
+        elementToScroll = document.getElementById('tabTpr' + this.tableIndexTpr)
+      else 
+        elementToScroll = document.getElementById('inputTabelasPrecoFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    tprListHit() {
+      const tpr = this.tabelasPrecoFiltrados.find(tprFil => tprFil.tabIndex === this.tableIndexTpr)
+      this.selectTabelaPreco(tpr)
+    },
   }
 }
 </script>
@@ -627,6 +783,11 @@ export default {
     border-radius: 10px;
     padding: 1rem;
     background-color: #dedede;
+  }
+  .loading-products {
+    margin-left: 12px;
+    font-style: italic;
+    color: red;
   }
 
 </style>

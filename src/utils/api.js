@@ -9,8 +9,11 @@ var functions = {
   getClientes() {
     return axios.get(urlBase + '/clientes?token=' + sessionStorage.getItem('token'))
   },
-  getProdutos() {
-    return axios.get(urlBase + '/produtos?token=' + sessionStorage.getItem('token'))
+  getProdutos(codTpr) {
+    return axios.get(urlBase + '/produtos?token=' + sessionStorage.getItem('token') + '&codTpr=' + codTpr)
+  },
+  getTabelasPreco(codRep) {
+    return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)
   }
 }
 
