@@ -9,8 +9,12 @@ var functions = {
   getClientes() {
     return axios.get(urlBase + '/clientes?token=' + sessionStorage.getItem('token'))
   },
-  getProdutos(codTpr) {
-    return axios.get(urlBase + '/produtos?token=' + sessionStorage.getItem('token') + '&codTpr=' + codTpr)
+  getProdutos() {
+    return axios.get(urlBase + '/produtos?token=' + sessionStorage.getItem('token'))
+  },
+  getPreco(codTpr, produto) {
+    return axios.get(urlBase + '/produtos/preco?token=' + sessionStorage.getItem('token') + 
+                      '&codTpr=' + codTpr + '&codPro=' + produto.codPro + '&codDer=' + produto.codDer + '&qtdPdv=' + produto.qtdPed)
   },
   getTabelasPreco(codRep) {
     return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)

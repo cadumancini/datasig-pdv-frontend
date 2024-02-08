@@ -13,6 +13,7 @@
             <div class="row"><span>T -> Tabela de Preço</span></div>
             <div class="row"><span>C -> Cliente</span></div>
             <div class="row"><span>P -> Produto</span></div>
+            <div class="row"><span>E -> Editar Item</span></div>
           </div>
         </div>
       </div>
@@ -62,10 +63,10 @@
               </thead>
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
-                  <th class="fw-normal sm">{{ row.desPro }}</th>
-                  <th class="fw-normal sm">{{ row.qtdPed }}</th> <!-- TODO: inserir input -->
-                  <th class="fw-normal sm">10</th> <!-- TODO: buscar valor e usar mascara -->
-                  <th class="fw-normal sm">{{ 10 * row.qtdPed }}</th> <!-- TODO: usar mascara -->
+                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.desPro }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm change-price"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.preBas }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.vlrTot }}</th>
                 </tr>
               </tbody>
             </table>
@@ -171,8 +172,7 @@
                 <tr>
                   <th class="sm-header" scope="col" style="width: 20%;">Código</th>
                   <th class="sm-header" scope="col" style="width: 10%;">Derivação</th>
-                  <th class="sm-header" scope="col" style="width: 60%;">Descrição</th>
-                  <th class="sm-header" scope="col" style="width: 10%;">Valor Unit.</th>
+                  <th class="sm-header" scope="col" style="width: 70%;">Descrição</th>
                 </tr>
               </thead>
               <tbody>
@@ -180,7 +180,6 @@
                   <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">10,00</th> <!--TODO: trazer preco unit -->
                 </tr>
               </tbody>
             </table>
@@ -201,7 +200,7 @@
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="tabelasPrecoModal">Tabelas de Preço</h5>
+          <h5 class="modal-title" id="tabelasPrecoModalLabel">Tabelas de Preço</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalTabelasPreco"></button>
         </div>
         <div class="modal-body">
@@ -222,6 +221,26 @@
           </div>
           <div v-else>
             <label>Buscando Tabelas de Preço ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Item -->
+  <div class="modal fade" id="editarItemModal" tabindex="-1" aria-labelledby="editarItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editarItemModalLabel">Editar quantidade</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalEditarItem"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <input type="number" autocomplete="off" class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue" placeholder="Digite para alterar o valor" v-on:keyup.enter="onAlterarValor">
           </div>
         </div>
         <div class="modal-footer">
@@ -264,7 +283,11 @@ export default {
       produtosFiltrados: [],
       itensCarrinho: [],
       tableIndexPro: 0,
+      tableIndexCar: 0,
       loadingProdutos: false,
+      editandoCarrinho: false,
+      newValue: '',
+      itemEditando: null,
       
       //tabelas preco
       codTpr: '',
@@ -281,7 +304,7 @@ export default {
 
     this.initRepresentantes()    
     this.initClientes()    
-    // this.initProdutos()   
+    this.initProdutos()   
     
     this.addEvents()
   },
@@ -290,6 +313,9 @@ export default {
       let self = this
       window.addEventListener('keyup', function(ev) {
           self.handleOption(ev)
+      });
+      window.addEventListener('keydown', function(ev) {
+          self.handleNavigation(ev)
       });
 
       const inputIdeRep = document.getElementById('inputIdeRep')
@@ -303,7 +329,7 @@ export default {
       });
 
       const inputProdutos = document.getElementById('inputProduto')
-      inputIdeCli.addEventListener('focus', (event) => {
+      inputProdutos.addEventListener('focus', (event) => {
         this.beginProduto()
       });
 
@@ -314,18 +340,27 @@ export default {
     },
 
     handleOption(event) {
-      if(this.noInputIsFocused()) {
+      if(this.noInputIsFocused() && !this.editandoCarrinho) {
         if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
         else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
         else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
         else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
+        else if (event.key.toUpperCase() === 'E') this.editarCarrinho()
       } else {
         if (event.key === 'Escape') this.clearFocus()
       }
     },
 
+    handleNavigation(event) {
+      if(this.itensCarrinho.length && this.editandoCarrinho) {
+        if (event.keyCode === 38) this.focusTableCar(-1)
+        else if (event.keyCode === 40) this.focusTableCar(1)
+      }
+    },
+
     clearFocus() {
       document.activeElement.blur()
+      if (this.editandoCarrinho) this.editandoCarrinho = false
     },
 
     noInputIsFocused() {
@@ -373,6 +408,7 @@ export default {
 
     beginRepresentante() {
       this.ideRep = ''
+      this.codRep = ''
       this.representantesFiltro = ''
     },
 
@@ -547,7 +583,7 @@ export default {
     /* Produtos */
     async initProdutos() {
       this.loadingProdutos = true
-      await api.getProdutos(this.codTpr)
+      await api.getProdutos()
       .then((response) => {
         this.produtos = response.data
         this.produtosFiltrados = this.produtos
@@ -561,7 +597,7 @@ export default {
     },
     
     beginProduto() {
-      if(!this.codTpr.length) {
+      if(this.codTpr === '') {
         alert('Favor informar uma tabela de preço!')
         document.getElementById('inputIdeTpr').focus()
       } else {
@@ -585,18 +621,35 @@ export default {
         await this.initProdutos()
     },
 
-    selectProduto(row) {
+    async selectProduto(row) {
       const newItem = row
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
-      if (itemDoCarrinho) 
+      if (itemDoCarrinho)  {
         itemDoCarrinho.qtdPed += 1
+        await this.buscarPreco(itemDoCarrinho)
+      }
       else {
         newItem.qtdPed = 1
+        await this.buscarPreco(newItem)
         this.itensCarrinho.push(newItem)
       }
+
       document.getElementById('closeModalProdutos').click()
       this.codBar = ''
       document.getElementById('inputProduto').focus()
+    },
+
+    async buscarPreco(produto) {
+      await api.getPreco(this.codTpr, produto)
+        .then((response) => {
+          const preBas = response.data
+          const vlrTot = parseFloat(parseFloat(preBas) * parseFloat(produto.qtdPed))
+          produto.preBas = preBas
+          produto.vlrTot = vlrTot
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     },
 
     filtrarProdutos(filter) {
@@ -649,6 +702,44 @@ export default {
       this.selectProduto(pro)
     },
 
+    focusTableCar(value) {
+      this.tableIndexCar += value
+      if (this.tableIndexCar < 0) 
+        this.tableIndexCar = 0
+      else if (this.tableIndexCar >= this.itensCarrinho.length)
+        this.tableIndexCar = (this.itensCarrinho.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexCar > 0)
+        elementToScroll = document.getElementById('tabCar' + this.tableIndexCar)
+      else 
+        elementToScroll = document.getElementById('inputProduto')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    editarCarrinho() {
+      this.editandoCarrinho = true
+      this.populateTabIndex(this.itensCarrinho)
+    },
+
+    editarItem(item) {
+      this.newValue = item.qtdPed
+      this.itemEditando = item
+      const modalElement = document.getElementById('editarItemModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputEditarCarrinho').focus()
+      })
+    },  
+
+    async onAlterarValor() {
+      this.itemEditando.qtdPed = this.newValue
+      await this.buscarPreco(this.itemEditando)
+      this.itemEditando = null
+      document.getElementById('closeModalEditarItem').click()
+      this.clearFocus()
+    },
+
     /* Tabelas Preco */
     async initTabelasPreco() {
       await api.getTabelasPreco(this.codRep)
@@ -682,13 +773,9 @@ export default {
     },
 
     async selectTabelaPreco(row) {
-      let loadProdutos = false
-      if (this.codTpr !== row.codTpr) loadProdutos = true 
       this.codTpr = row.codTpr
       document.getElementById('closeModalTabelasPreco').click()
       this.clearFocus()
-
-      if (loadProdutos) await this.initProdutos()
     },
 
     filtrarTabelasPreco(filter) {
@@ -788,6 +875,15 @@ export default {
     margin-left: 12px;
     font-style: italic;
     color: red;
+  }
+  .change-price {
+    height: 1.25rem;
+    margin-left: 12px;
+  }
+  .icon-cart {
+    font-size: 0.75rem !important;
+    display: flex;
+    align-items: center;
   }
 
 </style>
