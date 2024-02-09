@@ -37,6 +37,8 @@ export default {
   mounted () {
     this.populateRepresentantes()
     this.populateClientes()
+    this.populateCondicoesPagto()
+    this.populateFormasPagto()
   },
   methods: {
     access (form) {
@@ -57,6 +59,26 @@ export default {
       api.getClientes()
       .then((response) => {
         sessionStorage.setItem('clientes', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+
+    populateCondicoesPagto () {
+      api.getCondicoesPagto()
+      .then((response) => {
+        sessionStorage.setItem('condicoesPagto', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+
+    populateFormasPagto () {
+      api.getFormasPagto()
+      .then((response) => {
+        sessionStorage.setItem('formasPagto', JSON.stringify(response.data))
       })
       .catch((err) => {
         console.log(err)

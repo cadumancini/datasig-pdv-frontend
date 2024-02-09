@@ -12,6 +12,8 @@
             <div class="row"><span>R -> Representante</span></div>
             <div class="row"><span>T -> Tabela de Preço</span></div>
             <div class="row"><span>C -> Cliente</span></div>
+            <div class="row"><span>O -> Condição de Pagamento</span></div>
+            <div class="row"><span>F -> Forma de Pagamento</span></div>
             <div class="row"><span>P -> Produto</span></div>
             <div class="row"><span>E -> Editar Item</span></div>
           </div>
@@ -39,6 +41,20 @@
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli">
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
+            </div>
+          </div>
+          <div class="row my-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Condição de Pagamento</span>
+              <input autocomplete="off" id="inputIdeCpg" class="form-control" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg">
+              <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
+            </div>
+          </div>
+          <div class="row my-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Forma de Pagamento</span>
+              <input autocomplete="off" id="inputIdeFpg" class="form-control" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg">
+              <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
             </div>
           </div>
         </div>
@@ -249,6 +265,84 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Condicoes Pagto -->
+  <div class="modal fade" id="condicoesPagtoModal" tabindex="-1" aria-labelledby="condicoesPagtoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="condicoesPagtoModalLabel">Condições de Pagamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCondicoesPagto"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="condicoesPagto != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputCondicoesPagtoFiltro" v-on:keydown="navegarModalCondicoesPagto" v-on:keyup="filtrarModalCondicoesPagto" v-model="condicoesPagtoFiltro" placeholder="Digite para buscar a condição de pagamento abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 50%;">Abreviação</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in condicoesPagtoFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectCondicaoPagto(row)">
+                  <th :id="'tabCpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm" scope="row">{{ row.codCpg }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.abrCpg }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.desCpg }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando Condições de Pagamento ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Formas Pagto -->
+  <div class="modal fade" id="formasPagtoModal" tabindex="-1" aria-labelledby="formasPagtoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="formasPagtoModalLabel">Formas de Pagamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalFormasPagto"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="formasPagto != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputFormasPagtoFiltro" v-on:keydown="navegarModalFormasPagto" v-on:keyup="filtrarModalFormasPagto" v-model="formasPagtoFiltro" placeholder="Digite para buscar a forma de pagamento abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 50%;">Abreviação</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in formasPagtoFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectFormaPagto(row)">
+                  <th :id="'tabFpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm" scope="row">{{ row.codFpg }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.abrFpg }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.desFpg }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando Formas de Pagamento ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -295,6 +389,22 @@ export default {
       tabelasPrecoFiltro: '',
       tabelasPrecoFiltrados: [],
       tableIndexTpr: 0,
+      
+      //condicoes de pagamento
+      ideCpg: '',
+      codCpg: '',
+      condicoesPagto: [],
+      condicoesPagtoFiltro: '',
+      condicoesPagtoFiltrados: [],
+      tableIndexCpg: 0,
+      
+      //formas de pagamento
+      ideFpg: '',
+      codFpg: '',
+      formasPagto: [],
+      formasPagtoFiltro: '',
+      formasPagtoFiltrados: [],
+      tableIndexFpg: 0,
     }
   },
   mounted () {
@@ -304,6 +414,8 @@ export default {
 
     this.initRepresentantes()    
     this.initClientes()    
+    this.initCondicoesPagto()    
+    this.initFormasPagto()    
     this.initProdutos()   
     
     this.addEvents()
@@ -337,6 +449,16 @@ export default {
       inputIdeTpr.addEventListener('focus', (event) => {
         this.beginTabelasPreco()
       });
+
+      const inputIdeCpg = document.getElementById('inputIdeCpg')
+      inputIdeCpg.addEventListener('focus', (event) => {
+        this.beginCondicaoPagto()
+      });
+
+      const inputIdeFpg = document.getElementById('inputIdeFpg')
+      inputIdeFpg.addEventListener('focus', (event) => {
+        this.beginFormaPagto()
+      });
     },
 
     handleOption(event) {
@@ -345,6 +467,8 @@ export default {
         else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
         else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
         else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
+        else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
+        else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
         else if (event.key.toUpperCase() === 'E') this.editarCarrinho()
       } else {
         if (event.key === 'Escape') this.clearFocus()
@@ -825,6 +949,196 @@ export default {
       const tpr = this.tabelasPrecoFiltrados.find(tprFil => tprFil.tabIndex === this.tableIndexTpr)
       this.selectTabelaPreco(tpr)
     },
+
+    /* Condições de Pagamento */
+    async initCondicoesPagto() {
+      if (!sessionStorage.getItem('condicoesPagto')) {
+        await api.getCondicoesPagto()
+        .then((response) => {
+          this.condicoesPagto = response.data
+          this.condicoesPagtoFiltrados = this.condicoesPagto
+          sessionStorage.setItem('condicoesPagto', JSON.stringify(this.clientes))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.condicoesPagto = JSON.parse(sessionStorage.getItem('condicoesPagto'))
+        this.condicoesPagtoFiltrados = this.condicoesPagto
+      }
+    },
+
+    beginCondicaoPagto() {
+      this.ideCpg = ''
+      this.condicoesPagtoFiltro = ''
+    },
+
+    async searchCondicoesPagto() {
+      await this.buscaCondicoesPagto()
+      this.filtrarCondicoesPagto(this.ideCpg)
+      if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
+        this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openCondicoesPagtoModal()
+      }
+    },
+
+    async buscaCondicoesPagto() {
+      if(!this.condicoesPagto.length)
+        await this.initCondicoesPagto()
+    },
+
+    selectCondicaoPagto(row) {
+      this.ideCpg = row.desCpg
+      this.codCpg = row.codCpg
+      document.getElementById('closeModalCondicoesPagto').click()
+      this.clearFocus()
+    },
+
+    filtrarCondicoesPagto(filter) {
+      this.condicoesPagtoFiltrados = this.condicoesPagto.filter(cpg => (cpg.codCpg === filter ||
+                cpg.desCpg.toUpperCase().includes(filter.toUpperCase()) ||
+                cpg.abrCpg.toUpperCase().includes(filter.toUpperCase())))
+      this.tableIndexCpg = 0
+
+      this.populateTabIndex(this.condicoesPagtoFiltrados)
+    },
+
+    openCondicoesPagtoModal() {
+      this.condicoesPagtoFiltro = this.ideCpg
+      document.getElementById('btnBuscaCondicoesPagto').click()
+      const modalElement = document.getElementById('condicoesPagtoModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputCondicoesPagtoFiltro').focus()
+      })
+    },
+
+    navegarModalCondicoesPagto(key) {
+      if (key.keyCode === 38) this.focusTableCpg(-1)
+      else if (key.keyCode === 40) this.focusTableCpg(1)
+      else if (key.keyCode === 13) this.cpgListHit()
+    },
+
+    filtrarModalCondicoesPagto(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarCondicoesPagto(this.condicoesPagtoFiltro)
+    },
+
+    focusTableCpg(value) {
+      this.tableIndexCpg += value
+      if (this.tableIndexCpg < 0) 
+        this.tableIndexCpg = 0
+      else if (this.tableIndexCpg >= this.condicoesPagtoFiltrados.length)
+        this.tableIndexCpg = (this.condicoesPagtoFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexCpg > 0)
+        elementToScroll = document.getElementById('tabCpg' + this.tableIndexCpg)
+      else 
+        elementToScroll = document.getElementById('inputCondicoesPagtoFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    cpgListHit() {
+      const cpg = this.condicoesPagtoFiltrados.find(cpgFil => cpgFil.tabIndex === this.tableIndexCpg)
+      this.selectCondicaoPagto(cpg)
+    },
+
+    /* Formas de Pagamento */
+    async initFormasPagto() {
+      if (!sessionStorage.getItem('formasPagto')) {
+        await api.getFormasPagto()
+        .then((response) => {
+          this.formasPagto = response.data
+          this.formasPagtoFiltrados = this.formasPagto
+          sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
+        this.formasPagtoFiltrados = this.formasPagto
+      }
+    },
+
+    beginFormaPagto() {
+      this.ideFpg = ''
+      this.formasPagtoFiltro = ''
+    },
+
+    async searchFormasPagto() {
+      await this.buscaFormasPagto()
+      this.filtrarFormasPagto(this.ideFpg)
+      if (this.formasPagtoFiltrados.length === 1) { // encontramos, selecionar
+        this.selectFormaPagto(this.formasPagtoFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openFormasPagtoModal()
+      }
+    },
+
+    async buscaFormasPagto() {
+      if(!this.formasPagto.length)
+        await this.initFormasPagto()
+    },
+
+    selectFormaPagto(row) {
+      this.ideFpg = row.desFpg
+      this.codFpg = row.codFpg
+      document.getElementById('closeModalFormasPagto').click()
+      this.clearFocus()
+    },
+
+    filtrarFormasPagto(filter) {
+      this.formasPagtoFiltrados = this.formasPagto.filter(fpg => (fpg.codFpg === filter ||
+                fpg.desFpg.toUpperCase().includes(filter.toUpperCase()) ||
+                fpg.abrFpg.toUpperCase().includes(filter.toUpperCase())))
+      this.tableIndexFpg = 0
+
+      this.populateTabIndex(this.formasPagtoFiltrados)
+    },
+
+    openFormasPagtoModal() {
+      this.formasPagtoFiltro = this.ideFpg
+      document.getElementById('btnBuscaFormasPagto').click()
+      const modalElement = document.getElementById('formasPagtoModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputFormasPagtoFiltro').focus()
+      })
+    },
+
+    navegarModalFormasPagto(key) {
+      if (key.keyCode === 38) this.focusTableFpg(-1)
+      else if (key.keyCode === 40) this.focusTableFpg(1)
+      else if (key.keyCode === 13) this.fpgListHit()
+    },
+
+    filtrarModalFormasPagto(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarFormasPagto(this.formasPagtoFiltro)
+    },
+
+    focusTableFpg(value) {
+      this.tableIndexFpg += value
+      if (this.tableIndexFpg < 0) 
+        this.tableIndexFpg = 0
+      else if (this.tableIndexFpg >= this.formasPagtoFiltrados.length)
+        this.tableIndexFpg = (this.formasPagtoFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexFpg > 0)
+        elementToScroll = document.getElementById('tabFpg' + this.tableIndexFpg)
+      else 
+        elementToScroll = document.getElementById('inputFormasPagtoFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    fpgListHit() {
+      const fpg = this.formasPagtoFiltrados.find(fpgFil => fpgFil.tabIndex === this.tableIndexFpg)
+      this.selectFormaPagto(fpg)
+    }
   }
 }
 </script>

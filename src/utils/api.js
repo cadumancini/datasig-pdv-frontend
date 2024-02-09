@@ -18,6 +18,12 @@ var functions = {
   },
   getTabelasPreco(codRep) {
     return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)
+  },
+  getCondicoesPagto() {
+    return axios.get(urlBase + '/pagamentos/condicoes?token=' + sessionStorage.getItem('token'))
+  },
+  getFormasPagto(codRep) {
+    return axios.get(urlBase + '/pagamentos/formas?token=' + sessionStorage.getItem('token'))
   }
 }
 
