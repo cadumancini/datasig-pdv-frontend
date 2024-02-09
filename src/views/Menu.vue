@@ -39,6 +39,7 @@ export default {
     this.populateClientes()
     this.populateCondicoesPagto()
     this.populateFormasPagto()
+    this.populateProdutos()
   },
   methods: {
     access (form) {
@@ -79,6 +80,16 @@ export default {
       api.getFormasPagto()
       .then((response) => {
         sessionStorage.setItem('formasPagto', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+    
+    populateProdutos () {
+      api.getProdutos()
+      .then((response) => {
+        sessionStorage.setItem('produtos', JSON.stringify(response.data))
       })
       .catch((err) => {
         console.log(err)
