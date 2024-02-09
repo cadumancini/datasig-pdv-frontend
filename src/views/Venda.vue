@@ -3,10 +3,10 @@
     <Navbar title="Venda"/>
     <div class="venda mx-4">
       <div class="row">
-        <div class="col-2">
+        <div class="col-3">
           <span class="fw-bold fs-1">Relizar Venda</span>
         </div>
-        <div class="col-2">
+        <div class="col-3">
           <div class="border options">
             <div class="row"><span>Opções</span></div>
             <div class="row"><span>R -> Representante</span></div>
