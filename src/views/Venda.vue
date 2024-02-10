@@ -432,31 +432,37 @@ export default {
 
       const inputIdeRep = document.getElementById('inputIdeRep')
       inputIdeRep.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
         this.beginRepresentante()
       });
 
       const inputIdeCli = document.getElementById('inputIdeCli')
       inputIdeCli.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
         this.beginCliente()
       });
 
       const inputProdutos = document.getElementById('inputProduto')
       inputProdutos.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
         this.beginProduto()
       });
 
       const inputIdeTpr = document.getElementById('inputIdeTpr')
       inputIdeTpr.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
         this.beginTabelasPreco()
       });
 
       const inputIdeCpg = document.getElementById('inputIdeCpg')
       inputIdeCpg.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
         this.beginCondicaoPagto()
       });
 
       const inputIdeFpg = document.getElementById('inputIdeFpg')
       inputIdeFpg.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
         this.beginFormaPagto()
       });
     },
@@ -845,6 +851,9 @@ export default {
     editarCarrinho() {
       this.editandoCarrinho = true
       this.populateTabIndex(this.itensCarrinho)
+      this.tableIndexCar = 0
+      elementToScroll = document.getElementById('tabCar0')
+      this.scrollToElement(elementToScroll)
     },
 
     editarItem(item) {
