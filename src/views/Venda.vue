@@ -16,6 +16,7 @@
             <div class="row"><span>F -> Forma de Pagamento</span></div>
             <div class="row"><span>P -> Produto</span></div>
             <div class="row"><span>E -> Editar Item</span></div>
+            <div class="row"><span>V -> Finalizar Venda</span></div>
           </div>
         </div>
       </div>
@@ -86,6 +87,14 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div class="row my-4">
+            <div class="col">
+              <div class="float-end">
+                <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true)">Finalizar</button>
+                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -213,7 +222,7 @@
 
   <!-- Modal Tabelas Preco -->
   <div class="modal fade" id="tabelasPrecoModal" tabindex="-1" aria-labelledby="tabelasPrecoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="tabelasPrecoModalLabel">Tabelas de Preço</h5>
@@ -343,6 +352,26 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Gerar Pedido -->
+  <div class="modal fade" id="confirmaVendaModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirma venda</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"  @click="triggerFinalizandoVenda(false)"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja finalizar a venda?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
+          <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -405,6 +434,9 @@ export default {
       formasPagtoFiltro: '',
       formasPagtoFiltrados: [],
       tableIndexFpg: 0,
+
+      //venda
+      finalizandoVenda: false
     }
   },
   mounted () {
@@ -465,6 +497,11 @@ export default {
         this.editandoCarrinho = false
         this.beginFormaPagto()
       });
+
+      const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
+      modalFinalizarVenda.addEventListener('focusout', (event) => {
+        this.triggerFinalizandoVenda(false)
+      });
     },
 
     handleOption(event) {
@@ -475,9 +512,14 @@ export default {
         else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
         else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
         else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
+        else if (event.key.toUpperCase() === 'V') document.getElementById('btnFinalizarVenda').click()
         else if (event.key.toUpperCase() === 'E') this.editarCarrinho()
       } else {
         if (event.key === 'Escape') this.clearFocus()
+      }
+
+      if (this.finalizandoVenda) {
+        if (event.key === 'Enter') this.finalizarVenda()
       }
     },
 
@@ -1147,6 +1189,71 @@ export default {
     fpgListHit() {
       const fpg = this.formasPagtoFiltrados.find(fpgFil => fpgFil.tabIndex === this.tableIndexFpg)
       this.selectFormaPagto(fpg)
+    },
+
+    /* Finalizar Venda */
+    triggerFinalizandoVenda(value) {
+      this.finalizandoVenda = value
+
+      if (this.finalizandoVenda) {
+        if (this.allFieldsArePopulated()) this.openFinalizarVendaModal()
+        else this.finalizandoVenda = false
+      }
+    },
+
+    openFinalizarVendaModal() {
+      document.getElementById('btnOpenFinalizarVendaModal').click()
+    },
+
+    finalizarVenda() {
+      // TODO: CONTINUAR AQUI!
+    },
+
+    allFieldsArePopulated() {
+      if (this.isRepresentanteEmpty()) {
+        alert('Favor informar um representante!')
+        return false
+      } else if (this.isTabelaPrecoEmpty()) {
+        alert('Favor informar uma tabela de preço!')
+        return false
+      } else if (this.isClienteEmpty()) {
+        alert('Favor informar um cliente!')
+        return false
+      } else if (this.isCondicaoPagtoEmpty()) {
+        alert('Favor informar uma condição de pagamento!')
+        return false
+      } else if (this.isFormaPagtoEmpty()) {
+        alert('Favor informar uma forma de pagamento!')
+        return false
+      } else if (this.isCarrinhoEmpty()) {
+        alert('Favor adicionar ao menos um item ao carrinho!')
+        return false
+      }
+      return true
+    },
+
+    isRepresentanteEmpty() {
+      return this.codRep === ''
+    },
+
+    isTabelaPrecoEmpty() {
+      return this.codTpr === ''
+    },
+
+    isClienteEmpty() {
+      return this.codCli === ''
+    },
+
+    isCondicaoPagtoEmpty() {
+      return this.codCpg === ''
+    },
+
+    isFormaPagtoEmpty() {
+      return this.codFpg === ''
+    },
+
+    isCarrinhoEmpty() {
+      return (!this.itensCarrinho || !this.itensCarrinho.length)
     }
   }
 }
@@ -1207,6 +1314,10 @@ export default {
     font-size: 0.75rem !important;
     display: flex;
     align-items: center;
+  }
+  .btn-dismiss {
+    color: #fff;
+    background-color: #aab4bd;
   }
 
 </style>
