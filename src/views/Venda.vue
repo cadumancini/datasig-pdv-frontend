@@ -519,7 +519,10 @@ export default {
       }
 
       if (this.finalizandoVenda) {
-        if (event.key === 'Enter') await this.finalizarVenda()
+        if (event.key === 'Enter') {
+          document.getElementById('closeModalConfirmaVenda').click()
+          await this.finalizarVenda()
+        }
       }
     },
 
@@ -1223,13 +1226,17 @@ export default {
         codRep: this.codRep,
         itens: itens
       }
-      console.log(pedido)
       await api.putPedido(pedido)
-        .then((resposne) => {
-          console.log(response)
+        .then((response) => {
+          const respostaPedido = response.data
+          if (respostaPedido.numPed > 0) alert('Pedido ' + respostaPedido.numPed + ' criado com sucesso!')
+          else alert(respostaPedido.retorno)
         })
         .catch((err) => {
           console.log(err)
+        })
+        .finally(() => {
+          this.limparTela()
         })
     },
     
@@ -1279,6 +1286,24 @@ export default {
 
     isCarrinhoEmpty() {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
+    },
+
+    limparTela() {
+      this.ideRep = ''
+      this.codRep = ''
+      this.representantesFiltro = ''
+      this.ideCli = ''
+      this.clientesFiltro = ''
+      this.codBar = ''
+      this.produtosFiltro = ''
+      this.itensCarrinho = []
+      this.codTpr = ''
+      this.tabelasPrecoFiltro = ''
+      this.ideCpg = ''
+      this.condicoesPagtoFiltro = ''
+      this.ideFpg = ''
+      this.formasPagtoFiltro = ''
+      this.clearFocus()
     }
   }
 }
