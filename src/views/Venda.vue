@@ -504,7 +504,7 @@ export default {
       });
     },
 
-    handleOption(event) {
+    async handleOption(event) {
       if(this.noInputIsFocused() && !this.editandoCarrinho) {
         if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
         else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
@@ -519,7 +519,7 @@ export default {
       }
 
       if (this.finalizandoVenda) {
-        if (event.key === 'Enter') this.finalizarVenda()
+        if (event.key === 'Enter') await this.finalizarVenda()
       }
     },
 
@@ -1205,9 +1205,34 @@ export default {
       document.getElementById('btnOpenFinalizarVendaModal').click()
     },
 
-    finalizarVenda() {
-      // TODO: CONTINUAR AQUI!
+    async finalizarVenda() {
+      const itens = []
+      this.itensCarrinho.forEach(item => {
+        const itemPedido = {
+          codPro: item.codPro,
+          codDer: item.codDer,
+          codTpr: this.codTpr,
+          qtdPed: item.qtdPed,
+        }
+        itens.push(itemPedido)
+      })
+      const pedido = {
+        codCli: this.codCli,
+        codCpg: this.codCpg,
+        codFpg: this.codFpg,
+        codRep: this.codRep,
+        itens: itens
+      }
+      console.log(pedido)
+      await api.putPedido(pedido)
+        .then((resposne) => {
+          console.log(response)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     },
+    
 
     allFieldsArePopulated() {
       if (this.isRepresentanteEmpty()) {

@@ -24,6 +24,11 @@ var functions = {
   },
   getFormasPagto(codRep) {
     return axios.get(urlBase + '/pagamentos/formas?token=' + sessionStorage.getItem('token'))
+  },
+  putPedido(pedido) {
+    const body = JSON.stringify(pedido)
+    const headers = { headers: { 'Content-Type': 'application/json' } }
+    return axios.put(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
   }
 }
 
