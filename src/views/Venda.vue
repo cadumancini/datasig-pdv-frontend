@@ -16,6 +16,7 @@
             <div class="row"><span>F -> Forma de Pagamento</span></div>
             <div class="row"><span>P -> Produto</span></div>
             <div class="row"><span>E -> Editar Item</span></div>
+            <div class="row"><span>Q -> Alterar Quantidade</span></div>
             <div class="row"><span>V -> Finalizar Venda</span></div>
           </div>
         </div>
@@ -81,7 +82,7 @@
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
                   <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.desPro }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm change-price"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm change-price"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
@@ -516,7 +517,6 @@ export default {
     },
 
     async handleOption(event) {
-      console.log(event)
       if(this.noInputIsFocused() && !this.editandoCarrinho) {
         if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
         else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
@@ -531,6 +531,10 @@ export default {
         }
       } else {
         if (event.key === 'Escape') this.clearFocus()
+      }
+
+      if (this.editandoCarrinho) {
+        if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
       }
 
       if (this.finalizandoVenda) {
