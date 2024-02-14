@@ -20,6 +20,11 @@
             <div class="row"><span>V -> Finalizar Venda</span></div>
           </div>
         </div>
+        <div class="col">
+              <div class="float-end">
+                <button class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
+              </div>
+            </div>
       </div>
       <div class="row">
         <div class="col-4">
@@ -273,7 +278,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-secondary btn-sm" @click="alterarQuantidadeItem" data-bs-dismiss="modal">Confirmar</button>
+          <button type="button" class="btn btn-dismiss btn-sm" data-bs-dismiss="modal">(ESC) Cancelar</button>
         </div>
       </div>
     </div>
@@ -457,14 +463,28 @@ export default {
       this.$router.push({ name: 'Login' })
     }
 
-    this.initRepresentantes()    
-    this.initClientes()    
-    this.initCondicoesPagto()    
-    this.initFormasPagto()    
-    this.initProdutos()   
+    this.initEverything()
     this.addEvents()
   },
   methods: {
+    initEverything() {
+      this.initRepresentantes()    
+      this.initClientes()    
+      this.initCondicoesPagto()    
+      this.initFormasPagto()    
+      this.initProdutos()  
+    },
+    restartRecords() {
+      this.clearStorage()
+      this.initEverything()
+    },
+    clearStorage() {
+      sessionStorage.removeItem('representantes')
+      sessionStorage.removeItem('clientes')
+      sessionStorage.removeItem('condicoesPagto')
+      sessionStorage.removeItem('formasPagto')
+      sessionStorage.removeItem('produtos')
+    },
     addEvents() {
       let self = this
       window.addEventListener('keyup', function(ev) {
