@@ -82,8 +82,8 @@
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
                   <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.desPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm change-price"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.preBas }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.vlrTot }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
               </tbody>
             </table>
@@ -265,7 +265,10 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <input type="number" autocomplete="off" class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue" placeholder="Digite para alterar o valor" v-on:keyup.enter="onAlterarValor">
+            <input type="number" maxLength="4"
+            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};"
+            autocomplete="off" class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue" placeholder="Digite para alterar o valor"
+            v-on:keyup.enter="alterarQuantidadeItem">
           </div>
         </div>
         <div class="modal-footer">
@@ -436,7 +439,16 @@ export default {
       tableIndexFpg: 0,
 
       //venda
-      finalizandoVenda: false
+      finalizandoVenda: false,
+
+      //geral
+      options: {
+        reverse: true
+      },
+      optionsQtde: {
+        style: 'number',
+        minimumFractionDigits: 3
+      }
     }
   },
   mounted () {
@@ -449,7 +461,6 @@ export default {
     this.initCondicoesPagto()    
     this.initFormasPagto()    
     this.initProdutos()   
-    
     this.addEvents()
   },
   methods: {
@@ -505,6 +516,7 @@ export default {
     },
 
     async handleOption(event) {
+      console.log(event)
       if(this.noInputIsFocused() && !this.editandoCarrinho) {
         if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
         else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
@@ -513,7 +525,10 @@ export default {
         else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
         else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
         else if (event.key.toUpperCase() === 'V') document.getElementById('btnFinalizarVenda').click()
-        else if (event.key.toUpperCase() === 'E') this.editarCarrinho()
+        else if (event.key.toUpperCase() === 'E') {
+          if (this.itensCarrinho.length > 0) this.editarCarrinho()
+          else alert('Carrinho vazio!')
+        }
       } else {
         if (event.key === 'Escape') this.clearFocus()
       }
@@ -757,18 +772,23 @@ export default {
 
     /* Produtos */
     async initProdutos() {
-      this.loadingProdutos = true
-      await api.getProdutos()
-      .then((response) => {
-        this.produtos = response.data
+      if (!sessionStorage.getItem('produtos')) {
+        this.loadingProdutos = true
+        await api.getProdutos()
+        .then((response) => {
+          this.produtos = response.data
+          this.produtosFiltrados = this.produtos
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          this.loadingProdutos = false
+        }) 
+      } else {
+        this.produtos = JSON.parse(sessionStorage.getItem('produtos'))
         this.produtosFiltrados = this.produtos
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        this.loadingProdutos = false
-      }) 
+      }
     },
     
     beginProduto() {
@@ -812,6 +832,7 @@ export default {
       document.getElementById('closeModalProdutos').click()
       this.codBar = ''
       document.getElementById('inputProduto').focus()
+      this.populateTabIndex(this.itensCarrinho)
     },
 
     async buscarPreco(produto) {
@@ -895,9 +916,9 @@ export default {
 
     editarCarrinho() {
       this.editandoCarrinho = true
-      this.populateTabIndex(this.itensCarrinho)
       this.tableIndexCar = 0
-      elementToScroll = document.getElementById('tabCar0')
+      const elementToScroll = document.getElementById('tabCar0')
+      console.log(elementToScroll)
       this.scrollToElement(elementToScroll)
     },
 
@@ -907,15 +928,20 @@ export default {
       const modalElement = document.getElementById('editarItemModal')
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputEditarCarrinho').focus()
+        document.getElementById('inputEditarCarrinho').select()
       })
     },  
 
-    async onAlterarValor() {
-      this.itemEditando.qtdPed = this.newValue
-      await this.buscarPreco(this.itemEditando)
-      this.itemEditando = null
-      document.getElementById('closeModalEditarItem').click()
-      this.clearFocus()
+    async alterarQuantidadeItem() {
+      if (this.newValue > 9999) this.newValue = 9999
+      if (this.newValue === 0) alert('A quantidade não pode ser zero!')
+      else {
+        this.itemEditando.qtdPed = this.newValue
+        await this.buscarPreco(this.itemEditando)
+        this.itemEditando = null
+        document.getElementById('closeModalEditarItem').click()
+        this.clearFocus()
+      }
     },
 
     /* Tabelas Preco */
