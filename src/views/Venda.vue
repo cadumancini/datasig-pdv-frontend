@@ -848,9 +848,9 @@ export default {
           itemDoCarrinho.qtdPed += 1
       }
       else {
+        newItem.qtdPed = 1
         await this.buscarPreco(newItem)
         if (newItem.preBas > 0) {
-          newItem.qtdPed = 1
           this.itensCarrinho.push(newItem)
         }
       }
