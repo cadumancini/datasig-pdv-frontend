@@ -843,13 +843,16 @@ export default {
       const newItem = row
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
-        itemDoCarrinho.qtdPed += 1
         await this.buscarPreco(itemDoCarrinho)
+        if (itemDoCarrinho.preBas > 0)
+          itemDoCarrinho.qtdPed += 1
       }
       else {
-        newItem.qtdPed = 1
         await this.buscarPreco(newItem)
-        this.itensCarrinho.push(newItem)
+        if (newItem.preBas > 0) {
+          newItem.qtdPed = 1
+          this.itensCarrinho.push(newItem)
+        }
       }
 
       document.getElementById('closeModalProdutos').click()
@@ -867,6 +870,11 @@ export default {
           produto.vlrTot = vlrTot
         })
         .catch((err) => {
+          if(err.response.status === 404) { 
+            produto.preBas = 0
+            produto.vlrTot = 0
+            alert (err.response.data.message)
+          }
           console.log(err)
         })
     },
