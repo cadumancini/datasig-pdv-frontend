@@ -559,7 +559,6 @@ export default {
 
       if (this.finalizandoVenda) {
         if (event.key === 'Enter') {
-          document.getElementById('closeModalConfirmaVenda').click()
           await this.finalizarVenda()
         }
       }
@@ -1279,17 +1278,37 @@ export default {
       await api.putPedido(pedido)
         .then((response) => {
           const respostaPedido = response.data
-          if (respostaPedido.numPed > 0) alert('Pedido ' + respostaPedido.numPed + ' criado com sucesso!')
-          else alert(respostaPedido.retorno)
+          this.validateRetornoPedido(respostaPedido)
         })
         .catch((err) => {
           console.log(err)
         })
         .finally(() => {
+          document.getElementById('closeModalConfirmaVenda').click()
           this.limparTela()
         })
     },
-    
+
+    validateRetornoPedido(respostaPedido) {
+      let msg = ''
+      let temErro = false
+      if (respostaPedido.msgRet.startsWith('ERRO')) {
+        temErro = true
+        msg += respostaPedido.msgRet + '\n'
+      } 
+      respostaPedido.itens.forEach(item => {
+        if (item.retorno !== 'OK') {
+          temErro = true
+          msg += item.retorno + '\n'
+        }
+      })
+      if (!temErro) {
+        if(respostaPedido.numPed > 0) alert('Pedido ' + respostaPedido.numPed + ' criado com sucesso!')
+        else alert('Ocorreu um problema durante a criação do pedido. Contate o administrador do sistema')
+      } else {
+        alert(msg)
+      }
+    },    
 
     allFieldsArePopulated() {
       if (this.isRepresentanteEmpty()) {
