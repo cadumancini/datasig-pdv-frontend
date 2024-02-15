@@ -77,7 +77,7 @@
           <div class="row table-wrapper border">
             <table class="table table-striped table-hover table-sm table-responsive table-items">
               <thead>
-                <tr>
+                <tr id="cart-head">
                   <th class="sm-header" style="width: 70%;"><small>Produto</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Quantidade</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
@@ -937,7 +937,10 @@ export default {
         this.tableIndexCar = (this.itensCarrinho.length - 1)
 
       let elementToScroll
-      elementToScroll = document.getElementById('tabCar' + this.tableIndexCar)
+      if (this.tableIndexCar > 0)
+        elementToScroll = document.getElementById('tabCar' + this.tableIndexCar)
+      else 
+        elementToScroll = document.getElementById('cart-head')
       
       this.scrollToElement(elementToScroll)
     },  
