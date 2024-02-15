@@ -840,7 +840,7 @@ export default {
     },
 
     async selectProduto(row) {
-      const newItem = row
+      const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
         await this.buscarPreco(itemDoCarrinho)
@@ -937,10 +937,7 @@ export default {
         this.tableIndexCar = (this.itensCarrinho.length - 1)
 
       let elementToScroll
-      if (this.tableIndexCar > 0)
-        elementToScroll = document.getElementById('tabCar' + this.tableIndexCar)
-      else 
-        elementToScroll = document.getElementById('inputProduto')
+      elementToScroll = document.getElementById('tabCar' + this.tableIndexCar)
       
       this.scrollToElement(elementToScroll)
     },  
@@ -949,7 +946,6 @@ export default {
       this.editandoCarrinho = true
       this.tableIndexCar = 0
       const elementToScroll = document.getElementById('tabCar0')
-      console.log(elementToScroll)
       this.scrollToElement(elementToScroll)
     },
 
