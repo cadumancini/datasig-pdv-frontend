@@ -1299,7 +1299,7 @@ export default {
     validateRetornoPedido(respostaPedido) {
       let msg = ''
       let temErro = false
-      if (respostaPedido.msgRet.startsWith('ERRO')) {
+      if (respostaPedido.msgRet.startsWith('ERRO') || respostaPedido.numPed === '0') {
         temErro = true
         msg += respostaPedido.msgRet + '\n'
       } 
