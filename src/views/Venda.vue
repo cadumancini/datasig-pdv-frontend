@@ -1283,9 +1283,30 @@ export default {
         itens: itens
       }
       await api.putPedido(pedido)
-        .then((response) => {
+        .then(async (response) => {
           const respostaPedido = response.data
-          this.validateRetornoPedido(respostaPedido)
+          await this.gerarNFCe(respostaPedido.numPed)
+        })
+        .catch((err) => {
+          console.log(err)
+          if(err.response.data) alert (err.response.data.message)
+        })
+        .finally(() => {
+          document.getElementById('closeModalConfirmaVenda').click()
+          this.limparTela()
+        })
+    },   
+
+    async gerarNFCe(numPed) {
+      await api.putNFCe(numPed)
+        .then((response) => {
+          const resposta = response.data
+          if(resposta.startsWith('ERRO')) {
+            const msg = 'Pedido ' + numPed + 
+              ' criado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
+              response.data
+            alert(msg)
+          } else alert('Pedido ' + numPed + ' criado com sucesso!')
         })
         .catch((err) => {
           console.log(err)
@@ -1295,27 +1316,6 @@ export default {
           this.limparTela()
         })
     },
-
-    validateRetornoPedido(respostaPedido) {
-      let msg = ''
-      let temErro = false
-      if (respostaPedido.msgRet.startsWith('ERRO') || respostaPedido.numPed === '0') {
-        temErro = true
-        msg += respostaPedido.msgRet + '\n'
-      } 
-      respostaPedido.itens.forEach(item => {
-        if (item.retorno !== 'OK') {
-          temErro = true
-          msg += item.retorno + '\n'
-        }
-      })
-      if (!temErro) {
-        if(respostaPedido.numPed > 0) alert('Pedido ' + respostaPedido.numPed + ' criado com sucesso!')
-        else alert('Ocorreu um problema durante a criação do pedido. Contate o administrador do sistema')
-      } else {
-        alert(msg)
-      }
-    },    
 
     allFieldsArePopulated() {
       if (this.isRepresentanteEmpty()) {

@@ -29,6 +29,9 @@ var functions = {
     const body = JSON.stringify(pedido)
     const headers = { headers: { 'Content-Type': 'application/json' } }
     return axios.put(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
+  },
+  putNFCe(numPed) {
+    return axios.put(urlBase + '/pedidos/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   }
 }
 
