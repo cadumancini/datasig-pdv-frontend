@@ -17,11 +17,20 @@ export default {
   name: 'Navbar',
   methods: {
     logout () {
-      sessionStorage.removeItem('token')
+      sessionStorage.setItem('form', 'login')
+      this.removeAll()
       this.$router.push({ name: 'Login' })
     },
     return () {
       this.$router.go(-1)
+    },
+    removeAll() {
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('representantes')
+      sessionStorage.removeItem('clientes')
+      sessionStorage.removeItem('produtos')
+      sessionStorage.removeItem('condicoesPagto')
+      sessionStorage.removeItem('formasPagto')
     }
   },
   props: {

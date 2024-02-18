@@ -26,8 +26,10 @@ export default {
   },
   mounted () {
     if (sessionStorage.getItem('token')) {
+      sessionStorage.setItem('form', 'menu')
       this.$router.push({ name: 'Menu' })
     } else {
+      sessionStorage.setItem('form', 'login')
       this.$refs.inputUser.focus()
     }
   },
@@ -43,6 +45,7 @@ export default {
               this.$refs.inputUser.focus()
             } else {
               sessionStorage.setItem('token', response.data)
+              sessionStorage.setItem('form', 'menu')
               this.$router.push({ name: 'Menu' })
             }
           } else {

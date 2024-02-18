@@ -35,11 +35,13 @@ export default {
     }    
   },
   mounted () {
-    this.populateRepresentantes()
-    this.populateClientes()
-    this.populateCondicoesPagto()
-    this.populateFormasPagto()
-    this.populateProdutos()
+    if(sessionStorage.getItem('form') === 'menu') {
+      this.populateRepresentantes()
+      this.populateClientes()
+      this.populateCondicoesPagto()
+      this.populateFormasPagto()
+      this.populateProdutos()
+    }
   },
   methods: {
     access (form) {
