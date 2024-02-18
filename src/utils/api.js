@@ -3,6 +3,12 @@ let axios = require('axios')
 const urlBase = process.env.VUE_APP_API_URL
 
 var functions = {
+  login(user, pswd) {
+    const formData = new FormData()
+    formData.append('user', user)
+    formData.append('pswd', pswd)
+    return axios.post(urlBase + '/users/login', formData)
+  },
   getRepresentantes() {
     return axios.get(urlBase + '/representantes?token=' + sessionStorage.getItem('token'))
   },

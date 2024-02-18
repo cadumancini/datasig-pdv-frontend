@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import api from '../utils/api'
 export default {
   name: 'Login',
   data () {
@@ -27,24 +27,26 @@ export default {
   mounted () {
     if (sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Menu' })
+    } else {
+      this.$refs.inputUser.focus()
     }
-    this.$refs.inputUser.focus()
   },
   methods: {
     handleSubmit () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnLogin').disabled = true
-      const formData = new FormData()
-      formData.append('user', this.user)
-      formData.append('pswd', this.password)
-      axios.post(this.api_url + '/users/login', formData)
+      api.login(this.user, this.password)
         .then((response) => {
-          if (response.data === 'Credenciais inválidas') {
-            alert(response.data)
-            this.$refs.inputUser.focus()
+          if (response.data) {
+            if (response.data === 'Credenciais inválidas') {
+              alert(response.data)
+              this.$refs.inputUser.focus()
+            } else {
+              sessionStorage.setItem('token', response.data)
+              this.$router.push({ name: 'Menu' })
+            }
           } else {
-            sessionStorage.setItem('token', response.data)
-            this.$router.push({ name: 'Menu' })
+            alert('Ocorreu um erro ao tentar fazer login. Contate o administrador do sistema.')
           }
         })
         .catch((err) => {
