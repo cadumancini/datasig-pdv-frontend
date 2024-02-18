@@ -25,10 +25,6 @@ import api from '../utils/api'
 export default {
   name: 'Menu',
   components: { Navbar },
-  data () {
-    return {
-    }
-  },
   created () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
@@ -56,6 +52,9 @@ export default {
       .catch((err) => {
         console.log(err)
       })
+      .finally(() => {
+        sessionStorage.removeItem('buscandoRepresentantes')
+      })
     },
 
     populateClientes () {
@@ -65,6 +64,9 @@ export default {
       })
       .catch((err) => {
         console.log(err)
+      })
+      .finally(() => {
+        sessionStorage.removeItem('buscandoClientes')
       })
     },
 
@@ -76,6 +78,9 @@ export default {
       .catch((err) => {
         console.log(err)
       })
+      .finally(() => {
+        sessionStorage.removeItem('buscandoCondicoesPagto')
+      })
     },
 
     populateFormasPagto () {
@@ -86,6 +91,9 @@ export default {
       .catch((err) => {
         console.log(err)
       })
+      .finally(() => {
+        sessionStorage.removeItem('buscandoFormasPagto')
+      })
     },
     
     populateProdutos () {
@@ -95,6 +103,9 @@ export default {
       })
       .catch((err) => {
         console.log(err)
+      })
+      .finally(() => {
+        sessionStorage.removeItem('buscandoProdutos')        
       })
     },
   }
