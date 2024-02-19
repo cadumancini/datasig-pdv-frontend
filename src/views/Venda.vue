@@ -6,7 +6,7 @@
         <div class="col-3">
           <span class="fw-bold fs-1">Relizar Venda</span>
         </div>
-        <div class="col-3">
+        <!-- <div class="col-3">
           <div class="border options">
             <div class="row"><span>Opções</span></div>
             <div class="row"><span>R -> Representante</span></div>
@@ -19,7 +19,7 @@
             <div class="row"><span>Q -> Alterar Quantidade</span></div>
             <div class="row"><span>V -> Finalizar Venda</span></div>
           </div>
-        </div>
+        </div> -->
         <div class="col">
               <div class="float-end">
                 <button class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
@@ -1006,6 +1006,9 @@ export default {
       })
       .catch((err) => {
         console.log(err)
+        if(err.response) {
+          if (err.response.status === 404) alert (err.response.data.message)
+        }
       })
       .finally(() => {
         document.getElementsByTagName('body')[0].style.cursor = 'auto'
@@ -1024,11 +1027,15 @@ export default {
 
     async searchTabelasPreco() {
       await this.initTabelasPreco()
-      this.filtrarTabelasPreco(this.codTpr)
-      if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
-        this.selectTabelaPreco(this.tabelasPrecoFiltrados[0])
-      } else { // nao encontramos, abrir modal
-        this.openTabelasPrecoModal()
+      if (this.tabelasPreco.length > 0) {
+        this.filtrarTabelasPreco(this.codTpr)
+        if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
+          this.selectTabelaPreco(this.tabelasPrecoFiltrados[0])
+        } else { // nao encontramos, abrir modal
+          this.openTabelasPrecoModal()
+        }
+      } else {
+        this.beginTabelasPreco()
       }
     },
 
