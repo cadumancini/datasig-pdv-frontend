@@ -32,7 +32,8 @@
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
-              <input autocomplete="off" id="inputIdeRep" class="form-control" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep">
+              <input autocomplete="off" id="inputIdeRep" class="form-control" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
+                :disabled="!this.representantes.length" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
               <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
@@ -46,31 +47,35 @@
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
-              <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli">
+              <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
+                :disabled="!this.clientes.length" :placeholder="!this.clientes.length ? 'Buscando clientes ...' : ''" :class="{searching: !this.clientes.length}">
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Condição de Pagamento</span>
-              <input autocomplete="off" id="inputIdeCpg" class="form-control" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg">
+              <input autocomplete="off" id="inputIdeCpg" class="form-control" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
+                :disabled="!this.condicoesPagto.length" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
               <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Forma de Pagamento</span>
-              <input autocomplete="off" id="inputIdeFpg" class="form-control" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg">
+              <input autocomplete="off" id="inputIdeFpg" class="form-control" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
+                :disabled="!this.formasPagto.length" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
               <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
             </div>
           </div>
         </div>
         <div class="col-8">
-          <span class="fw-bold fs-5">Carrinho</span> <span v-if="loadingProdutos" class="loading-products">Carregando Produtos ...</span>
+          <span class="fw-bold fs-5">Carrinho</span>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
-              <input autocomplete="off" :disabled="loadingProdutos" id="inputProduto" class="form-control" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar">
+              <input autocomplete="off" id="inputProduto" class="form-control" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
+                :disabled="!this.produtos.length" :placeholder="!this.produtos.length ? 'Buscando produtos ...' : ''" :class="{searching: !this.produtos.length}">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
           </div>
@@ -464,7 +469,7 @@ export default {
     }
 
     this.initEverything()
-    this.addEvents()
+    if (sessionStorage.getItem('form', 'Venda')) this.addEvents()
   },
   methods: {
     initEverything() {
@@ -475,15 +480,44 @@ export default {
       this.initProdutos()  
     },
     restartRecords() {
-      this.clearStorage()
+      this.clearEverything()
       this.initEverything()
     },
-    clearStorage() {
+    clearEverything() {
+      this.emptyStorage()
+      this.clearAllLists()
+      this.clearAllInputs()
+    },
+    emptyStorage() {
       sessionStorage.removeItem('representantes')
       sessionStorage.removeItem('clientes')
       sessionStorage.removeItem('condicoesPagto')
       sessionStorage.removeItem('formasPagto')
       sessionStorage.removeItem('produtos')
+    },
+    clearAllLists() {
+      this.representantes = []
+      this.clientes = []
+      this.condicoesPagto = []
+      this.formasPagto = []
+      this.produto = []
+    },
+    clearAllInputs() {
+      this.ideRep = ''
+      this.codRep = ''
+      this.representantesFiltro = ''
+      this.ideCli = ''
+      this.clientesFiltro = ''
+      this.codBar = ''
+      this.produtosFiltro = ''
+      this.itensCarrinho = []
+      this.codTpr = ''
+      this.tabelasPrecoFiltro = ''
+      this.ideCpg = ''
+      this.condicoesPagtoFiltro = ''
+      this.ideFpg = ''
+      this.formasPagtoFiltro = ''
+      this.clearFocus()
     },
     addEvents() {
       let self = this
@@ -619,25 +653,21 @@ export default {
       }
     },
 
-    beginRepresentante() {
+    async beginRepresentante() {
       this.ideRep = ''
       this.codRep = ''
       this.representantesFiltro = ''
+
+      if(!this.representantes.length) await this.initRepresentantes()
     },
 
-    async searchRepresentantes() {
-      await this.buscaRepresentantes()
+    searchRepresentantes() {  
       this.filtrarRepresentantes(this.ideRep)
       if (this.representantesFiltrados.length === 1) { // encontramos, selecionar
         this.selectRepresentante(this.representantesFiltrados[0])
       } else { // nao encontramos, abrir modal
         this.openRepresentantesModal()
       }
-    },
-
-    async buscaRepresentantes() {
-      if(!this.representantes.length)
-        await this.initRepresentantes()
     },
 
     selectRepresentante(row) {
@@ -715,24 +745,20 @@ export default {
       }
     },
 
-    beginCliente() {
+    async beginCliente() {
       this.ideCli = ''
       this.clientesFiltro = ''
+
+      if(!this.clientes.length) await this.initClientes()
     },
 
-    async searchClientes() {
-      await this.buscaClientes()
+    searchClientes() {
       this.filtrarClientes(this.ideCli)
       if (this.clientesFiltrados.length === 1) { // encontramos, selecionar
         this.selectCliente(this.clientesFiltrados[0])
       } else { // nao encontramos, abrir modal
         this.openClientesModal()
       }
-    },
-
-    async buscaClientes() {
-      if(!this.clientes.length)
-        await this.initClientes()
     },
 
     selectCliente(row) {
@@ -814,29 +840,25 @@ export default {
       }
     },
     
-    beginProduto() {
+    async beginProduto() {
       if(this.codTpr === '') {
         alert('Favor informar uma tabela de preço!')
         document.getElementById('inputIdeTpr').focus()
       } else {
         this.codBar = ''
         this.produtosFiltro = ''
+
+        if (!this.produtos.length) await this.initProdutos()
       }
     },
 
     async searchProdutos() {
-      if (!this.loadingProdutos) await this.buscaProdutos()
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
         this.selectProduto(this.produtosFiltrados[0])
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
-    },
-
-    async buscaProdutos() {
-      if(!this.produtos.length)
-        await this.initProdutos()
     },
 
     async selectProduto(row) {
@@ -976,6 +998,7 @@ export default {
 
     /* Tabelas Preco */
     async initTabelasPreco() {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
       await api.getTabelasPreco(this.codRep)
       .then((response) => {
         this.tabelasPreco = response.data
@@ -983,6 +1006,9 @@ export default {
       })
       .catch((err) => {
         console.log(err)
+      })
+      .finally(() => {
+        document.getElementsByTagName('body')[0].style.cursor = 'auto'
       })
     },
 
@@ -1067,7 +1093,7 @@ export default {
         .then((response) => {
           this.condicoesPagto = response.data
           this.condicoesPagtoFiltrados = this.condicoesPagto
-          sessionStorage.setItem('condicoesPagto', JSON.stringify(this.clientes))
+          sessionStorage.setItem('condicoesPagto', JSON.stringify(this.condicoesPagto))
         })
         .catch((err) => {
           console.log(err)
@@ -1078,24 +1104,20 @@ export default {
       }
     },
 
-    beginCondicaoPagto() {
+    async beginCondicaoPagto() {
       this.ideCpg = ''
       this.condicoesPagtoFiltro = ''
+      
+      if(!this.condicoesPagto.length) await this.initCondicoesPagto()
     },
 
     async searchCondicoesPagto() {
-      await this.buscaCondicoesPagto()
       this.filtrarCondicoesPagto(this.ideCpg)
       if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
         this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0])
       } else { // nao encontramos, abrir modal
         this.openCondicoesPagtoModal()
       }
-    },
-
-    async buscaCondicoesPagto() {
-      if(!this.condicoesPagto.length)
-        await this.initCondicoesPagto()
     },
 
     selectCondicaoPagto(row) {
@@ -1173,24 +1195,20 @@ export default {
       }
     },
 
-    beginFormaPagto() {
+    async beginFormaPagto() {
       this.ideFpg = ''
       this.formasPagtoFiltro = ''
+      
+      if(!this.formasPagto.length) await this.initFormasPagto()
     },
 
     async searchFormasPagto() {
-      await this.buscaFormasPagto()
       this.filtrarFormasPagto(this.ideFpg)
       if (this.formasPagtoFiltrados.length === 1) { // encontramos, selecionar
         this.selectFormaPagto(this.formasPagtoFiltrados[0])
       } else { // nao encontramos, abrir modal
         this.openFormasPagtoModal()
       }
-    },
-
-    async buscaFormasPagto() {
-      if(!this.formasPagto.length)
-        await this.initFormasPagto()
     },
 
     selectFormaPagto(row) {
@@ -1293,7 +1311,7 @@ export default {
         })
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
-          this.limparTela()
+          this.clearAllInputs()
         })
     },   
 
@@ -1313,7 +1331,7 @@ export default {
         })
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
-          this.limparTela()
+          this.clearAllInputs()
         })
     },
 
@@ -1362,24 +1380,6 @@ export default {
 
     isCarrinhoEmpty() {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
-    },
-
-    limparTela() {
-      this.ideRep = ''
-      this.codRep = ''
-      this.representantesFiltro = ''
-      this.ideCli = ''
-      this.clientesFiltro = ''
-      this.codBar = ''
-      this.produtosFiltro = ''
-      this.itensCarrinho = []
-      this.codTpr = ''
-      this.tabelasPrecoFiltro = ''
-      this.ideCpg = ''
-      this.condicoesPagtoFiltro = ''
-      this.ideFpg = ''
-      this.formasPagtoFiltro = ''
-      this.clearFocus()
     }
   }
 }
@@ -1431,6 +1431,9 @@ export default {
     margin-left: 12px;
     font-style: italic;
     color: red;
+  }
+  .searching {
+    font-style: italic;
   }
   .change-price {
     height: 1.25rem;

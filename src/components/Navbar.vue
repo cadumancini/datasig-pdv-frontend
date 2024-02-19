@@ -22,6 +22,7 @@ export default {
       this.$router.push({ name: 'Login' })
     },
     return () {
+      sessionStorage.setItem('form', 'menu')
       this.$router.go(-1)
     },
     removeAll() {

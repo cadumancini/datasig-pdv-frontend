@@ -41,6 +41,7 @@ export default {
   },
   methods: {
     access (form) {
+      sessionStorage.setItem('form', form)
       this.$router.push({ name: form })
     },
 
@@ -52,9 +53,6 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-      .finally(() => {
-        sessionStorage.removeItem('buscandoRepresentantes')
-      })
     },
 
     populateClientes () {
@@ -64,9 +62,6 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-      })
-      .finally(() => {
-        sessionStorage.removeItem('buscandoClientes')
       })
     },
 
@@ -78,9 +73,6 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-      .finally(() => {
-        sessionStorage.removeItem('buscandoCondicoesPagto')
-      })
     },
 
     populateFormasPagto () {
@@ -91,9 +83,6 @@ export default {
       .catch((err) => {
         console.log(err)
       })
-      .finally(() => {
-        sessionStorage.removeItem('buscandoFormasPagto')
-      })
     },
     
     populateProdutos () {
@@ -103,9 +92,6 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-      })
-      .finally(() => {
-        sessionStorage.removeItem('buscandoProdutos')        
       })
     },
   }

@@ -10,15 +10,12 @@ var functions = {
     return axios.post(urlBase + '/users/login', formData)
   },
   getRepresentantes() {
-    sessionStorage.setItem('buscandoRepresentantes', true)
     return axios.get(urlBase + '/representantes?token=' + sessionStorage.getItem('token'))
   },
   getClientes() {
-    sessionStorage.setItem('buscandoClientes', true)
     return axios.get(urlBase + '/clientes?token=' + sessionStorage.getItem('token'))
   },
   getProdutos() {
-    sessionStorage.setItem('buscandoProdutos', true)
     return axios.get(urlBase + '/produtos?token=' + sessionStorage.getItem('token'))
   },
   getPreco(codTpr, produto) {
@@ -29,11 +26,9 @@ var functions = {
     return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)
   },
   getCondicoesPagto() {
-    sessionStorage.setItem('buscandoCondicoesPagto', true)
     return axios.get(urlBase + '/pagamentos/condicoes?token=' + sessionStorage.getItem('token'))
   },
   getFormasPagto() {
-    sessionStorage.setItem('buscandoFormasPagto', true)
     return axios.get(urlBase + '/pagamentos/formas?token=' + sessionStorage.getItem('token'))
   },
   putPedido(pedido) {
