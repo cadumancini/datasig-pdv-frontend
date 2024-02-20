@@ -527,7 +527,7 @@ export default {
     }
 
     this.initEverything()
-    if (sessionStorage.getItem('form', 'Venda')) this.addEvents()
+    this.addEvents()
   },
   methods: {
     initEverything() {
@@ -629,42 +629,46 @@ export default {
     },
 
     async handleOption(event) {
-      if(this.noInputIsFocused() && !this.editandoCarrinho) {
-        if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
-        else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
-        else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
-        else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
-        else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
-        else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
-        else if (event.key.toUpperCase() === 'V') document.getElementById('btnFinalizarVenda').click()
-        else if (event.key.toUpperCase() === 'E') {
-          if (this.itensCarrinho.length > 0) { 
-            this.editarCarrinho()
+      if (sessionStorage.getItem('form') === 'Venda') {
+        if(this.noInputIsFocused() && !this.editandoCarrinho) {
+          if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
+          else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
+          else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
+          else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
+          else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
+          else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
+          else if (event.key.toUpperCase() === 'F') document.getElementById('btnFinalizarVenda').click()
+          else if (event.key.toUpperCase() === 'E') {
+            if (this.itensCarrinho.length > 0) { 
+              this.editarCarrinho()
+            }
+            else {
+              alert('Carrinho vazio!')
+            }
           }
-          else {
-            alert('Carrinho vazio!')
-          }
+        } else {
+          if (event.key === 'Escape') this.clearFocus()
         }
-      } else {
-        if (event.key === 'Escape') this.clearFocus()
-      }
 
-      if (this.editandoCarrinho) {
-        if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
-        if (event.key === 'Delete') document.getElementById('btnDelete' + this.tableIndexCar).click()
-      }
+        if (this.editandoCarrinho) {
+          if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
+          if (event.key === 'Delete') document.getElementById('btnDelete' + this.tableIndexCar).click()
+        }
 
-      if (this.finalizandoVenda) {
-        if (event.key === 'Enter') {
-          await this.finalizarVenda()
+        if (this.finalizandoVenda) {
+          if (event.key === 'Enter') {
+            await this.finalizarVenda()
+          }
         }
       }
     },
 
     handleNavigation(event) {
-      if(this.itensCarrinho.length && this.editandoCarrinho) {
-        if (event.keyCode === 38) this.focusTableCar(-1)
-        else if (event.keyCode === 40) this.focusTableCar(1)
+      if (sessionStorage.getItem('form') === 'Venda') {
+        if(this.itensCarrinho.length && this.editandoCarrinho) {
+          if (event.keyCode === 38) this.focusTableCar(-1)
+          else if (event.keyCode === 40) this.focusTableCar(1)
+        }
       }
     },
 

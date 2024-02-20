@@ -3,7 +3,7 @@
     <a class="navbar-brand logo" href="#"><img alt="Logo DataSIG" width="20%" height="20%" src="../assets/logo.png"></a>
     <ul class="navbar-nav ms-auto actions">
       <li class="nav-item mx-2">
-        <a class="nav-link" href="#" v-bind:class="{ disable: this.title === 'Menu'}" @click="return">Voltar</a>
+        <a class="nav-link" href="#" :class="{ disable: this.title === 'Menu'}" @click="goBack">Voltar</a>
       </li>
       <li class="nav-item mx-2">
         <a class="nav-link" href="#" @click="logout">Logout</a>
@@ -21,7 +21,7 @@ export default {
       this.removeAll()
       this.$router.push({ name: 'Login' })
     },
-    return () {
+    goBack () {
       sessionStorage.setItem('form', 'menu')
       this.$router.go(-1)
     },

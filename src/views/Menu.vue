@@ -4,16 +4,16 @@
     <div class="menu">
       <div class="row mx-4 mb-4">
         <span class="fw-bold fs-1 mb-4">Operações de Caixa</span>
-        <button class="btn btn-secondary btn-menu mx-4">Abertura</button>
-        <button class="btn btn-secondary btn-menu mx-4">Fechamento</button>
+        <button disabled class="btn btn-secondary btn-menu mx-4">Abertura</button>
+        <button disabled class="btn btn-secondary btn-menu mx-4">Fechamento</button>
       </div>
       <div class="row mx-4 mb-4">
         <span class="fw-bold fs-1 mb-4">Operações de Venda</span>
-        <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda</button>
+        <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda (Atalho - V)</button>
       </div>
       <div class="row mx-4 mb-4">
         <span class="fw-bold fs-1 mb-4">Consultas</span>
-        <button class="btn btn-secondary btn-menu mx-4">Produtos</button>
+        <button disabled class="btn btn-secondary btn-menu mx-4">Produtos</button>
       </div>
     </div>
   </div>
@@ -37,12 +37,27 @@ export default {
       this.populateCondicoesPagto()
       this.populateFormasPagto()
       this.populateProdutos()
+
+      this.addEvents()
     }
   },
   methods: {
+    addEvents() {
+      let self = this
+      window.addEventListener('keyup', function(ev) {
+          self.handleOption(ev)
+      });
+    },
+
+    handleOption(event) {
+      if (sessionStorage.getItem('form', 'menu')) {
+        if(event.key.toUpperCase() === 'V') this.access('Venda')
+      }
+    },
+
     access (form) {
-      sessionStorage.setItem('form', form)
       this.$router.push({ name: form })
+      sessionStorage.setItem('form', form)
     },
 
     populateRepresentantes () {
