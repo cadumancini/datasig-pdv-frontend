@@ -16,12 +16,12 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-4">
+        <div class="col-5">
           <span class="fw-bold fs-5">Identificação</span>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
-              <input autocomplete="off" id="inputIdeRep" class="form-control" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
+              <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
                 :disabled="!this.representantes.length" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
               <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
@@ -29,14 +29,14 @@
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
-              <input autocomplete="off" id="inputIdeTpr" class="form-control" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="codTpr">
+              <input autocomplete="off" id="inputIdeTpr" class="form-control input-sale" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="codTpr">
               <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
             </div>
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
-              <input autocomplete="off" id="inputIdeCli" class="form-control" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
+              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length" :placeholder="!this.clientes.length ? 'Buscando clientes ...' : ''" :class="{searching: !this.clientes.length}">
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
@@ -44,7 +44,7 @@
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Condição de Pagamento</span>
-              <input autocomplete="off" id="inputIdeCpg" class="form-control" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
+              <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
                 :disabled="!this.condicoesPagto.length" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
               <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
@@ -52,18 +52,18 @@
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Forma de Pagamento</span>
-              <input autocomplete="off" id="inputIdeFpg" class="form-control" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
+              <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
                 :disabled="!this.formasPagto.length" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
               <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
             </div>
           </div>
         </div>
-        <div class="col-8">
+        <div class="col-7">
           <span class="fw-bold fs-5">Carrinho</span>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
-              <input autocomplete="off" id="inputProduto" class="form-control" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
+              <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
                 :disabled="!this.produtos.length" :placeholder="!this.produtos.length ? 'Buscando produtos ...' : ''" :class="{searching: !this.produtos.length}">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
@@ -1532,6 +1532,10 @@ export default {
       width: 100%;
       margin: 0px auto 0px auto;
       overflow: auto;
+    }
+
+    .input-sale {
+      font-size: 0.8rem !important;
     }
   }
 
