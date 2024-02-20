@@ -6,25 +6,14 @@
         <div class="col-3">
           <span class="fw-bold fs-1">Relizar Venda</span>
         </div>
-        <!-- <div class="col-3">
-          <div class="border options">
-            <div class="row"><span>Opções</span></div>
-            <div class="row"><span>R -> Representante</span></div>
-            <div class="row"><span>T -> Tabela de Preço</span></div>
-            <div class="row"><span>C -> Cliente</span></div>
-            <div class="row"><span>O -> Condição de Pagamento</span></div>
-            <div class="row"><span>F -> Forma de Pagamento</span></div>
-            <div class="row"><span>P -> Produto</span></div>
-            <div class="row"><span>E -> Editar Item</span></div>
-            <div class="row"><span>Q -> Alterar Quantidade</span></div>
-            <div class="row"><span>V -> Finalizar Venda</span></div>
-          </div>
-        </div> -->
         <div class="col">
-              <div class="float-end">
-                <button class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
-              </div>
-            </div>
+          <div class="float-end">
+            <button class="btn btn-secondary mx-2" data-bs-toggle="modal" data-bs-target="#atalhosModal">Atalhos Teclado</button>
+          </div>
+          <div class="float-end">
+            <button class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
+          </div>
+        </div>
       </div>
       <div class="row">
         <div class="col-4">
@@ -91,8 +80,8 @@
               </thead>
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
-                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ row.desPro }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm change-price"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
+                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> {{ row.desPro }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
@@ -387,6 +376,75 @@
     </div>
   </div>
 
+  <!-- Modal Opções teclado -->
+  <div class="modal fade" id="atalhosModal" tabindex="-1" aria-labelledby="atalhosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="atalhosModalLabel">Atalhos do Teclado</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalAtalhos"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 10%;">Tecla</th>
+                  <th class="sm-header" scope="col" style="width: 90%;">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">R</th>
+                  <th class="fw-normal sm">Representante</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">T</th>
+                  <th class="fw-normal sm">Tabela de Preço</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">C</th>
+                  <th class="fw-normal sm">Cliente</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">O</th>
+                  <th class="fw-normal sm">Condição de Pagamento</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">F</th>
+                  <th class="fw-normal sm">Forma de Pagamento</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">P</th>
+                  <th class="fw-normal sm">Produto</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">E</th>
+                  <th class="fw-normal sm">Editar Carrinho</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">Q</th>
+                  <th class="fw-normal sm">Alterar Quantidade do Item</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">Delete</th>
+                  <th class="fw-normal sm">Remover Item</th>
+                </tr>
+                <tr class="mouseHover">
+                  <th class="fw-normal sm">F</th>
+                  <th class="fw-normal sm">Finalizar Venda</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -580,8 +638,12 @@ export default {
         else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
         else if (event.key.toUpperCase() === 'V') document.getElementById('btnFinalizarVenda').click()
         else if (event.key.toUpperCase() === 'E') {
-          if (this.itensCarrinho.length > 0) this.editarCarrinho()
-          else alert('Carrinho vazio!')
+          if (this.itensCarrinho.length > 0) { 
+            this.editarCarrinho()
+          }
+          else {
+            alert('Carrinho vazio!')
+          }
         }
       } else {
         if (event.key === 'Escape') this.clearFocus()
@@ -589,6 +651,7 @@ export default {
 
       if (this.editandoCarrinho) {
         if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
+        if (event.key === 'Delete') document.getElementById('btnDelete' + this.tableIndexCar).click()
       }
 
       if (this.finalizandoVenda) {
@@ -973,6 +1036,13 @@ export default {
       const elementToScroll = document.getElementById('tabCar0')
       this.scrollToElement(elementToScroll)
     },
+
+    removerItem(item) {
+      this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
+      this.populateTabIndex(this.itensCarrinho)
+      this.tableIndexCar = 0
+      if (!this.itensCarrinho.length) this.editandoCarrinho = false
+    },  
 
     editarItem(item) {
       this.newValue = item.qtdPed
@@ -1442,7 +1512,7 @@ export default {
   .searching {
     font-style: italic;
   }
-  .change-price {
+  .edit-cart {
     height: 1.25rem;
     margin-left: 12px;
   }
