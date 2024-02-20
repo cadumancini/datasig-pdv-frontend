@@ -8,10 +8,10 @@
         </div>
         <div class="col">
           <div class="float-end">
-            <button class="btn btn-secondary mx-2" data-bs-toggle="modal" data-bs-target="#atalhosModal">Atalhos Teclado</button>
+            <button id="btnAtalhos" class="btn btn-secondary mx-2" data-bs-toggle="modal" data-bs-target="#atalhosModal">Atalhos Teclado</button>
           </div>
           <div class="float-end">
-            <button class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
+            <button id="btnRecarregar" class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
           </div>
         </div>
       </div>
@@ -431,7 +431,7 @@
                   <th class="fw-normal sm">Remover Item</th>
                 </tr>
                 <tr class="mouseHover">
-                  <th class="fw-normal sm">F</th>
+                  <th class="fw-normal sm">X</th>
                   <th class="fw-normal sm">Finalizar Venda</th>
                 </tr>
               </tbody>
@@ -577,6 +577,17 @@ export default {
       this.formasPagtoFiltro = ''
       this.clearFocus()
     },
+    setEverythingDisabled(value) {
+      document.getElementById('inputIdeRep').disabled = value
+      document.getElementById('inputIdeTpr').disabled = value
+      document.getElementById('inputIdeCli').disabled = value
+      document.getElementById('inputIdeCpg').disabled = value
+      document.getElementById('inputIdeFpg').disabled = value
+      document.getElementById('inputProduto').disabled = value
+      document.getElementById('btnFinalizarVenda').disabled = value
+      document.getElementById('btnRecarregar').disabled = value
+      document.getElementById('btnAtalhos').disabled = value
+    },
     addEvents() {
       let self = this
       window.addEventListener('keyup', function(ev) {
@@ -637,7 +648,7 @@ export default {
           else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
           else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
           else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
-          else if (event.key.toUpperCase() === 'F') document.getElementById('btnFinalizarVenda').click()
+          else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'E') {
             if (this.itensCarrinho.length > 0) { 
               this.editarCarrinho()
@@ -894,6 +905,7 @@ export default {
         .then((response) => {
           this.produtos = response.data
           this.produtosFiltrados = this.produtos
+          sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
         })
         .catch((err) => {
           console.log(err)
@@ -1381,6 +1393,11 @@ export default {
         codRep: this.codRep,
         itens: itens
       }
+      document.getElementById('closeModalConfirmaVenda').click()
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.clearAllInputs()
+      this.setEverythingDisabled(true)
+
       await api.putPedido(pedido)
         .then(async (response) => {
           const respostaPedido = response.data
@@ -1391,8 +1408,8 @@ export default {
           if(err.response.data) alert (err.response.data.message)
         })
         .finally(() => {
-          document.getElementById('closeModalConfirmaVenda').click()
-          this.clearAllInputs()
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          this.setEverythingDisabled(false)
         })
     },   
 
