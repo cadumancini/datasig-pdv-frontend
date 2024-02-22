@@ -9,6 +9,9 @@ var functions = {
     formData.append('pswd', pswd)
     return axios.post(urlBase + '/users/login', formData)
   },
+  getUserParams() {
+    return axios.get(urlBase + '/users/params?token=' + sessionStorage.getItem('token'))
+  },
   getRepresentantes() {
     return axios.get(urlBase + '/representantes?token=' + sessionStorage.getItem('token'))
   },

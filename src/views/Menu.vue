@@ -37,6 +37,7 @@ export default {
       this.populateCondicoesPagto()
       this.populateFormasPagto()
       this.populateProdutos()
+      this.populateParams()
 
       this.addEvents()
     }
@@ -104,6 +105,16 @@ export default {
       api.getProdutos()
       .then((response) => {
         sessionStorage.setItem('produtos', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+    
+    populateParams () {
+      api.getUserParams()
+      .then((response) => {
+        sessionStorage.setItem('TEF', response.data.usaTEF)
       })
       .catch((err) => {
         console.log(err)

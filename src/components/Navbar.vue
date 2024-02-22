@@ -32,6 +32,7 @@ export default {
       sessionStorage.removeItem('produtos')
       sessionStorage.removeItem('condicoesPagto')
       sessionStorage.removeItem('formasPagto')
+      sessionStorage.removeItem('TEF')
     }
   },
   props: {

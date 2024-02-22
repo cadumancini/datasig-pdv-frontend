@@ -89,6 +89,14 @@
             </table>
           </div>
           <div class="row my-4">
+            <div class="col-3">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Valor Total</span>
+                <input class="form-control" disabled v-model="vlrTot">
+              </div>
+            </div>
+          </div>
+          <div class="row my-4">
             <div class="col">
               <div class="float-end">
                 <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true)">Finalizar</button>
@@ -495,6 +503,7 @@ export default {
       //condicoes de pagamento
       ideCpg: '',
       codCpg: '',
+      condicaoSelected: null,
       condicoesPagto: [],
       condicoesPagtoFiltro: '',
       condicoesPagtoFiltrados: [],
@@ -503,6 +512,7 @@ export default {
       //formas de pagamento
       ideFpg: '',
       codFpg: '',
+      formaSelected: null,
       formasPagto: [],
       formasPagtoFiltro: '',
       formasPagtoFiltrados: [],
@@ -510,6 +520,8 @@ export default {
 
       //venda
       finalizandoVenda: false,
+      usaTEF: false,
+      vlrTot: 'R$ 0,00',
 
       //geral
       options: {
@@ -536,6 +548,7 @@ export default {
       this.initCondicoesPagto()    
       this.initFormasPagto()    
       this.initProdutos()  
+      this.initParams()  
     },
     restartRecords() {
       this.clearEverything()
@@ -572,8 +585,10 @@ export default {
       this.codTpr = ''
       this.tabelasPrecoFiltro = ''
       this.ideCpg = ''
+      this.condicaoSelected = null
       this.condicoesPagtoFiltro = ''
       this.ideFpg = ''
+      this.formaSelected = null
       this.formasPagtoFiltro = ''
       this.clearFocus()
     },
@@ -960,13 +975,14 @@ export default {
       this.codBar = ''
       document.getElementById('inputProduto').focus()
       this.populateTabIndex(this.itensCarrinho)
+      this.atualizarValorTotalCompra()
     },
 
     async buscarPreco(produto) {
       await api.getPreco(this.codTpr, produto)
         .then((response) => {
           const preBas = response.data
-          const vlrTot = parseFloat(parseFloat(preBas) * parseFloat(produto.qtdPed))
+          const vlrTot = parseFloat(parseFloat(preBas) * Number(produto.qtdPed))
           produto.preBas = preBas
           produto.vlrTot = vlrTot
         })
@@ -980,6 +996,11 @@ export default {
         })
     },
 
+    atualizarValorTotalCompra() {
+      this.vlrTot = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+                  .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+    },
+    
     filtrarProdutos(filter) {
       this.produtosFiltrados = this.produtos.filter(pro => (pro.codBa2 === filter ||
                   pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
@@ -1056,6 +1077,7 @@ export default {
     removerItem(item) {
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
       this.populateTabIndex(this.itensCarrinho)
+      this.atualizarValorTotalCompra()
       this.tableIndexCar = 0
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
     },  
@@ -1078,6 +1100,7 @@ export default {
         await this.buscarPreco(this.itemEditando)
         this.itemEditando = null
         document.getElementById('closeModalEditarItem').click()
+        this.atualizarValorTotalCompra()
         this.clearFocus()
       }
     },
@@ -1216,6 +1239,7 @@ export default {
     selectCondicaoPagto(row) {
       this.ideCpg = row.desCpg
       this.codCpg = row.codCpg
+      this.condicaoSelected = row
       document.getElementById('closeModalCondicoesPagto').click()
       this.clearFocus()
     },
@@ -1307,6 +1331,7 @@ export default {
     selectFormaPagto(row) {
       this.ideFpg = row.desFpg
       this.codFpg = row.codFpg
+      this.formaSelected = row
       document.getElementById('closeModalFormasPagto').click()
       this.clearFocus()
     },
@@ -1362,6 +1387,21 @@ export default {
     },
 
     /* Finalizar Venda */
+    async initParams() {
+      if (!sessionStorage.getItem('TEF')) {
+        await api.getUserParams()
+        .then((response) => {
+          this.usaTEF = response.data.usaTEF
+          sessionStorage.setItem('TEF', this.usaTEF)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      } else {
+        this.usaTEF = sessionStorage.getItem('TEF')
+      }
+    },
+
     triggerFinalizandoVenda(value) {
       this.finalizandoVenda = value
 
@@ -1383,6 +1423,7 @@ export default {
           codDer: item.codDer,
           codTpr: this.codTpr,
           qtdPed: item.qtdPed,
+          vlrTot: item.vlrTot
         }
         itens.push(itemPedido)
       })
@@ -1390,8 +1431,18 @@ export default {
         codCli: this.codCli,
         codCpg: this.codCpg,
         codFpg: this.codFpg,
+        desFpg: this.formaSelected.desFpg,
         codRep: this.codRep,
-        itens: itens
+        vlrTot: Number(itens.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+                  .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+                  .replace('R$', '').replace(',','.').trim(),
+        itens: itens,
+        qtdPar: this.condicaoSelected.qtdParCpg,
+        parcelas: this.condicaoSelected.parcelas,
+        banOpe: '',
+        catTef: '',
+        nsuTef: '',
+        cgcCre: '',
       }
       document.getElementById('closeModalConfirmaVenda').click()
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
