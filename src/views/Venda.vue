@@ -183,6 +183,141 @@
           </div>
         </div>
         <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal" @click="habilitarCadastroCliente">Novo</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cadastro Clientes -->
+  <div class="modal fade" id="cadastroClientesModal" tabindex="-1" aria-labelledby="cadastroClientesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cadastroClientesModalLabel">Cadastro de Clientes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalClientes"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-2">
+            <div class="col-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Tipo</span>
+                <select @change="cadCliCgcCpf=''" class="form-select" v-model="cadCliTipCli">
+                  <option selected disabled value="">Selecione</option>
+                  <option value="F">Física</option>
+                  <option value="J">Jurídica</option>
+              </select>
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">CPF/CNPJ</span>
+                <vue-mask v-if="cadCliTipCli !== 'J'" class="form-control" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"></vue-mask>
+                <vue-mask v-else class="form-control" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"></vue-mask>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Nome</span>
+              <input autocomplete="off" class="form-control" type="text" v-model="cadCliNomCli">  
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-3">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">CEP</span>
+                <vue-mask class="form-control" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli"></vue-mask>
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Endereço</span>
+                <input autocomplete="off" class="form-control" type="text" v-model="cadCliEndCli">  
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-3">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Número</span>
+                <input autocomplete="off" class="form-control" type="number" v-model="cadCliNenCli" maxLength="5"
+                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};"> 
+              </div> 
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Complemento</span>
+                <input autocomplete="off" class="form-control" type="text" v-model="cadCliCplEnd">  
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Bairro</span>
+                <input autocomplete="off" class="form-control" type="text" v-model="cadCliBaiCli"> 
+              </div> 
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Cidade</span>
+                <input autocomplete="off" class="form-control" type="text" v-model="cadCliCidCli">  
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Estado</span>
+                <select class="form-select" v-model="cadCliSigUfs">
+                  <option selected disabled value="">Selecione</option>
+                  <option value="AC">Acre</option>
+                  <option value="AL">Alagoas</option>
+                  <option value="AM">Amapá</option>
+                  <option value="BA">Bahia</option>
+                  <option value="CE">Ceará</option>
+                  <option value="DF">Distrito Federal</option>
+                  <option value="ES">Espírito Santo</option>
+                  <option value="GO">Goiás</option>
+                  <option value="MA">Maranhão</option>
+                  <option value="MT">Mato Grosso</option>
+                  <option value="MS">Mato Grosso do Sul</option>
+                  <option value="MG">Minas Gerais</option>
+                  <option value="PA">Pará</option>
+                  <option value="PB">Paraíba</option>
+                  <option value="PR">Paraná</option>
+                  <option value="PE">Pernambuco</option>
+                  <option value="PI">Piauí</option>
+                  <option value="RJ">Rio de Janeiro</option>
+                  <option value="RN">Rio Grande do Norte</option>
+                  <option value="RS">Rio Grande do Sul</option>
+                  <option value="RO">Rondônia</option>
+                  <option value="RR">Roraima</option>
+                  <option value="SC">Santa Catarina</option>
+                  <option value="SP">São Paulo</option>
+                  <option value="SE">Sergipe</option>
+                  <option value="TO">Tocantins</option>
+              </select> 
+              </div> 
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Telefone</span>
+                <vue-mask class="form-control" mask="00 00000-0000" :raw="false" :options="options" v-model="cadCliFonCli"></vue-mask>
+              </div> 
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">E-mail</span>
+                <input autocomplete="off" class="form-control" type="text" v-model="cadCliEmaCli"> 
+              </div> 
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" @click="cadastrarCliente">Cadastrar</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -458,10 +593,11 @@
 <script>
 import Navbar from '../components/Navbar.vue'
 import api from '../utils/api'
+import vueMask from 'vue-jquery-mask'
 
 export default {
   name: 'Venda',
-  components: { Navbar },
+  components: { Navbar, vueMask },
   data () {
     return {
       // representantes
@@ -479,6 +615,20 @@ export default {
       clientesFiltro: '',
       clientesFiltrados: [],
       tableIndexCli: 0,
+
+      //cadastro clientes
+      cadCliTipCli: '',
+      cadCliCgcCpf: '',
+      cadCliNomCli: '',
+      cadCliCepCli: '',
+      cadCliEndCli: '',
+      cadCliNenCli: '',
+      cadCliCplEnd: '',
+      cadCliBaiCli: '',
+      cadCliCidCli: '',
+      cadCliSigUfs: '',
+      cadCliFonCli: '',
+      cadCliEmaCli: '',
       
       //produtos
       codBar: '',
@@ -526,6 +676,9 @@ export default {
       //geral
       options: {
         reverse: true
+      },
+      options2: {
+        reverse: false
       },
       optionsQtde: {
         style: 'number',
@@ -910,6 +1063,10 @@ export default {
     cliListHit() {
       const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
       this.selectCliente(cli)
+    },
+
+    habilitarCadastroCliente() {
+      document.getElementById('closeModalClientes').click()
     },
 
     /* Produtos */
