@@ -203,8 +203,8 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Tipo</span>
-                <select @change="cadCliCgcCpf=''" class="form-select" v-model="cadCliTipCli">
-                  <option selected disabled value="">Selecione</option>
+                <select @change="cadCliCgcCpf=''" class="form-select" v-model="cadCliTipCli" id="selectTipCli">
+                  <option selected disabled value="" >Selecione</option>
                   <option value="F">Física</option>
                   <option value="J">Jurídica</option>
               </select>
@@ -269,7 +269,7 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Estado</span>
-                <select class="form-select" v-model="cadCliSigUfs">
+                <select class="form-select" v-model="cadCliSigUfs" id="selectSigUfs">
                   <option selected disabled value="">Selecione</option>
                   <option value="AC">Acre</option>
                   <option value="AL">Alagoas</option>
@@ -711,6 +711,7 @@ export default {
       this.emptyStorage()
       this.clearAllLists()
       this.clearAllInputs()
+      this.clearInputsCadCli()
     },
     emptyStorage() {
       sessionStorage.removeItem('representantes')
@@ -744,6 +745,22 @@ export default {
       this.formaSelected = null
       this.formasPagtoFiltro = ''
       this.clearFocus()
+    },
+    clearInputsCadCli() {
+      document.getElementById('selectTipCli').selectedIndex = "0";
+      document.getElementById('selectSigUfs').selectedIndex = "0";
+      this.cadCliTipCli = ''
+      this.cadCliCgcCpf = ''
+      this.cadCliNomCli = ''
+      this.cadCliCepCli = ''
+      this.cadCliEndCli = ''
+      this.cadCliNenCli = ''
+      this.cadCliCplEnd = ''
+      this.cadCliBaiCli = ''
+      this.cadCliCidCli = ''
+      this.cadCliSigUfs = ''
+      this.cadCliFonCli = ''
+      this.cadCliEmaCli = ''
     },
     setEverythingDisabled(value) {
       document.getElementById('inputIdeRep').disabled = value
@@ -1067,6 +1084,13 @@ export default {
 
     habilitarCadastroCliente() {
       document.getElementById('closeModalClientes').click()
+
+      this.clearInputsCadCli()
+
+      const modalElement = document.getElementById('cadastroClientesModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('selectTipCli').focus()
+      })
     },
 
     /* Produtos */
@@ -1604,6 +1628,7 @@ export default {
       document.getElementById('closeModalConfirmaVenda').click()
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.clearAllInputs()
+      this.clearInputsCadCli()
       this.setEverythingDisabled(true)
 
       await api.putPedido(pedido)
@@ -1638,6 +1663,7 @@ export default {
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
           this.clearAllInputs()
+          this.clearInputsCadCli()
         })
     },
 
