@@ -18,6 +18,11 @@ var functions = {
   getClientes() {
     return axios.get(urlBase + '/clientes?token=' + sessionStorage.getItem('token'))
   },
+  putCliente(cliente) {
+    const body = JSON.stringify(cliente)
+    const headers = { headers: { 'Content-Type': 'application/json' } }
+    return axios.put(urlBase + '/clientes?token=' + sessionStorage.getItem('token'), body, headers)
+  },
   getProdutos() {
     return axios.get(urlBase + '/produtos?token=' + sessionStorage.getItem('token'))
   },

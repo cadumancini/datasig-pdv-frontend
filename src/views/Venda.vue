@@ -183,7 +183,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal" @click="habilitarCadastroCliente">Novo</button>
+          <button type="button" class="btn btn-secondary btn-sm" @click="habilitarCadastroCliente">Novo</button>
+          <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal">Novo</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -196,7 +197,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="cadastroClientesModalLabel">Cadastro de Clientes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalClientes"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCadastroClientes"></button>
         </div>
         <div class="modal-body">
           <div class="row mb-2">
@@ -1084,13 +1085,56 @@ export default {
 
     habilitarCadastroCliente() {
       document.getElementById('closeModalClientes').click()
-
       this.clearInputsCadCli()
 
-      const modalElement = document.getElementById('cadastroClientesModal')
-      modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('selectTipCli').focus()
-      })
+      if(this.isRepresentanteEmpty()) {
+        alert('Para cadastrar um novo cliente, é necessário informar o representante!')
+        document.getElementById('inputIdeRep').focus()
+      } else {
+        document.getElementById('btnCadastrarNovoCliente').click()
+        const modalElement = document.getElementById('cadastroClientesModal')
+        modalElement.addEventListener('shown.bs.modal', () => {
+          document.getElementById('selectTipCli').focus()
+        })
+      }
+    },
+
+    async cadastrarCliente() {
+      const cliente = {
+        tipCli: this.cadCliTipCli,
+        cgcCpf: this.cadCliCgcCpf,
+        cepCli: this.cadCliCepCli,
+        nomCli: this.cadCliNomCli,
+        endCli: this.cadCliEndCli,
+        nenCli: this.cadCliNenCli,
+        cplEnd: this.cadCliCplEnd,
+        baiCli: this.cadCliBaiCli,
+        cidCli: this.cadCliCidCli,
+        sigUfs: this.cadCliSigUfs,
+        fonCli: this.cadCliFonCli,
+        emaCli: this.cadCliEmaCli,
+        codRep: this.codRep,
+      }
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      await api.putCliente(cliente)
+        .then((response) => {
+          alert('Cliente cadastrado com sucesso. Recarregando clientes ...')
+          document.getElementById('closeModalCadastroClientes').click()
+          this.clientes = []
+          sessionStorage.removeItem('clientes')
+          this.beginCliente()
+        })
+        .catch((err) => {
+          console.log(err)
+          if(err.response.data) {
+            alert(err.response.data.message)
+            document.getElementById('selectTipCli').focus()
+          }
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          this.clearInputsCadCli()
+        })
     },
 
     /* Produtos */
