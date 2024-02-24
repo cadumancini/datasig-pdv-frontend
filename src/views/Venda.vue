@@ -43,18 +43,18 @@
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Condição de Pagamento</span>
-              <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
-                :disabled="!this.condicoesPagto.length" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
-              <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
-            </div>
-          </div>
-          <div class="row my-4">
-            <div class="input-group input-group-sm">
               <span class="input-group-text">Forma de Pagamento</span>
               <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
                 :disabled="!this.formasPagto.length" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
               <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
+            </div>
+          </div>
+          <div class="row my-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Condição de Pagamento</span>
+              <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
+                :disabled="!this.condicoesPagto.length" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
+              <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@
                   <th class="sm-header" style="width: 70%;"><small>Produto</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Quantidade</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Total.</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
                 </tr>
               </thead>
               <tbody>
@@ -89,7 +89,7 @@
             </table>
           </div>
           <div class="row my-4">
-            <div class="col-3">
+            <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Valor Total</span>
                 <input class="form-control" disabled v-model="vlrTot">
@@ -272,32 +272,7 @@
                 <span class="input-group-text">Estado</span>
                 <select class="form-select" v-model="cadCliSigUfs" id="selectSigUfs">
                   <option selected disabled value="">Selecione</option>
-                  <option value="AC">Acre</option>
-                  <option value="AL">Alagoas</option>
-                  <option value="AM">Amapá</option>
-                  <option value="BA">Bahia</option>
-                  <option value="CE">Ceará</option>
-                  <option value="DF">Distrito Federal</option>
-                  <option value="ES">Espírito Santo</option>
-                  <option value="GO">Goiás</option>
-                  <option value="MA">Maranhão</option>
-                  <option value="MT">Mato Grosso</option>
-                  <option value="MS">Mato Grosso do Sul</option>
-                  <option value="MG">Minas Gerais</option>
-                  <option value="PA">Pará</option>
-                  <option value="PB">Paraíba</option>
-                  <option value="PR">Paraná</option>
-                  <option value="PE">Pernambuco</option>
-                  <option value="PI">Piauí</option>
-                  <option value="RJ">Rio de Janeiro</option>
-                  <option value="RN">Rio Grande do Norte</option>
-                  <option value="RS">Rio Grande do Sul</option>
-                  <option value="RO">Rondônia</option>
-                  <option value="RR">Roraima</option>
-                  <option value="SC">Santa Catarina</option>
-                  <option value="SP">São Paulo</option>
-                  <option value="SE">Sergipe</option>
-                  <option value="TO">Tocantins</option>
+                  <option v-for="row in estados" :key="row.codUfs" :value="row.codUfs">{{ row.desUfs }}</option>
               </select> 
               </div> 
             </div>
@@ -514,6 +489,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
+          <button type="button" id="btnCartao" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cartaoModal"></button>
           <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -538,51 +514,54 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">R</th>
-                  <th class="fw-normal sm">Representante</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">T</th>
-                  <th class="fw-normal sm">Tabela de Preço</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">C</th>
-                  <th class="fw-normal sm">Cliente</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">O</th>
-                  <th class="fw-normal sm">Condição de Pagamento</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">F</th>
-                  <th class="fw-normal sm">Forma de Pagamento</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">P</th>
-                  <th class="fw-normal sm">Produto</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">E</th>
-                  <th class="fw-normal sm">Editar Carrinho</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">Q</th>
-                  <th class="fw-normal sm">Alterar Quantidade do Item</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">Delete</th>
-                  <th class="fw-normal sm">Remover Item</th>
-                </tr>
-                <tr class="mouseHover">
-                  <th class="fw-normal sm">X</th>
-                  <th class="fw-normal sm">Finalizar Venda</th>
+                <tr class="mouseHover" v-for="row in atalhos" :key="row.codAta">
+                  <th class="fw-normal sm">{{ row.tecAta }}</th>
+                  <th class="fw-normal sm">{{ row.desAta }}</th>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
         <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Informações Cartão -->
+  <div class="modal fade" id="cartaoModal" tabindex="-1" aria-labelledby="cartaoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cartaoModalLabel">Informações Cartão</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCartao"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-2">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Bandeira</span>
+              <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
+                <option selected disabled value="" >Selecione</option>
+                <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{ row.desBan }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Número da Autorização de Transação</span>
+              <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
+            </div>
+          </div>
+          <div class="row mb-2" v-if="this.usaTEF">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Número da Transação (TEF)</span>
+              <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" @click="confirmarDadosCartao">Confirmar</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -630,6 +609,35 @@ export default {
       cadCliSigUfs: '',
       cadCliFonCli: '',
       cadCliEmaCli: '',
+      estados: [
+        { codUfs: 'AC', desUfs: 'Acre' },
+        { codUfs: 'AL', desUfs: 'Alagoas' },
+        { codUfs: 'AP', desUfs: 'Amapá' },
+        { codUfs: 'AM', desUfs: 'Amazonas' },
+        { codUfs: 'BA', desUfs: 'Bahia' },
+        { codUfs: 'CE', desUfs: 'Ceará' },
+        { codUfs: 'DF', desUfs: 'Distrito Federal' },
+        { codUfs: 'ES', desUfs: 'Espírito Santo' },
+        { codUfs: 'GO', desUfs: 'Goiás' },
+        { codUfs: 'MA', desUfs: 'Maranhão' },
+        { codUfs: 'MT', desUfs: 'Mato Grosso' },
+        { codUfs: 'MS', desUfs: 'Mato Grosso do Sul' },
+        { codUfs: 'MG', desUfs: 'Minas Gerais' },
+        { codUfs: 'PA', desUfs: 'Pará' },
+        { codUfs: 'PB', desUfs: 'Paraíba' },
+        { codUfs: 'PR', desUfs: 'Paraná' },
+        { codUfs: 'PE', desUfs: 'Pernambuco' },
+        { codUfs: 'PI', desUfs: 'Piauí' },
+        { codUfs: 'RJ', desUfs: 'Rio de Janeiro' },
+        { codUfs: 'RN', desUfs: 'Rio Grande do Norte' },
+        { codUfs: 'RS', desUfs: 'Rio Grande do Sul' },
+        { codUfs: 'RO', desUfs: 'Rondônia' },
+        { codUfs: 'RR', desUfs: 'Roraima' },
+        { codUfs: 'SC', desUfs: 'Santa Catarina' },
+        { codUfs: 'SP', desUfs: 'São Paulo' },
+        { codUfs: 'SE', desUfs: 'Sergipe' },
+        { codUfs: 'TO', desUfs: 'Tocantins' },
+      ],
       
       //produtos
       codBar: '',
@@ -673,6 +681,41 @@ export default {
       finalizandoVenda: false,
       usaTEF: false,
       vlrTot: 'R$ 0,00',
+      cartoes: [
+        { codBan: '01', desBan: 'Visa' },
+        { codBan: '02', desBan: 'Mastercard' },
+        { codBan: '03', desBan: 'American Express' },
+        { codBan: '04', desBan: 'Sorocred' },
+        { codBan: '05', desBan: 'Diners Club' },
+        { codBan: '06', desBan: 'Elo' },
+        { codBan: '07', desBan: 'Hipercard' },
+        { codBan: '08', desBan: 'Aura' },
+        { codBan: '09', desBan: 'Cabal' },
+        { codBan: '10', desBan: 'Banes Card' },
+        { codBan: '11', desBan: 'Cabal' },
+        { codBan: '12', desBan: 'CalCard' },
+        { codBan: '13', desBan: 'Credz' },
+        { codBan: '14', desBan: 'Discover' },
+        { codBan: '15', desBan: 'GoodCard' },
+        { codBan: '16', desBan: 'GreenCard' },
+        { codBan: '17', desBan: 'Hiper' },
+        { codBan: '18', desBan: 'JcB' },
+        { codBan: '19', desBan: 'Mais' },
+        { codBan: '20', desBan: 'MaxVan' },
+        { codBan: '21', desBan: 'Policard' },
+        { codBan: '22', desBan: 'RedeCompras' },
+        { codBan: '23', desBan: 'Sodexo' },
+        { codBan: '24', desBan: 'ValeCard' },
+        { codBan: '25', desBan: 'Verocheque' },
+        { codBan: '26', desBan: 'VR' },
+        { codBan: '27', desBan: 'Ticket' },
+        { codBan: '99', desBan: 'Outros' }
+      ],
+      cartao: {
+        banOpe: '',
+        catTef: '',
+        nsuTef: '',
+      },
 
       //geral
       options: {
@@ -684,7 +727,19 @@ export default {
       optionsQtde: {
         style: 'number',
         minimumFractionDigits: 3
-      }
+      },
+      atalhos: [
+        { codAta: 0, tecAta: 'R', desAta: 'Representante' },
+        { codAta: 1, tecAta: 'T', desAta: 'Tabela de Preço' },
+        { codAta: 2, tecAta: 'C', desAta: 'Cliente' },
+        { codAta: 3, tecAta: 'F', desAta: 'Forma de Pagamento' },
+        { codAta: 4, tecAta: 'O', desAta: 'Condição de Pagamento' },
+        { codAta: 5, tecAta: 'P', desAta: 'Produto' },
+        { codAta: 6, tecAta: 'E', desAta: 'Editar carrinho' },
+        { codAta: 7, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
+        { codAta: 8, tecAta: 'Delete', desAta: 'Remover Item' },
+        { codAta: 9, tecAta: 'X', desAta: 'Finalizar Venda' }
+      ]
     }
   },
   mounted () {
@@ -713,6 +768,7 @@ export default {
       this.clearAllLists()
       this.clearAllInputs()
       this.clearInputsCadCli()
+      this.clearInputsCartao()
     },
     emptyStorage() {
       sessionStorage.removeItem('representantes')
@@ -762,6 +818,12 @@ export default {
       this.cadCliSigUfs = ''
       this.cadCliFonCli = ''
       this.cadCliEmaCli = ''
+    },
+    clearInputsCartao() {
+      document.getElementById('selectBanOpe').selectedIndex = "0";
+      this.cartao.banOpe = ''
+      this.cartao.catTef = ''
+      this.cartao.nsuTef = ''
     },
     setEverythingDisabled(value) {
       document.getElementById('inputIdeRep').disabled = value
@@ -1640,7 +1702,32 @@ export default {
       document.getElementById('btnOpenFinalizarVendaModal').click()
     },
 
-    async finalizarVenda() {
+    finalizarVenda() {
+        document.getElementById('closeModalConfirmaVenda').click()
+      // if (['6','7','8','17','18','19','20'].includes(this.formaSelected.tipFpg))
+      if (this.formaSelected.desFpg === 'OUTROS'){ //TODO: temporario
+        this.clearInputsCartao()
+        document.getElementById('btnCartao').click()
+        const modalElement = document.getElementById('cartaoModal')
+        modalElement.addEventListener('shown.bs.modal', () => {
+          document.getElementById('selectBanOpe').focus()
+        })
+      } else {
+        this.enviarVenda()
+      }
+    },  
+
+    confirmarDadosCartao() {
+      if (this.cartao.banOpe === '') alert('Selecione a bandeira do cartão!')
+      else if (this.cartao.catTef === '') alert('Preencha o número da autorização!') 
+      else if (this.cartao.nsuTef === '' && this.usaTEF) alert('Preencha o número da transação (TEF)!') 
+      else {
+        document.getElementById('closeModalCartao').click()
+        this.enviarVenda()
+      }
+    },
+
+    async enviarVenda() {
       const itens = []
       this.itensCarrinho.forEach(item => {
         const itemPedido = {
@@ -1657,6 +1744,8 @@ export default {
         codCpg: this.codCpg,
         codFpg: this.codFpg,
         desFpg: this.formaSelected.desFpg,
+        tipFpg: this.formaSelected.tipFpg,
+        codOpe: this.formaSelected.codOpe,
         codRep: this.codRep,
         vlrTot: Number(itens.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
                   .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
@@ -1664,15 +1753,14 @@ export default {
         itens: itens,
         qtdPar: this.condicaoSelected.qtdParCpg,
         parcelas: this.condicaoSelected.parcelas,
-        banOpe: '',
-        catTef: '',
-        nsuTef: '',
-        cgcCre: '',
+        banOpe: this.cartao.banOpe,
+        catTef: this.cartao.catTef,
+        nsuTef: this.cartao.nsuTef
       }
-      document.getElementById('closeModalConfirmaVenda').click()
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.clearAllInputs()
       this.clearInputsCadCli()
+      this.clearInputsCartao()
       this.setEverythingDisabled(true)
 
       await api.putPedido(pedido)
@@ -1688,7 +1776,7 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.setEverythingDisabled(false)
         })
-    },   
+    },
 
     async gerarNFCe(numPed) {
       await api.putNFCe(numPed)
@@ -1708,6 +1796,7 @@ export default {
           document.getElementById('closeModalConfirmaVenda').click()
           this.clearAllInputs()
           this.clearInputsCadCli()
+          this.clearInputsCartao()
         })
     },
 
