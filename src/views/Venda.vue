@@ -783,6 +783,7 @@ export default {
       this.condicoesPagto = []
       this.formasPagto = []
       this.produto = []
+      this.itensCarrinho = []
     },
     clearAllInputs() {
       this.ideRep = ''
@@ -801,6 +802,7 @@ export default {
       this.ideFpg = ''
       this.formaSelected = null
       this.formasPagtoFiltro = ''
+      this.vlrTot = 'R$ 0,00'
       this.clearFocus()
     },
     clearInputsCadCli() {
