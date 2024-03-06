@@ -129,7 +129,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectRepresentante(row)">
+                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectRepresentante(row)">
                   <th :id="'tabRep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.nomRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.apeRep }}</th>
@@ -169,7 +169,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in clientesFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectCliente(row)">
+                <tr v-for="row in clientesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCliente(row)">
                   <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
@@ -320,7 +320,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectProduto(row)">
+                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row)">
                   <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -357,7 +357,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in tabelasPrecoFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectTabelaPreco(row)">
+                <tr v-for="row in tabelasPrecoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectTabelaPreco(row)">
                   <th :id="'tabTpr' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexTpr}" class="fw-normal sm" scope="row">{{ row.codTpr }}</th>
                 </tr>
               </tbody>
@@ -418,7 +418,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in condicoesPagtoFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectCondicaoPagto(row)">
+                <tr v-for="row in condicoesPagtoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCondicaoPagto(row)">
                   <th :id="'tabCpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm" scope="row">{{ row.codCpg }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.abrCpg }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.desCpg }}</th>
@@ -457,7 +457,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in formasPagtoFiltrados" :key="row.tabIndex" class="mouseHover" @click="selectFormaPagto(row)">
+                <tr v-for="row in formasPagtoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectFormaPagto(row)">
                   <th :id="'tabFpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm" scope="row">{{ row.codFpg }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.abrFpg }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.desFpg }}</th>
@@ -1245,6 +1245,7 @@ export default {
     },
 
     async selectProduto(row) {
+      document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
@@ -1260,7 +1261,6 @@ export default {
         }
       }
 
-      document.getElementById('closeModalProdutos').click()
       this.codBar = ''
       document.getElementById('inputProduto').focus()
       this.populateTabIndex(this.itensCarrinho)
@@ -1914,6 +1914,9 @@ export default {
   .btn-dismiss {
     color: #fff;
     background-color: #aab4bd;
+  }
+  .row-modal:hover {
+    cursor: pointer;
   }
 
   @media only screen and (max-height: 730px) {
