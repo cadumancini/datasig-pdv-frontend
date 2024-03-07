@@ -1249,9 +1249,8 @@ export default {
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
+        itemDoCarrinho.qtdPed += 1
         await this.buscarPreco(itemDoCarrinho)
-        if (itemDoCarrinho.preBas > 0)
-          itemDoCarrinho.qtdPed += 1
       }
       else {
         newItem.qtdPed = 1
