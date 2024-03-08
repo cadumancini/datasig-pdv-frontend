@@ -22,14 +22,16 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
               <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
-                :disabled="!this.representantes.length" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
+                :disabled="!this.representantes.length || this.codRep !== ''" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
+              <button id="btnClearRep" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
           <div class="row my-4">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
-              <input autocomplete="off" id="inputIdeTpr" class="form-control input-sale" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="codTpr">
+              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
+              <button id="btnClearTpr" :disabled="this.codTpr === ''" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
             </div>
           </div>
@@ -37,7 +39,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
-                :disabled="!this.clientes.length" :placeholder="!this.clientes.length ? 'Buscando clientes ...' : ''" :class="{searching: !this.clientes.length}">
+                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="!this.clientes.length ? 'Buscando clientes ...' : ''" :class="{searching: !this.clientes.length}">
+              <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
@@ -45,7 +48,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Forma de Pagamento</span>
               <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
-                :disabled="!this.formasPagto.length" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
+                :disabled="!this.formasPagto.length || this.codFpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
+              <button id="btnClearFpg" :disabled="this.codFpg === ''" class="btn btn-secondary input-group-btn" @click="beginFormaPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
             </div>
           </div>
@@ -53,7 +57,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Condição de Pagamento</span>
               <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
-                :disabled="!this.condicoesPagto.length" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
+                :disabled="!this.condicoesPagto.length || this.codCpg !== ''" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
+              <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
           </div>
@@ -653,6 +658,7 @@ export default {
       itemEditando: null,
       
       //tabelas preco
+      ideTpr: '',
       codTpr: '',
       tabelasPreco: [],
       tabelasPrecoFiltro: '',
@@ -794,6 +800,7 @@ export default {
       this.codBar = ''
       this.produtosFiltro = ''
       this.itensCarrinho = []
+      this.ideTpr = ''
       this.codTpr = ''
       this.tabelasPrecoFiltro = ''
       this.ideCpg = ''
@@ -892,12 +899,12 @@ export default {
     async handleOption(event) {
       if (sessionStorage.getItem('form') === 'Venda') {
         if(this.noInputIsFocused() && !this.editandoCarrinho) {
-          if (event.key.toUpperCase() === 'R') document.getElementById('inputIdeRep').focus()
-          else if (event.key.toUpperCase() === 'C') document.getElementById('inputIdeCli').focus()
-          else if (event.key.toUpperCase() === 'P') document.getElementById('inputProduto').focus()
-          else if (event.key.toUpperCase() === 'T') document.getElementById('inputIdeTpr').focus()
-          else if (event.key.toUpperCase() === 'O') document.getElementById('inputIdeCpg').focus()
-          else if (event.key.toUpperCase() === 'F') document.getElementById('inputIdeFpg').focus()
+          if (event.key.toUpperCase() === 'R') this.focusRepresentante()
+          else if (event.key.toUpperCase() === 'C') this.focusCliente()
+          else if (event.key.toUpperCase() === 'P') this.focusProduto()
+          else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
+          else if (event.key.toUpperCase() === 'O') this.focusCondicaoPagto()
+          else if (event.key.toUpperCase() === 'F') this.focusFormaPagto()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'E') {
             if (this.itensCarrinho.length > 0) { 
@@ -1002,7 +1009,6 @@ export default {
       this.ideRep = row.nomRep
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
-      this.clearFocus()
     },
 
     filtrarRepresentantes(filter) {
@@ -1021,6 +1027,13 @@ export default {
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputRepresentantesFiltro').focus()
       })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusRepresentante()
+      })
+    },
+
+    focusRepresentante() {
+      this.codRep === '' ? document.getElementById('inputIdeRep').focus() : document.getElementById('btnClearRep').focus()
     },
 
     navegarModalRepresentantes(key) {
@@ -1075,6 +1088,7 @@ export default {
 
     async beginCliente() {
       this.ideCli = ''
+      this.codCli = ''
       this.clientesFiltro = ''
 
       if(!this.clientes.length) await this.initClientes()
@@ -1093,7 +1107,6 @@ export default {
       this.ideCli = row.nomCli
       this.codCli = row.codCli
       document.getElementById('closeModalClientes').click()
-      this.clearFocus()
     },
 
     filtrarClientes(filter) {
@@ -1113,6 +1126,13 @@ export default {
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputClientesFiltro').focus()
       })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusCliente()
+      })
+    },
+
+    focusCliente() {
+      this.codCli === '' ? document.getElementById('inputIdeCli').focus() : document.getElementById('btnClearCli').focus()
     },
 
     navegarModalClientes(key) {
@@ -1305,6 +1325,13 @@ export default {
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputProdutosFiltro').focus()
       })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusProduto()
+      })
+    },
+
+    focusProduto() {
+      document.getElementById('inputProduto').focus()
     },
 
     navegarModalProdutos(key) {
@@ -1417,6 +1444,7 @@ export default {
         alert('Favor informar um representante!')
         document.getElementById('inputIdeRep').focus()
       } else {
+        this.ideTpr = ''
         this.codTpr = ''
         this.tabelasPrecoFiltro = ''
       }
@@ -1425,7 +1453,7 @@ export default {
     async searchTabelasPreco() {
       await this.initTabelasPreco()
       if (this.tabelasPreco.length > 0) {
-        this.filtrarTabelasPreco(this.codTpr)
+        this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
           this.selectTabelaPreco(this.tabelasPrecoFiltrados[0])
         } else { // nao encontramos, abrir modal
@@ -1437,9 +1465,9 @@ export default {
     },
 
     async selectTabelaPreco(row) {
+      this.ideTpr = row.codTpr
       this.codTpr = row.codTpr
       document.getElementById('closeModalTabelasPreco').click()
-      this.clearFocus()
     },
 
     filtrarTabelasPreco(filter) {
@@ -1450,12 +1478,19 @@ export default {
     },
 
     openTabelasPrecoModal() {
-      this.tabelasPrecoFiltro = this.codTpr
+      this.tabelasPrecoFiltro = this.ideTpr
       document.getElementById('btnBuscaTabelasPreco').click()
       const modalElement = document.getElementById('tabelasPrecoModal')
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputTabelasPrecoFiltro').focus()
       })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusTabelaPreco()
+      })
+    },
+
+    focusTabelaPreco() {
+      this.codTpr === '' ? document.getElementById('inputIdeTpr').focus() : document.getElementById('btnClearTpr').focus()
     },
 
     navegarModalTabelasPreco(key) {
@@ -1510,6 +1545,7 @@ export default {
 
     async beginCondicaoPagto() {
       this.ideCpg = ''
+      this.codCpg = ''
       this.condicoesPagtoFiltro = ''
       
       if(!this.condicoesPagto.length) await this.initCondicoesPagto()
@@ -1529,7 +1565,6 @@ export default {
       this.codCpg = row.codCpg
       this.condicaoSelected = row
       document.getElementById('closeModalCondicoesPagto').click()
-      this.clearFocus()
     },
 
     filtrarCondicoesPagto(filter) {
@@ -1548,6 +1583,13 @@ export default {
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputCondicoesPagtoFiltro').focus()
       })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusCondicaoPagto()
+      })
+    },
+
+    focusCondicaoPagto() {
+      this.codCpg === '' ? document.getElementById('inputIdeCpg').focus() : document.getElementById('btnClearCpg').focus()
     },
 
     navegarModalCondicoesPagto(key) {
@@ -1602,6 +1644,7 @@ export default {
 
     async beginFormaPagto() {
       this.ideFpg = ''
+      this.codFpg = ''
       this.formasPagtoFiltro = ''
       
       if(!this.formasPagto.length) await this.initFormasPagto()
@@ -1621,7 +1664,6 @@ export default {
       this.codFpg = row.codFpg
       this.formaSelected = row
       document.getElementById('closeModalFormasPagto').click()
-      this.clearFocus()
     },
 
     filtrarFormasPagto(filter) {
@@ -1640,6 +1682,13 @@ export default {
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputFormasPagtoFiltro').focus()
       })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusFormaPagto()
+      })
+    },
+
+    focusFormaPagto() {
+      this.codFpg === '' ? document.getElementById('inputIdeFpg').focus() : document.getElementById('btnClearFpg').focus()
     },
 
     navegarModalFormasPagto(key) {
