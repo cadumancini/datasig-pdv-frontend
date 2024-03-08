@@ -796,6 +796,7 @@ export default {
       this.codRep = ''
       this.representantesFiltro = ''
       this.ideCli = ''
+      this.codCli = ''
       this.clientesFiltro = ''
       this.codBar = ''
       this.produtosFiltro = ''
@@ -804,9 +805,11 @@ export default {
       this.codTpr = ''
       this.tabelasPrecoFiltro = ''
       this.ideCpg = ''
+      this.codCpg = ''
       this.condicaoSelected = null
       this.condicoesPagtoFiltro = ''
       this.ideFpg = ''
+      this.codFpg = ''
       this.formaSelected = null
       this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
@@ -1799,7 +1802,7 @@ export default {
         codRep: this.codRep,
         vlrTot: Number(itens.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
                   .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-                  .replace('R$', '').replace(',','.').trim(),
+                  .replace('R$', '').replace('.','').replace(',','.').trim(),
         itens: itens,
         qtdPar: this.condicaoSelected.qtdParCpg,
         parcelas: this.condicaoSelected.parcelas,
