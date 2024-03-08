@@ -6,7 +6,7 @@
         <a class="nav-link" href="#" :class="{ disable: this.title === 'Menu'}" @click="goBack">Voltar</a>
       </li>
       <li class="nav-item mx-2">
-        <a class="nav-link" href="#" @click="logout">Logout</a>
+        <a class="nav-link" href="#" id="linkLogout" @click="logout">Logout</a>
       </li>
     </ul>
   </nav>

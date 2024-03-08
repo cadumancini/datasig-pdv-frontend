@@ -973,6 +973,15 @@ export default {
       })
     },
 
+    handleRequestError(err) {
+      if (err.response) {
+        if (err.response.status === 401) {
+          alert('Seu token de acesso não é mais válido. Por favor, faça login novamente.')
+          document.getElementById('linkLogout').click()
+        }
+      }
+    },
+
     /* Representantes */
     async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
@@ -984,6 +993,7 @@ export default {
         })
         .catch((err) => {
           console.log(err)
+          this.handleRequestError(err)
         })
       } else {
         this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
@@ -1082,6 +1092,7 @@ export default {
         })
         .catch((err) => {
           console.log(err)
+          this.handleRequestError(err)
         })
       } else {
         this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
@@ -1213,6 +1224,7 @@ export default {
         })
         .catch((err) => {
           console.log(err)
+          this.handleRequestError(err)
           if(err.response.data) {
             alert(err.response.data.message)
             document.getElementById('selectTipCli').focus()
@@ -1235,6 +1247,7 @@ export default {
           sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
         })
         .catch((err) => {
+          this.handleRequestError(err)
           console.log(err)
         })
         .finally(() => {
@@ -1298,6 +1311,7 @@ export default {
           produto.vlrTot = vlrTot
         })
         .catch((err) => {
+          this.handleRequestError(err)
           if(err.response.status === 404) { 
             produto.preBas = 0
             produto.vlrTot = 0
@@ -1433,6 +1447,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
+        this.handleRequestError(err)
         if(err.response) {
           if (err.response.status === 404) alert (err.response.data.message)
         }
@@ -1538,6 +1553,7 @@ export default {
           sessionStorage.setItem('condicoesPagto', JSON.stringify(this.condicoesPagto))
         })
         .catch((err) => {
+          this.handleRequestError(err)
           console.log(err)
         })
       } else {
@@ -1637,6 +1653,7 @@ export default {
           sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
         })
         .catch((err) => {
+          this.handleRequestError(err)
           console.log(err)
         })
       } else {
@@ -1735,6 +1752,7 @@ export default {
           sessionStorage.setItem('TEF', this.usaTEF)
         })
         .catch((err) => {
+          this.handleRequestError(err)
           console.log(err)
         })
       } else {
@@ -1822,6 +1840,7 @@ export default {
           await this.gerarNFCe(respostaPedido.numPed)
         })
         .catch((err) => {
+          this.handleRequestError(err)
           console.log(err)
           if(err.response.data) alert (err.response.data.message)
         })
@@ -1843,6 +1862,7 @@ export default {
           } else alert('Pedido ' + numPed + ' criado com sucesso!')
         })
         .catch((err) => {
+          this.handleRequestError(err)
           console.log(err)
         })
         .finally(() => {
