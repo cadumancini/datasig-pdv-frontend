@@ -1306,7 +1306,7 @@ export default {
       await api.getPreco(this.codTpr, produto)
         .then((response) => {
           const preBas = response.data
-          const vlrTot = parseFloat(parseFloat(preBas) * Number(produto.qtdPed))
+          const vlrTot = Number(preBas) * Number(produto.qtdPed)
           produto.preBas = preBas
           produto.vlrTot = vlrTot
         })
