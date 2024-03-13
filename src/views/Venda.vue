@@ -69,7 +69,10 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
-                :disabled="!this.produtos.length" :placeholder="!this.produtos.length ? 'Buscando produtos ...' : ''" :class="{searching: !this.produtos.length}">
+                :disabled="!this.produtos.length || this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtos.length}" 
+                :placeholder="!this.produtos.length ? 'Buscando produtos ...' : 
+                              this.codTpr === '' ? 'Selecione a tabela de preço' : 
+                              !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : ''">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
           </div>
@@ -661,6 +664,7 @@ export default {
       ideTpr: '',
       codTpr: '',
       tabelasPreco: [],
+      produtosTabelaPreco: [],
       tabelasPrecoFiltro: '',
       tabelasPrecoFiltrados: [],
       tableIndexTpr: 0,
@@ -1327,7 +1331,8 @@ export default {
     },
     
     filtrarProdutos(filter) {
-      this.produtosFiltrados = this.produtos.filter(pro => (pro.codBa2 === filter ||
+      this.produtosEmComum = this.produtos.filter(pro => this.produtosTabelaPreco.some(proTpr => proTpr.codPro === pro.codPro && proTpr.codDer === pro.codDer))
+      this.produtosFiltrados = this.produtosEmComum.filter(pro => (pro.codBa2 === filter ||
                   pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
                   pro.desPro.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexPro = 0
@@ -1485,7 +1490,22 @@ export default {
     async selectTabelaPreco(row) {
       this.ideTpr = row.codTpr
       this.codTpr = row.codTpr
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      await this.buscarProdutosTabela()
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
       document.getElementById('closeModalTabelasPreco').click()
+    },
+
+    async buscarProdutosTabela() {
+      this.produtosTabelaPreco = []
+      await api.getProdutosTabelaPreco(this.codTpr)
+      .then((response) => {
+        this.produtosTabelaPreco = response.data
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
     },
 
     filtrarTabelasPreco(filter) {

@@ -33,6 +33,9 @@ var functions = {
   getTabelasPreco(codRep) {
     return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)
   },
+  getProdutosTabelaPreco(codTpr) {
+    return axios.get(urlBase + '/produtos/tabela?token=' + sessionStorage.getItem('token') + '&codTpr=' + codTpr)
+  },
   getCondicoesPagto() {
     return axios.get(urlBase + '/pagamentos/condicoes?token=' + sessionStorage.getItem('token'))
   },
