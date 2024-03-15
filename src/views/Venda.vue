@@ -69,9 +69,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
-                :disabled="!this.produtos.length || this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtos.length}" 
-                :placeholder="!this.produtos.length ? 'Buscando produtos ...' : 
-                              this.codTpr === '' ? 'Selecione a tabela de preço' : 
+                :disabled="!this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtosTabelaPreco.length}" 
+                :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
                               !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : ''">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
@@ -317,7 +316,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalProdutos"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3" v-if="produtos != null">
+          <div class="mb-3" v-if="produtosTabelaPreco != null">
             <input type="text" autocomplete="off" class="form-control mb-3" id="inputProdutosFiltro" v-on:keydown="navegarModalProdutos" v-on:keyup="filtrarModalProdutos" v-model="produtosFiltro" placeholder="Digite para buscar o produto abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
@@ -765,8 +764,7 @@ export default {
       this.initRepresentantes()    
       this.initClientes()    
       this.initCondicoesPagto()    
-      this.initFormasPagto()    
-      this.initProdutos()  
+      this.initFormasPagto()   
       this.initParams()  
     },
     restartRecords() {
@@ -785,14 +783,13 @@ export default {
       sessionStorage.removeItem('clientes')
       sessionStorage.removeItem('condicoesPagto')
       sessionStorage.removeItem('formasPagto')
-      sessionStorage.removeItem('produtos')
     },
     clearAllLists() {
       this.representantes = []
       this.clientes = []
       this.condicoesPagto = []
       this.formasPagto = []
-      this.produto = []
+      this.produtosTabelaPreco = []
       this.itensCarrinho = []
     },
     clearAllInputs() {
@@ -1240,42 +1237,13 @@ export default {
         })
     },
 
-    /* Produtos */
-    async initProdutos() {
-      if (!sessionStorage.getItem('produtos')) {
-        this.loadingProdutos = true
-        await api.getProdutos()
-        .then((response) => {
-          this.produtos = response.data
-          this.produtosFiltrados = this.produtos
-          sessionStorage.setItem('produtos', JSON.stringify(this.produtos))
-        })
-        .catch((err) => {
-          this.handleRequestError(err)
-          console.log(err)
-        })
-        .finally(() => {
-          this.loadingProdutos = false
-        }) 
-      } else {
-        this.produtos = JSON.parse(sessionStorage.getItem('produtos'))
-        this.produtosFiltrados = this.produtos
-      }
-    },
-    
-    async beginProduto() {
-      if(this.codTpr === '') {
-        alert('Favor informar uma tabela de preço!')
-        document.getElementById('inputIdeTpr').focus()
-      } else {
-        this.codBar = ''
-        this.produtosFiltro = ''
-
-        if (!this.produtos.length) await this.initProdutos()
-      }
+    /* Produtos */    
+    beginProduto() {
+      this.codBar = ''
+      this.produtosFiltro = ''
     },
 
-    async searchProdutos() {
+    searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
         this.selectProduto(this.produtosFiltrados[0])
@@ -1284,17 +1252,17 @@ export default {
       }
     },
 
-    async selectProduto(row) {
+    selectProduto(row) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
         itemDoCarrinho.qtdPed += 1
-        await this.buscarPreco(itemDoCarrinho)
+        this.definirPreco(itemDoCarrinho)
       }
       else {
         newItem.qtdPed = 1
-        await this.buscarPreco(newItem)
+        this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
         }
@@ -1306,23 +1274,24 @@ export default {
       this.atualizarValorTotalCompra()
     },
 
-    async buscarPreco(produto) {
-      await api.getPreco(this.codTpr, produto)
-        .then((response) => {
-          const preBas = response.data
+    definirPreco(produto) {
+      let preBas = null
+      produto.faixasPreco.every(faixa => {
+        if (produto.qtdPed <= faixa.qtdMax) {
+          preBas = faixa.preBas
           const vlrTot = Number(preBas) * Number(produto.qtdPed)
           produto.preBas = preBas
           produto.vlrTot = vlrTot
-        })
-        .catch((err) => {
-          this.handleRequestError(err)
-          if(err.response.status === 404) { 
-            produto.preBas = 0
-            produto.vlrTot = 0
-            alert (err.response.data.message)
-          }
-          console.log(err)
-        })
+        }
+        if (preBas !== null) return false
+        return true
+      })
+
+      if (preBas === null) {
+        produto.preBas = 0
+        produto.vlrTot = 0
+        alert ('Preço não encontrado para quantidade comprada.')
+      }
     },
 
     atualizarValorTotalCompra() {
@@ -1331,8 +1300,7 @@ export default {
     },
     
     filtrarProdutos(filter) {
-      this.produtosEmComum = this.produtos.filter(pro => this.produtosTabelaPreco.some(proTpr => proTpr.codPro === pro.codPro && proTpr.codDer === pro.codDer))
-      this.produtosFiltrados = this.produtosEmComum.filter(pro => (pro.codBa2 === filter ||
+      this.produtosFiltrados = this.produtosTabelaPreco.filter(pro => (pro.codBar === filter ||
                   pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
                   pro.desPro.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexPro = 0
@@ -1429,12 +1397,12 @@ export default {
       })
     },  
 
-    async alterarQuantidadeItem() {
+    alterarQuantidadeItem() {
       if (this.newValue > 9999) this.newValue = 9999
       if (this.newValue === 0) alert('A quantidade não pode ser zero!')
       else {
         this.itemEditando.qtdPed = this.newValue
-        await this.buscarPreco(this.itemEditando)
+        this.definirPreco(this.itemEditando)
         this.itemEditando = null
         document.getElementById('closeModalEditarItem').click()
         this.atualizarValorTotalCompra()
@@ -1824,7 +1792,7 @@ export default {
         const itemPedido = {
           codPro: item.codPro,
           codDer: item.codDer,
-          codTpr: this.codTpr,
+          codTpr: item.codTpr,
           qtdPed: item.qtdPed,
           vlrTot: item.vlrTot
         }
