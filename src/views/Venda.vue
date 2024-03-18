@@ -560,7 +560,7 @@
               <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
             </div>
           </div>
-          <div class="row mb-2" v-if="this.usaTEF">
+          <div class="row mb-2" v-if="this.paramsPDV.usaTEF">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Número da Transação (TEF)</span>
               <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
@@ -688,7 +688,7 @@ export default {
 
       //venda
       finalizandoVenda: false,
-      usaTEF: false,
+      paramsPDV: { usaTEF: false, codTpr: '' },
       vlrTot: 'R$ 0,00',
       cartoes: [
         { codBan: '01', desBan: 'Visa' },
@@ -1019,10 +1019,23 @@ export default {
       }
     },
 
-    selectRepresentante(row) {
+    async selectRepresentante(row) {
       this.ideRep = row.nomRep
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
+      
+      await this.initTabelasPreco()
+      if (this.tabelasPreco.length) {
+        if (this.tabelasPreco.length === 1) this.selectTabelaPreco(this.tabelasPreco[0])
+      } else {
+        if (this.paramsPDV.codTpr !== '') {
+          this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr})
+        } else {
+          alert('Não existe nenhuma tabela de preço ligada a este representante e nenhuma tabela de preço cadastrada nos parâmetros do PDV. '
+            + 'Por favor, contate o administrador do sistema.')
+        }
+      }
+
     },
 
     filtrarRepresentantes(filter) {
@@ -1421,9 +1434,6 @@ export default {
       .catch((err) => {
         console.log(err)
         this.handleRequestError(err)
-        if(err.response) {
-          if (err.response.status === 404) alert (err.response.data.message)
-        }
       })
       .finally(() => {
         document.getElementsByTagName('body')[0].style.cursor = 'auto'
@@ -1451,11 +1461,12 @@ export default {
           this.openTabelasPrecoModal()
         }
       } else {
-        this.beginTabelasPreco()
+        alert('Nenhuma tabela encontrada para o representante!')
       }
     },
 
     async selectTabelaPreco(row) {
+      console.log(row)
       this.ideTpr = row.codTpr
       this.codTpr = row.codTpr
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
@@ -1733,18 +1744,21 @@ export default {
 
     /* Finalizar Venda */
     async initParams() {
-      if (!sessionStorage.getItem('TEF')) {
+      if (!sessionStorage.getItem('paramsPDV')) {
         await api.getUserParams()
         .then((response) => {
-          this.usaTEF = response.data.usaTEF
-          sessionStorage.setItem('TEF', this.usaTEF)
+          this.paramsPDV = {
+            usaTEF: response.data.usaTEF,
+            codTpr: response.data.parametrosPDV.codTpr
+          }
+          sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
         })
         .catch((err) => {
           this.handleRequestError(err)
           console.log(err)
         })
       } else {
-        this.usaTEF = sessionStorage.getItem('TEF')
+        this.paramsPDV = JSON.parse(sessionStorage.getItem('paramsPDV'))
       }
     },
 
@@ -1779,7 +1793,7 @@ export default {
     confirmarDadosCartao() {
       if (this.cartao.banOpe === '') alert('Selecione a bandeira do cartão!')
       else if (this.cartao.catTef === '') alert('Preencha o número da autorização!') 
-      else if (this.cartao.nsuTef === '' && this.usaTEF) alert('Preencha o número da transação (TEF)!') 
+      else if (this.cartao.nsuTef === '' && this.paramsPDV.usaTEF) alert('Preencha o número da transação (TEF)!') 
       else {
         document.getElementById('closeModalCartao').click()
         this.enviarVenda()

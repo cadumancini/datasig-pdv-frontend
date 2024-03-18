@@ -103,7 +103,11 @@ export default {
     populateParams () {
       api.getUserParams()
       .then((response) => {
-        sessionStorage.setItem('TEF', response.data.usaTEF)
+        const paramsPDV = {
+          usaTEF: response.data.usaTEF,
+          codTpr: response.data.parametrosPDV.codTpr
+        }
+        sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
       })
       .catch((err) => {
         console.log(err)
