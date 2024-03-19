@@ -1316,11 +1316,26 @@ export default {
     },
     
     filtrarProdutos(filter) {
+      if (filter.includes(' ')) {
+        const terms = filter.toUpperCase().split(' ').filter(term => term !== '')
+        this.produtosFiltrados = this.produtosTabelaPreco.filter(pro => {
+          let matches = 0
+          
+          terms.forEach(term => {
+            pro.desPro.toUpperCase().split(' ').forEach(desc => {
+              if (desc.startsWith(term)) matches++
+            })
+          })
+
+          return matches === terms.length
+        })
+      } else {
       this.produtosFiltrados = this.produtosTabelaPreco.filter(pro => (pro.codBar === filter ||
                   pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
                   pro.desPro.toUpperCase().includes(filter.toUpperCase())))
-      this.tableIndexPro = 0
+      }
 
+      this.tableIndexPro = 0
       this.populateTabIndex(this.produtosFiltrados)
     },
 
@@ -1474,7 +1489,6 @@ export default {
     },
 
     async selectTabelaPreco(row) {
-      console.log(row)
       this.ideTpr = row.codTpr
       this.codTpr = row.codTpr
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
