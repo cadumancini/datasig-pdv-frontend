@@ -493,6 +493,7 @@
         </div>
         <div class="modal-body">
           <p>Tem certeza que deseja finalizar a venda?</p>
+          <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -1888,9 +1889,6 @@ export default {
         return false
       } else if (this.isTabelaPrecoEmpty()) {
         alert('Favor informar uma tabela de preço!')
-        return false
-      } else if (this.isClienteEmpty()) {
-        alert('Favor informar um cliente!')
         return false
       } else if (this.isCondicaoPagtoEmpty()) {
         alert('Favor informar uma condição de pagamento!')
