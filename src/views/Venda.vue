@@ -69,7 +69,7 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
-                :disabled="!this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtosTabelaPreco.length}" 
+                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtosTabelaPreco.length}" 
                 :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
                               !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : ''">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
@@ -786,6 +786,7 @@ export default {
     },
     clearAllLists() {
       this.representantes = []
+      this.tabelasPreco = []
       this.clientes = []
       this.condicoesPagto = []
       this.formasPagto = []
@@ -1024,6 +1025,7 @@ export default {
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
       
+      this.tabelasPreco = []
       await this.initTabelasPreco()
       if (this.tabelasPreco.length) {
         if (this.tabelasPreco.length === 1) this.selectTabelaPreco(this.tabelasPreco[0])
@@ -1461,7 +1463,12 @@ export default {
           this.openTabelasPrecoModal()
         }
       } else {
-        alert('Nenhuma tabela encontrada para o representante!')
+        if (this.paramsPDV.codTpr !== '') {
+          alert('Nenhuma tabela encontrada para o representante. Utilizando tabela padrão.')
+          this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr})
+        } else {
+          alert('Nenhuma tabela encontrada para o representante!')
+        }
       }
     },
 
