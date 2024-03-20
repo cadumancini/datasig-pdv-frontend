@@ -1327,6 +1327,14 @@ export default {
             })
           })
 
+          if (terms.length === 1) {  
+            if (pro.codPro.toUpperCase().includes(terms[0])) matches++
+          }
+          else if (terms.length === 2) {  
+            if (pro.codPro.toUpperCase().includes(terms[0])) matches++
+            if (pro.codDer.toUpperCase().includes(terms[1])) matches++
+          }
+
           return matches === terms.length
         })
       } else {
@@ -1561,7 +1569,7 @@ export default {
 
     tprListHit() {
       const tpr = this.tabelasPrecoFiltrados.find(tprFil => tprFil.tabIndex === this.tableIndexTpr)
-      this.selectTabelaPreco(tpr)
+      if (tpr) this.selectTabelaPreco(tpr)
     },
 
     /* Condições de Pagamento */
