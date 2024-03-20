@@ -257,7 +257,6 @@
                 <span class="input-group-text">Número</span>
                 <input autocomplete="off" class="form-control" type="number" v-model="cadCliNenCli" maxLength="5"
                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
-                <span class="mandatory">&nbsp;&nbsp;*</span> 
               </div> 
             </div>
             <div class="col">
@@ -1288,10 +1287,6 @@ export default {
       }
       else if (this.cadCliEndCli === '') {
         alert('É necessário informar o Endereco!')
-        return false
-      }
-      else if (this.cadCliNenCli === '') {
-        alert('É necessário informar o Número!')
         return false
       }
       else if (this.cadCliBaiCli === '') {
