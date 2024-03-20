@@ -39,7 +39,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
-                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="!this.clientes.length ? 'Buscando clientes ...' : ''" :class="{searching: !this.clientes.length}">
+                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCLi === '') ? 'Buscando clientes ...' : ''"
+                :class="{searching: (!this.clientes.length && this.codCLi === '')}">
               <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
@@ -215,7 +216,8 @@
                   <option selected disabled value="" >Selecione</option>
                   <option value="F">Física</option>
                   <option value="J">Jurídica</option>
-              </select>
+                </select>
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
             <div class="col-8">
@@ -223,6 +225,7 @@
                 <span class="input-group-text">CPF/CNPJ</span>
                 <vue-mask v-if="cadCliTipCli !== 'J'" class="form-control" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"></vue-mask>
                 <vue-mask v-else class="form-control" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"></vue-mask>
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
           </div>
@@ -230,6 +233,7 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Nome</span>
               <input autocomplete="off" class="form-control" type="text" v-model="cadCliNomCli">  
+              <span class="mandatory">&nbsp;&nbsp;*</span>
             </div>
           </div>
           <div class="row mb-2">
@@ -243,6 +247,7 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Endereço</span>
                 <input autocomplete="off" class="form-control" type="text" v-model="cadCliEndCli">  
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
           </div>
@@ -251,7 +256,8 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número</span>
                 <input autocomplete="off" class="form-control" type="number" v-model="cadCliNenCli" maxLength="5"
-                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};"> 
+                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
+                <span class="mandatory">&nbsp;&nbsp;*</span> 
               </div> 
             </div>
             <div class="col">
@@ -266,12 +272,14 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Bairro</span>
                 <input autocomplete="off" class="form-control" type="text" v-model="cadCliBaiCli"> 
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div> 
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cidade</span>
                 <input autocomplete="off" class="form-control" type="text" v-model="cadCliCidCli">  
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
             <div class="col-4">
@@ -280,7 +288,8 @@
                 <select class="form-select" v-model="cadCliSigUfs" id="selectSigUfs">
                   <option selected disabled value="">Selecione</option>
                   <option v-for="row in estados" :key="row.codUfs" :value="row.codUfs">{{ row.desUfs }}</option>
-              </select> 
+                </select> 
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div> 
             </div>
           </div>
@@ -298,6 +307,9 @@
               </div> 
             </div>
           </div>
+        </div>
+        <div class="row mx-2 mb-2">
+          <span class="mandatory">Os campos marcados com * são obrigatórios.</span>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" @click="cadastrarCliente">Cadastrar</button>
@@ -1215,42 +1227,86 @@ export default {
     },
 
     async cadastrarCliente() {
-      const cliente = {
-        tipCli: this.cadCliTipCli,
-        cgcCpf: this.cadCliCgcCpf,
-        cepCli: this.cadCliCepCli,
-        nomCli: this.cadCliNomCli,
-        endCli: this.cadCliEndCli,
-        nenCli: this.cadCliNenCli,
-        cplEnd: this.cadCliCplEnd,
-        baiCli: this.cadCliBaiCli,
-        cidCli: this.cadCliCidCli,
-        sigUfs: this.cadCliSigUfs,
-        fonCli: this.cadCliFonCli,
-        emaCli: this.cadCliEmaCli,
-        codRep: this.codRep,
+      if(this.validarCamposCliente()) {
+        const cliente = {
+          tipCli: this.cadCliTipCli,
+          cgcCpf: this.cadCliCgcCpf,
+          cepCli: this.cadCliCepCli,
+          nomCli: this.cadCliNomCli,
+          endCli: this.cadCliEndCli,
+          nenCli: this.cadCliNenCli,
+          cplEnd: this.cadCliCplEnd,
+          baiCli: this.cadCliBaiCli,
+          cidCli: this.cadCliCidCli,
+          sigUfs: this.cadCliSigUfs,
+          fonCli: this.cadCliFonCli,
+          emaCli: this.cadCliEmaCli,
+          codRep: this.codRep,
+        }
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        await api.putCliente(cliente)
+          .then((response) => {
+            alert('Cliente cadastrado com sucesso.')         
+            document.getElementById('closeModalCadastroClientes').click()
+            this.clearInputsCadCli()
+            this.clientes = []
+            sessionStorage.removeItem('clientes')
+            this.beginCliente()
+            
+            const newCli = {
+              codCli: response.data.codCli,
+              nomCli: cliente.nomCli.toUpperCase()
+            }
+            this.selectCliente(newCli)
+          })
+          .catch((err) => {
+            console.log(err)
+            this.handleRequestError(err)
+            if(err.response.data) {
+              alert(err.response.data.message)
+              document.getElementById('selectTipCli').focus()
+            }
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          })
       }
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      await api.putCliente(cliente)
-        .then((response) => {
-          alert('Cliente cadastrado com sucesso. Recarregando clientes ...')
-          document.getElementById('closeModalCadastroClientes').click()
-          this.clientes = []
-          sessionStorage.removeItem('clientes')
-          this.beginCliente()
-        })
-        .catch((err) => {
-          console.log(err)
-          this.handleRequestError(err)
-          if(err.response.data) {
-            alert(err.response.data.message)
-            document.getElementById('selectTipCli').focus()
-          }
-        })
-        .finally(() => {
-          document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          this.clearInputsCadCli()
-        })
+    },
+
+    validarCamposCliente() {
+      if (this.cadCliTipCli === '') {
+        alert('É necessário informar o tipo de cliente!')
+        return false
+      }
+      else if (this.cadCliCgcCpf === '') {
+        alert('É necessário informar o CPF/CNPJ!')
+        return false
+      }
+      else if (this.cadCliNomCli === '') {
+        alert('É necessário informar o Nome!')
+        return false
+      }
+      else if (this.cadCliEndCli === '') {
+        alert('É necessário informar o Endereco!')
+        return false
+      }
+      else if (this.cadCliNenCli === '') {
+        alert('É necessário informar o Número!')
+        return false
+      }
+      else if (this.cadCliBaiCli === '') {
+        alert('É necessário informar o Bairro!')
+        return false
+      }
+      else if (this.cadCliCidCli === '') {
+        alert('É necessário informar a Cidade!')
+        return false
+      }
+      else if (this.cadCliSigUfs === '') {
+        alert('É necessário informar o Estado!')
+        return false
+      }
+      return true
     },
 
     /* Produtos */    
@@ -1933,10 +1989,6 @@ export default {
       return this.codTpr === ''
     },
 
-    isClienteEmpty() {
-      return this.codCli === ''
-    },
-
     isCondicaoPagtoEmpty() {
       return this.codCpg === ''
     },
@@ -2017,6 +2069,10 @@ export default {
   }
   .row-modal:hover {
     cursor: pointer;
+  }
+  .mandatory {
+    color: red;
+    font-style: italic;
   }
 
   @media only screen and (max-height: 730px) {
