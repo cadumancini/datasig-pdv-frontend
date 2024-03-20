@@ -255,7 +255,7 @@
             <div class="col-3">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número</span>
-                <input autocomplete="off" class="form-control" type="number" v-model="cadCliNenCli" maxLength="5"
+                <input autocomplete="off" class="form-control" v-model="cadCliNenCli" maxLength="5"
                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
               </div> 
             </div>
