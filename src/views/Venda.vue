@@ -4,7 +4,7 @@
     <div class="venda mx-4">
       <div class="row">
         <div class="col-3">
-          <span class="fw-bold fs-1">Relizar Venda</span>
+          <span class="fw-bold fs-1">Realizar Venda</span>
         </div>
         <div class="col">
           <div class="float-end">
