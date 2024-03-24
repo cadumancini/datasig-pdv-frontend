@@ -112,6 +112,14 @@
               </div>
             </div>
           </div>
+          <div class="row my-4" v-if="status !== ''">
+            <div class="col">
+              <div class="float-end">
+                <span class="status" v-if="status === 'pedido'">Gerando pedido. Aguarde ...</span>
+                <span class="status" v-else-if="status === 'nfce'">Gerando NFC-e. Aguarde ...</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -737,6 +745,7 @@ export default {
         catTef: '',
         nsuTef: '',
       },
+      status: '',
 
       //geral
       options: {
@@ -827,6 +836,7 @@ export default {
       this.formaSelected = null
       this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
+      this.status = ''
       this.clearFocus()
     },
     clearInputsCadCli() {
@@ -1917,9 +1927,12 @@ export default {
       this.clearInputsCartao()
       this.setEverythingDisabled(true)
 
+      this.status = 'pedido'
+
       await api.putPedido(pedido)
         .then(async (response) => {
           const respostaPedido = response.data
+          this.status = 'nfce'
           await this.gerarNFCe(respostaPedido.numPed)
         })
         .catch((err) => {
@@ -2068,6 +2081,10 @@ export default {
   .mandatory {
     color: red;
     font-style: italic;
+  }
+  .status {
+    font-style: italic;
+    font-weight: bold;
   }
 
   @media only screen and (max-height: 730px) {
