@@ -2,17 +2,17 @@
   <div class="menu-tela">
     <Navbar title="Menu"/>
     <div class="menu">
-      <div class="row mx-4 mb-4">
-        <span class="fw-bold fs-1 mb-4">Operações de Caixa</span>
+      <div class="row mx-4 margin-b">
+        <span class="fw-bold section margin-b">Operações de Caixa</span>
         <button disabled class="btn btn-secondary btn-menu mx-4">Abertura</button>
         <button disabled class="btn btn-secondary btn-menu mx-4">Fechamento</button>
       </div>
-      <div class="row mx-4 mb-4">
-        <span class="fw-bold fs-1 mb-4">Operações de Venda</span>
+      <div class="row mx-4 margin-b">
+        <span class="fw-bold section margin-b">Operações de Venda</span>
         <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda (Atalho - V)</button>
       </div>
-      <div class="row mx-4 mb-4">
-        <span class="fw-bold fs-1 mb-4">Consultas</span>
+      <div class="row mx-4 margin-b">
+        <span class="fw-bold section margin-b">Consultas</span>
         <button disabled class="btn btn-secondary btn-menu mx-4">Produtos</button>
       </div>
     </div>
@@ -145,15 +145,34 @@ export default {
      #fff !important;
   }
   .btn-menu {
-    height:10em;
-    width:10em;
+    height:10rem;
+    width:10rem;
     cursor:pointer;
+  }
+  .margin-b {
+    margin-bottom: 1.5rem !important;
+  }
+  .section {
+    font-size: 2.5rem !important;
   }
 
   @media (max-width: 450px) {
     .btn-menu {
-      height:7em;
-      width:7em;
+      height:7rem;
+      width:7rem;
+    }
+  }
+
+  @media (max-height: 768px) {
+    .btn-menu {
+      height:7rem;
+      width:9rem;
+    }
+    .margin-b {
+      margin-bottom: 0.5rem !important;
+    }
+    .section {
+      font-size: 1.7rem !important;
     }
   }
 
