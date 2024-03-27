@@ -9,7 +9,8 @@
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Operações de Venda</span>
-        <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda (Atalho - V)</button>
+        <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda (V)</button>
+        <button class="btn btn-secondary btn-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos (P)</button>
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Consultas</span>
@@ -52,6 +53,7 @@ export default {
     handleOption(event) {
       if (sessionStorage.getItem('form', 'menu')) {
         if(event.key.toUpperCase() === 'V') this.access('Venda')
+        if(event.key.toUpperCase() === 'P') this.access('ConsultaPedidos')
       }
     },
 

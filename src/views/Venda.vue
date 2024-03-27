@@ -1,7 +1,7 @@
 <template>
-  <div class="venda-tela">
+  <div class="pdv-tela">
     <Navbar title="Venda"/>
-    <div class="venda mx-4">
+    <div class="pdv-frame mx-4">
       <div class="row">
         <div class="col-3">
           <span class="fw-bold title">Realizar Venda</span>
@@ -39,8 +39,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
-                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCLi === '') ? 'Buscando clientes ...' : ''"
-                :class="{searching: (!this.clientes.length && this.codCLi === '')}">
+                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
+                :class="{searching: (!this.clientes.length && this.codCli === '')}">
               <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
@@ -2012,130 +2012,4 @@ export default {
 }
 </script>
 
-<style scoped>
-   html, body {
-    height: 100%;
-  }
-  .venda-tela {
-    height: 100%;
-  }
-  .venda {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    height: 80%;
-  }
-  .input-group-btn {
-    width: 40px !important;
-  }
-  .btn-busca {
-    display: none;
-  }
-  .table-wrapper {
-    height: 25rem;
-    width: 100%;
-    margin: 0px auto 0px auto;
-    overflow: auto;
-  }
-  .table-items {
-    width: 100%;
-    max-height: 1rem;
-  }
-  .sm {
-    font-size: 0.8rem !important;
-  }
-  .sm-header {
-    font-size: 0.9rem !important;
-  }
-  .active {
-    background-color: rgb(166, 166, 166);
-  }
-  .options {
-    border-radius: 10px;
-    padding: 1rem;
-    background-color: #dedede;
-  }
-  .loading-products {
-    margin-left: 12px;
-    font-style: italic;
-    color: red;
-  }
-  .searching {
-    font-style: italic;
-  }
-  .edit-cart {
-    height: 1.25rem;
-    margin-left: 12px;
-  }
-  .icon-cart {
-    font-size: 0.75rem !important;
-    display: flex;
-    align-items: center;
-  }
-  .btn-dismiss {
-    color: #fff;
-    background-color: #aab4bd;
-  }
-  .row-modal:hover {
-    cursor: pointer;
-  }
-  .mandatory {
-    color: red;
-    font-style: italic;
-  }
-  .status {
-    font-style: italic;
-    font-weight: bold;
-  }
-  .title {
-    font-size: 2.5rem !important;
-  }
-  .subtitle {
-    font-size: 1.25rem !important;
-  }
-  .margin-y-fields {
-    margin-top: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
-  }
-
-  @media only screen and (max-height: 730px) {
-    .table-wrapper {
-      height: 20rem;
-      width: 100%;
-      margin: 0px auto 0px auto;
-      overflow: auto;
-    }
-
-    .input-sale {
-      font-size: 0.8rem !important;
-    }
-  }
-
-  @media only screen and (max-height: 768px) {
-    .table-wrapper {
-      height: 15rem;
-      width: 100%;
-      margin: 0px auto 0px auto;
-      overflow: auto;
-    }
-
-    .input-sale {
-      font-size: 0.8rem !important;
-    }
-    .title {
-      font-size: 1.6rem !important;
-    }
-    .subtitle {
-      font-size: 1.1rem !important;
-    }
-    .margin-y-fields {
-      margin-top: 1.1rem !important;
-      margin-bottom: 1.1rem !important;
-    }
-    .venda {
-      padding-top: 15px;
-      padding-bottom: 15px;
-      height: 80%;
-    }
-  }
-
-</style>
+<style scoped src="../styles/general.css"></style>

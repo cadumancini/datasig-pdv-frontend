@@ -1,0 +1,122 @@
+html, body {
+  height: 100%;
+}
+.pdv-tela {
+  height: 100%;
+}
+.pdv-frame {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  height: 80%;
+}
+.input-group-btn {
+  width: 40px !important;
+}
+.btn-busca {
+  display: none;
+}
+.table-wrapper {
+  height: 25rem;
+  width: 100%;
+  margin: 0px auto 0px auto;
+  overflow: auto;
+}
+.table-items {
+  width: 100%;
+  max-height: 1rem;
+}
+.sm {
+  font-size: 0.8rem !important;
+}
+.sm-header {
+  font-size: 0.9rem !important;
+}
+.active {
+  background-color: rgb(166, 166, 166);
+}
+.options {
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #dedede;
+}
+.loading-products {
+  margin-left: 12px;
+  font-style: italic;
+  color: red;
+}
+.searching {
+  font-style: italic;
+}
+.edit-cart {
+  height: 1.25rem;
+  margin-left: 12px;
+}
+.icon-cart {
+  font-size: 0.75rem !important;
+  display: flex;
+  align-items: center;
+}
+.btn-dismiss {
+  color: #fff;
+  background-color: #aab4bd;
+}
+.row-modal:hover {
+  cursor: pointer;
+}
+.mandatory {
+  color: red;
+  font-style: italic;
+}
+.status {
+  font-style: italic;
+  font-weight: bold;
+}
+.title {
+  font-size: 2.5rem !important;
+}
+.subtitle {
+  font-size: 1.25rem !important;
+}
+.margin-y-fields {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+@media only screen and (max-height: 730px) {
+  .table-wrapper {
+    height: 20rem;
+    width: 100%;
+    margin: 0px auto 0px auto;
+    overflow: auto;
+  }
+  .input-sale {
+    font-size: 0.8rem !important;
+  }
+}
+
+@media only screen and (max-height: 768px) {
+  .table-wrapper {
+    height: 15rem;
+    width: 100%;
+    margin: 0px auto 0px auto;
+    overflow: auto;
+  }
+  .input-sale {
+    font-size: 0.8rem !important;
+  }
+  .title {
+    font-size: 1.6rem !important;
+  }
+  .subtitle {
+    font-size: 1.1rem !important;
+  }
+  .margin-y-fields {
+    margin-top: 1.1rem !important;
+    margin-bottom: 1.1rem !important;
+  }
+  .pdv-frame {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    height: 80%;
+  }
+}
