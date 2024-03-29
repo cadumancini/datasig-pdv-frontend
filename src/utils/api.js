@@ -42,6 +42,9 @@ var functions = {
   },
   putNFCe(numPed) {
     return axios.put(urlBase + '/pedidos/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+  },
+  getPedidos(status) {
+    return axios.get(urlBase + '/pedidos?token=' + sessionStorage.getItem('token') + '&statusPedido=' + status)
   }
 }
 

@@ -3,7 +3,7 @@
     <Navbar title="Venda"/>
     <div class="pdv-frame mx-4">
       <div class="row">
-        <div class="col-3">
+        <div class="col-4">
           <span class="fw-bold title">Realizar Venda</span>
         </div>
         <div class="col">
@@ -17,6 +17,16 @@
       </div>
       <div class="row">
         <div class="col-5">
+          <span class="fw-bold subtitle">Pedido</span>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Pedido</span>
+              <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
+                :disabled="!this.pedidos.length || this.pedPrv !== ''" :placeholder="!this.pedidos.length ? 'Buscando pedidos ...' : ''" :class="{searching: !this.pedidos.length}">
+              <button id="btnClearPed" :disabled="this.pedPrv === ''" class="btn btn-secondary input-group-btn" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
+            </div>
+          </div>
           <span class="fw-bold subtitle">Identificação</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
@@ -106,8 +116,12 @@
           </div>
           <div class="row margin-y-fields">
             <div class="col">
-              <div class="float-end">
-                <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true)">Finalizar</button>
+              <div class="float-end mx-2">
+                <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, true)" :disabled="!this.itensCarrinho.length">Finalizar Venda</button>
+                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
+              </div>
+              <div class="float-end mx-2">
+                <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false)" :disabled="!this.itensCarrinho.length">{{ this.pedPrv === '' ? 'Inserir' : 'Atualizar' }} Pedido</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -117,6 +131,12 @@
               <div class="float-end">
                 <span class="status" v-if="status === 'pedido'">Gerando pedido. Aguarde ...</span>
                 <span class="status" v-else-if="status === 'nfce'">Gerando NFC-e. Aguarde ...</span>
+                <span class="status" v-else-if="status === 'b_representantes'">Buscando representantes ...</span>
+                <span class="status" v-else-if="status === 'b_clientes'">Buscando clientes ...</span>
+                <span class="status" v-else-if="status === 'b_formas'">Buscando formas de pagamento ...</span>
+                <span class="status" v-else-if="status === 'b_condicoes'">Buscando condições de pagamento ...</span>
+                <span class="status" v-else-if="status === 'b_pedidos'">Buscando pedidos abertos ...</span>
+                <span class="status" v-else-if="status === 'b_produtos'">Buscando produtos ...</span>
               </div>
             </div>
           </div>
@@ -346,7 +366,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row)">
+                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0)">
                   <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -508,10 +528,10 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirma venda</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"  @click="triggerFinalizandoVenda(false)"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"  @click="triggerFinalizandoVenda(false, this.fecharVenda)"></button>
         </div>
         <div class="modal-body">
-          <p>Tem certeza que deseja finalizar a venda?</p>
+          <p>{{ this.msgConfirmacao }}</p>
           <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
         </div>
         <div class="modal-footer">
@@ -589,6 +609,47 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" @click="confirmarDadosCartao">Confirmar</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pedidos -->
+  <div class="modal fade" id="pedidosModal" tabindex="-1" aria-labelledby="pedidosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="pedidosModalLabel">Pedidos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalPedidos"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="pedidos != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 15%;">Número</th>
+                  <th class="sm-header" scope="col" style="width: 15%;">Data de Emissão</th>
+                  <th class="sm-header" scope="col" style="width: 35%;">Representante</th>
+                  <th class="sm-header" scope="col" style="width: 35%;">Cliente</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in pedidosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectPedido(row)">
+                  <th :id="'tabPed' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm" scope="row">{{ row.numPed }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.datEmi }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideCli }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando Pedidos ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -745,9 +806,11 @@ export default {
         catTef: '',
         nsuTef: '',
       },
-      status: '',
+      fecharVenda: false,
+      msgConfirmacao: '',
 
       //geral
+      status: '',
       options: {
         reverse: true
       },
@@ -759,17 +822,27 @@ export default {
         minimumFractionDigits: 3
       },
       atalhos: [
-        { codAta: 0, tecAta: 'R', desAta: 'Representante' },
-        { codAta: 1, tecAta: 'T', desAta: 'Tabela de Preço' },
-        { codAta: 2, tecAta: 'C', desAta: 'Cliente' },
-        { codAta: 3, tecAta: 'F', desAta: 'Forma de Pagamento' },
-        { codAta: 4, tecAta: 'O', desAta: 'Condição de Pagamento' },
-        { codAta: 5, tecAta: 'P', desAta: 'Produto' },
-        { codAta: 6, tecAta: 'E', desAta: 'Editar carrinho' },
-        { codAta: 7, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
-        { codAta: 8, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 9, tecAta: 'X', desAta: 'Finalizar Venda' }
-      ]
+        { codAta: 0, tecAta: 'A', desAta: 'Pedido' },
+        { codAta: 1, tecAta: 'R', desAta: 'Representante' },
+        { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
+        { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
+        { codAta: 4, tecAta: 'F', desAta: 'Forma de Pagamento' },
+        { codAta: 5, tecAta: 'O', desAta: 'Condição de Pagamento' },
+        { codAta: 6, tecAta: 'P', desAta: 'Produto' },
+        { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
+        { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
+        { codAta: 9, tecAta: 'Delete', desAta: 'Remover Item' },
+        { codAta: 10, tecAta: 'I', desAta: 'Inserir Pedido' },
+        { codAta: 11, tecAta: 'X', desAta: 'Finalizar Venda' }
+      ],
+
+      //Pedidos
+      idePedPrv: '',
+      pedPrv: '',
+      pedidos: [],
+      pedidosFiltro: '',
+      pedidosFiltrados: [],
+      tableIndexPed: 0
     }
   },
   mounted () {
@@ -781,12 +854,19 @@ export default {
     this.addEvents()
   },
   methods: {
-    initEverything() {
-      this.initRepresentantes()    
-      this.initClientes()    
-      this.initCondicoesPagto()    
-      this.initFormasPagto()   
+    async initEverything() {
+      this.status = 'b_representantes'
+      await this.initRepresentantes()    
+      this.status = 'b_clientes'
+      await this.initClientes()    
+      this.status = 'b_formas'
+      await this.initFormasPagto()    
+      this.status = 'b_condicoes'
+      await this.initCondicoesPagto() 
+      this.status = 'b_pedidos'  
       this.initParams()  
+      await this.initPedidos() 
+      this.status = '' 
     },
     restartRecords() {
       this.clearEverything()
@@ -798,12 +878,14 @@ export default {
       this.clearAllInputs()
       this.clearInputsCadCli()
       this.clearInputsCartao()
+      this.clearFocus()
     },
     emptyStorage() {
       sessionStorage.removeItem('representantes')
       sessionStorage.removeItem('clientes')
       sessionStorage.removeItem('condicoesPagto')
       sessionStorage.removeItem('formasPagto')
+      sessionStorage.removeItem('pedidos')
     },
     clearAllLists() {
       this.representantes = []
@@ -813,8 +895,12 @@ export default {
       this.formasPagto = []
       this.produtosTabelaPreco = []
       this.itensCarrinho = []
+      this.pedidos = []
     },
     clearAllInputs() {
+      this.idePedPrv = ''
+      this.pedPrv = ''
+      this.pedidosFiltro = ''
       this.ideRep = ''
       this.codRep = ''
       this.representantesFiltro = ''
@@ -837,7 +923,6 @@ export default {
       this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
       this.status = ''
-      this.clearFocus()
     },
     clearInputsCadCli() {
       document.getElementById('selectTipCli').selectedIndex = "0";
@@ -862,6 +947,7 @@ export default {
       this.cartao.nsuTef = ''
     },
     setEverythingDisabled(value) {
+      document.getElementById('inputPedPrv').disabled = value
       document.getElementById('inputIdeRep').disabled = value
       document.getElementById('inputIdeTpr').disabled = value
       document.getElementById('inputIdeCli').disabled = value
@@ -869,6 +955,7 @@ export default {
       document.getElementById('inputIdeFpg').disabled = value
       document.getElementById('inputProduto').disabled = value
       document.getElementById('btnFinalizarVenda').disabled = value
+      document.getElementById('btnInserirPedido').disabled = value
       document.getElementById('btnRecarregar').disabled = value
       document.getElementById('btnAtalhos').disabled = value
     },
@@ -917,9 +1004,15 @@ export default {
         this.beginFormaPagto()
       });
 
+      const inputPedPrv = document.getElementById('inputPedPrv')
+      inputPedPrv.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
+        this.beginPedido()
+      });
+
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
-        this.triggerFinalizandoVenda(false)
+        this.triggerFinalizandoVenda(false, false)
       });
     },
 
@@ -932,7 +1025,9 @@ export default {
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
           else if (event.key.toUpperCase() === 'O') this.focusCondicaoPagto()
           else if (event.key.toUpperCase() === 'F') this.focusFormaPagto()
+          else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
+          else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
           else if (event.key.toUpperCase() === 'E') {
             if (this.itensCarrinho.length > 0) { 
               this.editarCarrinho()
@@ -1323,22 +1418,23 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0])
+        this.selectProduto(this.produtosFiltrados[0], 1, 0)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    selectProduto(row) {
+    selectProduto(row, qtde, seqIpd) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
-        itemDoCarrinho.qtdPed += 1
+        itemDoCarrinho.qtdPed += qtde
         this.definirPreco(itemDoCarrinho)
       }
       else {
-        newItem.qtdPed = 1
+        newItem.qtdPed = qtde
+        newItem.seqIpd = seqIpd
         this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
@@ -1453,7 +1549,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro)
+      this.selectProduto(pro, 1, 0)
     },
 
     focusTableCar(value) {
@@ -1561,7 +1657,9 @@ export default {
       this.ideTpr = row.codTpr
       this.codTpr = row.codTpr
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.status = 'b_produtos'
       await this.buscarProdutosTabela()
+      this.status = ''
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
       document.getElementById('closeModalTabelasPreco').click()
     },
@@ -1853,9 +1951,9 @@ export default {
       }
     },
 
-    triggerFinalizandoVenda(value) {
+    triggerFinalizandoVenda(value, fechar) {
       this.finalizandoVenda = value
-
+      this.fecharVenda = fechar
       if (this.finalizandoVenda) {
         if (this.allFieldsArePopulated()) this.openFinalizarVendaModal()
         else this.finalizandoVenda = false
@@ -1863,6 +1961,9 @@ export default {
     },
 
     openFinalizarVendaModal() {
+      this.msgConfirmacao = this.fecharVenda ? 'Tem certeza que deseja finalizar a venda?' 
+                                             : this.pedPrv === '' ? 'Tem certeza que deseja inserir o pedido?' 
+                                                                  : 'Tem certeza que deseja atualizar o pedido?'
       document.getElementById('btnOpenFinalizarVendaModal').click()
     },
 
@@ -1899,7 +2000,8 @@ export default {
           codDer: item.codDer,
           codTpr: item.codTpr,
           qtdPed: item.qtdPed,
-          vlrTot: item.vlrTot
+          vlrTot: item.vlrTot,
+          seqIpd: item.seqIpd
         }
         itens.push(itemPedido)
       })
@@ -1919,21 +2021,33 @@ export default {
         parcelas: this.condicaoSelected.parcelas,
         banOpe: this.cartao.banOpe,
         catTef: this.cartao.catTef,
-        nsuTef: this.cartao.nsuTef
+        nsuTef: this.cartao.nsuTef,
+        fechar: this.fecharVenda,
+        numPed: this.pedPrv === '' ? '0' : this.pedPrv
       }
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.clearAllInputs()
       this.clearInputsCadCli()
       this.clearInputsCartao()
       this.setEverythingDisabled(true)
+      this.clearFocus()
 
       this.status = 'pedido'
 
       await api.putPedido(pedido)
         .then(async (response) => {
           const respostaPedido = response.data
-          this.status = 'nfce'
-          await this.gerarNFCe(respostaPedido.numPed)
+          if (this.fecharVenda) {
+            this.status = 'nfce'
+            await this.gerarNFCe(respostaPedido.numPed)
+          } else {
+            alert('Pedido ' + respostaPedido.numPed + ' criado com sucesso!')
+            document.getElementById('closeModalConfirmaVenda').click()
+            this.clearAllInputs()
+            this.clearInputsCadCli()
+            this.clearInputsCartao()
+            this.clearFocus()
+          }
         })
         .catch((err) => {
           this.handleRequestError(err)
@@ -1966,6 +2080,7 @@ export default {
           this.clearAllInputs()
           this.clearInputsCadCli()
           this.clearInputsCartao()
+          this.clearFocus()
         })
     },
 
@@ -2007,7 +2122,153 @@ export default {
 
     isCarrinhoEmpty() {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
-    }
+    },
+
+    /* Pedidos */
+    async initPedidos() {
+      if (!sessionStorage.getItem('pedidos')) {
+        await api.getPedidos('TODOS') //TODO: trocar para 'ABERTOS' após ajuste na geração do pedido
+        .then((response) => {
+          this.pedidos = response.data
+          this.preencherRepresentanteCliente()
+          this.pedidosFiltrados = this.pedidos
+          sessionStorage.setItem('pedidos', JSON.stringify(this.pedidos))
+        })
+        .catch((err) => {
+          console.log(err)
+          this.handleRequestError(err)
+        })
+      } else {
+        this.pedidos = JSON.parse(sessionStorage.getItem('pedidos'))
+        this.pedidosFiltrados = this.pedidos
+      }
+    },
+
+    preencherRepresentanteCliente() {
+      this.pedidos.forEach(ped => {
+        if (ped.codRep) {
+          const rep = this.representantes.find(repRow => repRow.codRep === ped.codRep)
+          if(rep) ped.ideRep = ped.codRep + ' - ' + rep.nomRep
+        }
+        if (ped.codCli) {
+          const cli = this.clientes.find(cliRow => cliRow.codCli === ped.codCli)
+          if(cli) ped.ideCli = ped.codCli + ' - ' + cli.nomCli
+        }
+        if (ped.codFpg) {
+          const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
+          if(fpg) ped.ideFpg = fpg.desFpg
+        }
+        if (ped.codCpg) {
+          const cpg = this.condicoesPagto.find(cpgRow => cpgRow.codCpg === ped.codCpg)
+          if(cpg) ped.ideCpg = cpg.desCpg
+        }
+      })
+    },
+
+    async beginPedido() {
+      this.idePedPrv = ''
+      this.pedPrv = ''
+      this.pedidosFiltro = ''
+
+      this.clearAllInputs()
+      this.clearInputsCadCli()
+      this.clearInputsCartao()
+
+      if(!this.pedidos.length) await this.initPedidos()
+    },
+
+    searchPedidos() {
+      this.filtrarPedidos(this.idePedPrv)
+      if (this.pedidosFiltrados.length === 1) { // encontramos, selecionar
+        this.selectPedido(this.pedidosFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openPedidosModal()
+      }
+    },
+
+    selectPedido(row) {
+      this.idePedPrv = row.numPed
+      this.pedPrv = row.numPed
+
+      this.carregarInfoPedido(row)
+
+      document.getElementById('closeModalPedidos').click()
+    },
+
+    async carregarInfoPedido(pedido) {
+      this.codRep = pedido.codRep
+      this.ideRep = pedido.ideRep
+      this.codCli = pedido.codCli
+      this.ideCli = pedido.ideCli
+      this.codFpg = pedido.codFpg
+      this.ideFpg = pedido.ideFpg
+      this.codCpg = pedido.codCpg
+      this.ideCpg = pedido.ideCpg
+      await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr})
+      this.preencherItensPedido(pedido)
+    },
+
+    preencherItensPedido(pedido) {
+      pedido.itens.forEach(item => {
+        const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd)
+      })
+    },
+
+    filtrarPedidos(filter) {
+      this.pedidosFiltrados = filter !== '' ? this.pedidos.filter(ped => (ped.numPed === filter)) : this.pedidos
+      this.tableIndexPed = 0
+
+      this.populateTabIndex(this.pedidosFiltrados)
+    },
+
+    openPedidosModal() {
+      this.pedidosFiltro = this.pedPrv
+      document.getElementById('btnBuscaPedidos').click()
+      const modalElement = document.getElementById('pedidosModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputPedidosFiltro').focus()
+      })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusPedido()
+      })
+    },
+
+    focusPedido() {
+      this.pedPrv === '' ? document.getElementById('inputPedPrv').focus() : document.getElementById('btnClearPed').focus()
+    },
+
+    navegarModalPedidos(key) {
+      if (key.keyCode === 38) this.focusTablePed(-1)
+      else if (key.keyCode === 40) this.focusTablePed(1)
+      else if (key.keyCode === 13) this.pedListHit()
+    },
+
+    filtrarModalPedidos(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarPedidos(this.pedidosFiltro)
+    },
+
+    focusTablePed(value) {
+      this.tableIndexPed += value
+      if (this.tableIndexPed < 0) 
+        this.tableIndexPed = 0
+      else if (this.tableIndexPed >= this.pedidosFiltrados.length)
+        this.tableIndexPed = (this.pedidosFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexPed > 0)
+        elementToScroll = document.getElementById('tabPed' + this.tableIndexPed)
+      else 
+        elementToScroll = document.getElementById('inputPedidosFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    pedListHit() {
+      const ped = this.pedidosFiltrados.find(pedFil => pedFil.tabIndex === this.tableIndexPed)
+      this.selectPedido(ped)
+    },
   }
 }
 </script>
