@@ -137,6 +137,7 @@
                 <span class="status" v-else-if="status === 'b_condicoes'">Buscando condições de pagamento ...</span>
                 <span class="status" v-else-if="status === 'b_pedidos'">Buscando pedidos abertos ...</span>
                 <span class="status" v-else-if="status === 'b_produtos'">Buscando produtos ...</span>
+                <span class="status" v-else-if="status === 'd_item'">Removendo item do pedido ...</span>
               </div>
             </div>
           </div>
@@ -1575,13 +1576,28 @@ export default {
       this.scrollToElement(elementToScroll)
     },
 
-    removerItem(item) {
+    async removerItem(item) {
+      if (this.pedPrv !== '') await removerItemPedido(item)
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
       this.populateTabIndex(this.itensCarrinho)
       this.atualizarValorTotalCompra()
       this.tableIndexCar = 0
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
     },  
+
+    async removerItemPedido(item) {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.status = 'd_item'
+      await api.deleteItem(this.pedPrv, item.seqIpd)
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
+      .finally(() => {
+        document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        this.status = ''
+      })
+    },
 
     editarItem(item) {
       this.newValue = item.qtdPed
@@ -2156,11 +2172,11 @@ export default {
         }
         if (ped.codFpg) {
           const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
-          if(fpg) ped.ideFpg = fpg.desFpg
+          if(fpg) ped.fpg = fpg
         }
         if (ped.codCpg) {
           const cpg = this.condicoesPagto.find(cpgRow => cpgRow.codCpg === ped.codCpg)
-          if(cpg) ped.ideCpg = cpg.desCpg
+          if(cpg) ped.cpg = cpg
         }
       })
     },
@@ -2200,10 +2216,8 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
-      this.codFpg = pedido.codFpg
-      this.ideFpg = pedido.ideFpg
-      this.codCpg = pedido.codCpg
-      this.ideCpg = pedido.ideCpg
+      if (pedido.fpg) this.selectFormaPagto(pedido.fpg)
+      if (pedido.cpg) this.selectCondicaoPagto(pedido.cpg)
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr})
       this.preencherItensPedido(pedido)
     },

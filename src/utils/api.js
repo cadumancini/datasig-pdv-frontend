@@ -45,6 +45,9 @@ var functions = {
   },
   getPedidos(status) {
     return axios.get(urlBase + '/pedidos?token=' + sessionStorage.getItem('token') + '&statusPedido=' + status)
+  },
+  deleteItem(pedido, item) {
+    return axios.get(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)
   }
 }
 
