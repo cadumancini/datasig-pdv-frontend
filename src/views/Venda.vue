@@ -22,7 +22,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Pedido</span>
               <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
-                :disabled="!this.pedidos.length || this.pedPrv !== ''" :placeholder="!this.pedidos.length ? 'Buscando pedidos ...' : ''" :class="{searching: !this.pedidos.length}">
+                :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || !this.condicoesPagto.length || this.pedPrv !== '' || this.status === 'b_pedidos'"
+                :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
               <button id="btnClearPed" :disabled="this.pedPrv === ''" class="btn btn-secondary input-group-btn" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
             </div>
@@ -129,7 +130,7 @@
           <div class="row margin-y-fields" v-if="status !== ''">
             <div class="col">
               <div class="float-end">
-                <span class="status" v-if="status === 'pedido'">Gerando pedido. Aguarde ...</span>
+                <span class="status" v-if="status === 'pedido'">Gerando/Atualizando pedido. Aguarde ...</span>
                 <span class="status" v-else-if="status === 'nfce'">Gerando NFC-e. Aguarde ...</span>
                 <span class="status" v-else-if="status === 'b_representantes'">Buscando representantes ...</span>
                 <span class="status" v-else-if="status === 'b_clientes'">Buscando clientes ...</span>
@@ -864,9 +865,7 @@ export default {
       await this.initFormasPagto()    
       this.status = 'b_condicoes'
       await this.initCondicoesPagto() 
-      this.status = 'b_pedidos'  
       this.initParams()  
-      await this.initPedidos() 
       this.status = '' 
     },
     restartRecords() {
@@ -1577,12 +1576,18 @@ export default {
     },
 
     async removerItem(item) {
-      if (this.pedPrv !== '') await removerItemPedido(item)
+      if (this.pedPrv !== '') {
+        await this.removerItemPedido(item)
+      }
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
       this.populateTabIndex(this.itensCarrinho)
       this.atualizarValorTotalCompra()
       this.tableIndexCar = 0
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
+      if (this.pedPrv !== '') {
+        this.fecharVenda = false
+        await this.enviarVenda()
+      }
     },  
 
     async removerItemPedido(item) {
@@ -1983,7 +1988,7 @@ export default {
       document.getElementById('btnOpenFinalizarVendaModal').click()
     },
 
-    finalizarVenda() {
+    async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
       // if (['6','7','8','17','18','19','20'].includes(this.formaSelected.tipFpg))
       if (this.formaSelected.desFpg === 'OUTROS'){ //TODO: temporario
@@ -1994,22 +1999,31 @@ export default {
           document.getElementById('selectBanOpe').focus()
         })
       } else {
-        this.enviarVenda()
+        await this.enviarVenda()
+        this.clearAllInputs()
+        this.clearInputsCadCli()
+        this.clearInputsCartao()
+        this.clearFocus()
       }
     },  
 
-    confirmarDadosCartao() {
+    async confirmarDadosCartao() {
       if (this.cartao.banOpe === '') alert('Selecione a bandeira do cartão!')
       else if (this.cartao.catTef === '') alert('Preencha o número da autorização!') 
       else if (this.cartao.nsuTef === '' && this.paramsPDV.usaTEF) alert('Preencha o número da transação (TEF)!') 
       else {
         document.getElementById('closeModalCartao').click()
-        this.enviarVenda()
+        await this.enviarVenda()
+        this.clearAllInputs()
+        this.clearInputsCadCli()
+        this.clearInputsCartao()
+        this.clearFocus()
       }
     },
 
     async enviarVenda() {
       const itens = []
+      console.log(this.itensCarrinho)
       this.itensCarrinho.forEach(item => {
         const itemPedido = {
           codPro: item.codPro,
@@ -2042,13 +2056,10 @@ export default {
         numPed: this.pedPrv === '' ? '0' : this.pedPrv
       }
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      this.clearAllInputs()
-      this.clearInputsCadCli()
-      this.clearInputsCartao()
       this.setEverythingDisabled(true)
-      this.clearFocus()
 
       this.status = 'pedido'
+      const operacao = this.pedPrv !== '' ? 'alterado' : 'criado'
 
       await api.putPedido(pedido)
         .then(async (response) => {
@@ -2057,12 +2068,8 @@ export default {
             this.status = 'nfce'
             await this.gerarNFCe(respostaPedido.numPed)
           } else {
-            alert('Pedido ' + respostaPedido.numPed + ' criado com sucesso!')
+            alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
             document.getElementById('closeModalConfirmaVenda').click()
-            this.clearAllInputs()
-            this.clearInputsCadCli()
-            this.clearInputsCartao()
-            this.clearFocus()
           }
         })
         .catch((err) => {
@@ -2082,10 +2089,10 @@ export default {
           const resposta = response.data
           if(resposta.startsWith('ERRO')) {
             const msg = 'Pedido ' + numPed + 
-              ' criado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
+              ' ' + operacao + ' com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
               response.data
             alert(msg)
-          } else alert('Pedido ' + numPed + ' criado com sucesso!')
+          } else alert('Pedido ' + numPed + ' ' + operacao + ' com sucesso!')
         })
         .catch((err) => {
           this.handleRequestError(err)
@@ -2093,10 +2100,6 @@ export default {
         })
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
-          this.clearAllInputs()
-          this.clearInputsCadCli()
-          this.clearInputsCartao()
-          this.clearFocus()
         })
     },
 
@@ -2142,22 +2145,17 @@ export default {
 
     /* Pedidos */
     async initPedidos() {
-      if (!sessionStorage.getItem('pedidos')) {
-        await api.getPedidos('TODOS') //TODO: trocar para 'ABERTOS' após ajuste na geração do pedido
-        .then((response) => {
-          this.pedidos = response.data
-          this.preencherRepresentanteCliente()
-          this.pedidosFiltrados = this.pedidos
-          sessionStorage.setItem('pedidos', JSON.stringify(this.pedidos))
-        })
-        .catch((err) => {
-          console.log(err)
-          this.handleRequestError(err)
-        })
-      } else {
-        this.pedidos = JSON.parse(sessionStorage.getItem('pedidos'))
+      await api.getPedidos('ABERTOS')
+      .then((response) => {
+        this.pedidos = response.data
+        this.preencherRepresentanteCliente()
         this.pedidosFiltrados = this.pedidos
-      }
+        sessionStorage.setItem('pedidos', JSON.stringify(this.pedidos))
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
     },
 
     preencherRepresentanteCliente() {
@@ -2189,11 +2187,15 @@ export default {
       this.clearAllInputs()
       this.clearInputsCadCli()
       this.clearInputsCartao()
-
-      if(!this.pedidos.length) await this.initPedidos()
     },
 
-    searchPedidos() {
+    async searchPedidos() {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.status = 'b_pedidos'
+      this.pedidos = []
+      await this.initPedidos()
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
+      this.status = ''
       this.filtrarPedidos(this.idePedPrv)
       if (this.pedidosFiltrados.length === 1) { // encontramos, selecionar
         this.selectPedido(this.pedidosFiltrados[0])
