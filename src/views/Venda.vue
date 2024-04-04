@@ -122,8 +122,8 @@
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false)" :disabled="!this.itensCarrinho.length">{{ this.pedPrv === '' ? 'Inserir' : 'Atualizar' }} Pedido</button>
-                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
+                <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false)" v-if="this.pedPrv === ''" :disabled="!this.itensCarrinho.length">Inserir Pedido</button>
+                <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
           </div>
@@ -368,7 +368,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0)">
+                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, true)">
                   <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -530,7 +530,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirma venda</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"  @click="triggerFinalizandoVenda(false, this.fecharVenda)"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"></button>
         </div>
         <div class="modal-body">
           <p>{{ this.msgConfirmacao }}</p>
@@ -947,17 +947,21 @@ export default {
       this.cartao.nsuTef = ''
     },
     setEverythingDisabled(value) {
-      document.getElementById('inputPedPrv').disabled = value
-      document.getElementById('inputIdeRep').disabled = value
-      document.getElementById('inputIdeTpr').disabled = value
-      document.getElementById('inputIdeCli').disabled = value
-      document.getElementById('inputIdeCpg').disabled = value
-      document.getElementById('inputIdeFpg').disabled = value
-      document.getElementById('inputProduto').disabled = value
+      document.getElementById('btnClearPed').disabled = value
+      document.getElementById('btnClearRep').disabled = value
+      document.getElementById('btnClearTpr').disabled = value
+      document.getElementById('btnClearCli').disabled = value
+      document.getElementById('btnClearCpg').disabled = value
+      document.getElementById('btnClearFpg').disabled = value
       document.getElementById('btnFinalizarVenda').disabled = value
-      document.getElementById('btnInserirPedido').disabled = value
+      if(this.pedPrv === '') document.getElementById('btnInserirPedido').disabled = value
       document.getElementById('btnRecarregar').disabled = value
       document.getElementById('btnAtalhos').disabled = value
+
+      const btnsCarrinho = document.getElementsByClassName('edit-cart'); 
+      for (var i = 0; i < btnsCarrinho.length; i++) { 
+        btnsCarrinho[i].disabled = value;
+      }
     },
     addEvents() {
       let self = this
@@ -1012,7 +1016,7 @@ export default {
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
-        this.triggerFinalizandoVenda(false, false)
+        this.triggerFinalizandoVenda(false, this.fecharVenda)
       });
     },
 
@@ -1418,13 +1422,13 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, true)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    selectProduto(row, qtde, seqIpd) {
+    async selectProduto(row, qtde, seqIpd, atualizar) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
@@ -1443,8 +1447,14 @@ export default {
 
       this.codBar = ''
       document.getElementById('inputProduto').focus()
-      this.populateTabIndex(this.itensCarrinho)
-      this.atualizarValorTotalCompra()
+      await this.populateTabIndex(this.itensCarrinho)
+      await this.atualizarValorTotalCompra()
+
+      if (this.pedPrv !== '' && atualizar) {
+        this.fecharVenda = false
+        await this.enviarVenda()
+        this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
+      }
     },
 
     definirPreco(produto) {
@@ -1549,7 +1559,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0)
+      this.selectProduto(pro, 1, 0, true)
     },
 
     focusTableCar(value) {
@@ -1576,9 +1586,6 @@ export default {
     },
 
     async removerItem(item) {
-      if (this.pedPrv !== '') {
-        await this.removerItemPedido(item)
-      }
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
       this.populateTabIndex(this.itensCarrinho)
       this.atualizarValorTotalCompra()
@@ -1586,22 +1593,16 @@ export default {
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
       if (this.pedPrv !== '') {
         this.fecharVenda = false
-        await this.enviarVenda()
+        await this.removerItemPedido(item)
       }
     },  
 
     async removerItemPedido(item) {
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      this.status = 'd_item'
-      await api.deleteItem(this.pedPrv, item.seqIpd)
-      .catch((err) => {
-        console.log(err)
-        this.handleRequestError(err)
-      })
-      .finally(() => {
-        document.getElementsByTagName('body')[0].style.cursor = 'auto'
-        this.status = ''
-      })
+      item.excluir = true
+      const itens = []
+      itens.push(item)
+      
+      this.enviarPedido(itens)
     },
 
     editarItem(item) {
@@ -1614,16 +1615,20 @@ export default {
       })
     },  
 
-    alterarQuantidadeItem() {
+    async alterarQuantidadeItem() {
       if (this.newValue > 9999) this.newValue = 9999
       if (this.newValue === 0) alert('A quantidade não pode ser zero!')
       else {
         this.itemEditando.qtdPed = this.newValue
         this.definirPreco(this.itemEditando)
-        this.itemEditando = null
         document.getElementById('closeModalEditarItem').click()
         this.atualizarValorTotalCompra()
         this.clearFocus()
+        if (this.itemEditando.seqIpd > 0) {
+          this.fecharVenda = false
+          await this.enviarVenda()
+        }
+        this.itemEditando = null
       }
     },
 
@@ -1972,8 +1977,8 @@ export default {
       }
     },
 
-    triggerFinalizandoVenda(value, fechar) {
-      this.finalizandoVenda = value
+    triggerFinalizandoVenda(finalizandoVenda, fechar) {
+      this.finalizandoVenda = finalizandoVenda
       this.fecharVenda = fechar
       if (this.finalizandoVenda) {
         if (this.allFieldsArePopulated()) this.openFinalizarVendaModal()
@@ -1985,7 +1990,8 @@ export default {
       this.msgConfirmacao = this.fecharVenda ? 'Tem certeza que deseja finalizar a venda?' 
                                              : this.pedPrv === '' ? 'Tem certeza que deseja inserir o pedido?' 
                                                                   : 'Tem certeza que deseja atualizar o pedido?'
-      document.getElementById('btnOpenFinalizarVendaModal').click()
+      if (this.fecharVenda) document.getElementById('btnOpenFinalizarVendaModal').click()
+      else document.getElementById('btnOpenInserirPedidoModal').click()
     },
 
     async finalizarVenda() {
@@ -2023,7 +2029,6 @@ export default {
 
     async enviarVenda() {
       const itens = []
-      console.log(this.itensCarrinho)
       this.itensCarrinho.forEach(item => {
         const itemPedido = {
           codPro: item.codPro,
@@ -2031,10 +2036,15 @@ export default {
           codTpr: item.codTpr,
           qtdPed: item.qtdPed,
           vlrTot: item.vlrTot,
-          seqIpd: item.seqIpd
+          seqIpd: item.seqIpd,
+          excluir: false
         }
         itens.push(itemPedido)
       })
+      this.enviarPedido(itens)
+    },
+
+    async enviarPedido(itens) {
       const pedido = {
         codCli: this.codCli,
         codCpg: this.codCpg,
@@ -2043,7 +2053,7 @@ export default {
         tipFpg: this.formaSelected.tipFpg,
         codOpe: this.formaSelected.codOpe,
         codRep: this.codRep,
-        vlrTot: Number(itens.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+        vlrTot: Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
                   .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
                   .replace('R$', '').replace('.','').replace(',','.').trim(),
         itens: itens,
@@ -2080,6 +2090,7 @@ export default {
         .finally(() => {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.setEverythingDisabled(false)
+          this.status = ''
         })
     },
 
@@ -2089,10 +2100,10 @@ export default {
           const resposta = response.data
           if(resposta.startsWith('ERRO')) {
             const msg = 'Pedido ' + numPed + 
-              ' ' + operacao + ' com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
+              ' fechado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
               response.data
             alert(msg)
-          } else alert('Pedido ' + numPed + ' ' + operacao + ' com sucesso!')
+          } else alert('Pedido ' + numPed + ' fechado com sucesso!')
         })
         .catch((err) => {
           this.handleRequestError(err)
@@ -2227,7 +2238,7 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, false)
       })
     },
 
