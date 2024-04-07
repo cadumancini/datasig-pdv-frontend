@@ -16,7 +16,7 @@ html, body {
   display: none;
 }
 .table-wrapper {
-  height: 25rem;
+  height: 22rem;
   width: 100%;
   margin: 0px auto 0px auto;
   overflow: auto;
@@ -84,7 +84,7 @@ html, body {
 
 @media only screen and (max-height: 730px) {
   .table-wrapper {
-    height: 20rem;
+    height: 18rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
@@ -96,7 +96,7 @@ html, body {
 
 @media only screen and (max-height: 768px) {
   .table-wrapper {
-    height: 15rem;
+    height: 14rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;

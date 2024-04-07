@@ -8,10 +8,10 @@
         </div>
         <div class="col">
           <div class="float-end">
-            <button id="btnAtalhos" class="btn btn-secondary mx-2" data-bs-toggle="modal" data-bs-target="#atalhosModal">Atalhos Teclado</button>
+            <button id="btnAtalhos" class="btn btn-secondary mx-2 disable-on-sale" data-bs-toggle="modal" data-bs-target="#atalhosModal">Atalhos Teclado</button>
           </div>
           <div class="float-end">
-            <button id="btnRecarregar" class="btn btn-secondary" @click="restartRecords">Recarregar Registros</button>
+            <button id="btnRecarregar" class="btn btn-secondary disable-on-sale" @click="restartRecords">Recarregar Registros</button>
           </div>
         </div>
       </div>
@@ -24,7 +24,7 @@
               <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
                 :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || !this.condicoesPagto.length || this.pedPrv !== '' || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
-              <button id="btnClearPed" :disabled="this.pedPrv === ''" class="btn btn-secondary input-group-btn" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnClearPed" :disabled="this.pedPrv === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
             </div>
           </div>
@@ -34,7 +34,7 @@
               <span class="input-group-text">Representante</span>
               <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
                 :disabled="!this.representantes.length || this.codRep !== ''" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
-              <button id="btnClearRep" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnClearRep" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
@@ -42,7 +42,7 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
               <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
-              <button id="btnClearTpr" :disabled="this.codTpr === ''" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnClearTpr" :disabled="this.codTpr === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
             </div>
           </div>
@@ -52,7 +52,7 @@
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
                 :class="{searching: (!this.clientes.length && this.codCli === '')}">
-              <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
@@ -61,7 +61,7 @@
               <span class="input-group-text">Forma de Pagamento</span>
               <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
                 :disabled="!this.formasPagto.length || this.codFpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
-              <button id="btnClearFpg" :disabled="this.codFpg === ''" class="btn btn-secondary input-group-btn" @click="beginFormaPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnClearFpg" :disabled="this.codFpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginFormaPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
             </div>
           </div>
@@ -70,7 +70,7 @@
               <span class="input-group-text">Condição de Pagamento</span>
               <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
                 :disabled="!this.condicoesPagto.length || this.codCpg !== ''" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
-              <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
           </div>
@@ -99,8 +99,8 @@
               </thead>
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
-                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> {{ row.desPro }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
+                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> {{ row.desPro }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
@@ -108,7 +108,7 @@
             </table>
           </div>
           <div class="row margin-y-fields">
-            <div class="col-4">
+            <div class="col-5">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Valor Total</span>
                 <input class="form-control" disabled v-model="vlrTot">
@@ -116,13 +116,43 @@
             </div>
           </div>
           <div class="row margin-y-fields">
+            <div class="col-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Desconto</span>
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
+                  <option selected value="">Nenhum</option>
+                  <option value="valor">Valor</option>
+                  <option value="porcentagem">Porcentagem</option>
+                </select>
+                <span class="input-group-text" v-if="tipDesc === 'valor'">R$</span>
+                <vue-mask :disabled="tipDesc === ''" v-if="tipDesc === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDesc"></vue-mask>
+                <vue-mask :disabled="tipDesc === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="vlrDesc"></vue-mask>
+                <span class="input-group-text" v-if="tipDesc === 'porcentagem'">%</span>
+              </div>
+            </div>
+            <div class="col-2" v-if="tipDesc !== ''">
+              <button id="btnAplicarDesconto" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="aplicarDesconto()">Aplicar</button>  
+              <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto()">Limpar</button>  
+            </div>
+            <div class="col-2" v-if="tipDesc !== ''">
+            </div>
+          </div>
+          <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
+            <div class="col-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Valor com desconto</span>
+                <input class="form-control" disabled v-model="vlrComDesconto">
+              </div>  
+            </div>
+          </div>
+          <div class="row margin-y-fields">
             <div class="col">
               <div class="float-end mx-2">
-                <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, true)" :disabled="!this.itensCarrinho.length">Finalizar Venda</button>
+                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true)" :disabled="!this.itensCarrinho.length">Finalizar Venda</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false)" v-if="this.pedPrv === ''" :disabled="!this.itensCarrinho.length">Inserir Pedido</button>
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false)" v-if="this.pedPrv === ''" :disabled="!this.itensCarrinho.length">Inserir Pedido</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -810,6 +840,10 @@ export default {
       },
       fecharVenda: false,
       msgConfirmacao: '',
+      tipDesc: '',
+      vlrDesc: '',
+      vlrDescPedido: 0,
+      vlrComDesconto: '',
 
       //geral
       status: '',
@@ -947,21 +981,8 @@ export default {
       this.cartao.nsuTef = ''
     },
     setEverythingDisabled(value) {
-      document.getElementById('btnClearPed').disabled = value
-      document.getElementById('btnClearRep').disabled = value
-      document.getElementById('btnClearTpr').disabled = value
-      document.getElementById('btnClearCli').disabled = value
-      document.getElementById('btnClearCpg').disabled = value
-      document.getElementById('btnClearFpg').disabled = value
-      document.getElementById('btnFinalizarVenda').disabled = value
-      if(this.pedPrv === '') document.getElementById('btnInserirPedido').disabled = value
-      document.getElementById('btnRecarregar').disabled = value
-      document.getElementById('btnAtalhos').disabled = value
-
-      const btnsCarrinho = document.getElementsByClassName('edit-cart'); 
-      for (var i = 0; i < btnsCarrinho.length; i++) { 
-        btnsCarrinho[i].disabled = value;
-      }
+      const elements = document.getElementsByClassName('disable-on-sale')
+      for (var i = 0; i < elements.length; i++) elements[i].disabled = value
     },
     addEvents() {
       let self = this
@@ -2009,6 +2030,7 @@ export default {
         this.clearAllInputs()
         this.clearInputsCadCli()
         this.clearInputsCartao()
+        this.limparDesconto()
         this.clearFocus()
       }
     },  
@@ -2023,6 +2045,7 @@ export default {
         this.clearAllInputs()
         this.clearInputsCadCli()
         this.clearInputsCartao()
+        this.limparDesconto()
         this.clearFocus()
       }
     },
@@ -2045,6 +2068,15 @@ export default {
     },
 
     async enviarPedido(itens) {
+      let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+      let vlrDar = 0
+      if (this.tipDesc !== '' && this.fecharVenda) {
+        vlrTmp -= this.vlrDescPedido
+        vlrDar = this.vlrDescPedido
+      }
+      vlrTmp = vlrTmp.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+                  .replace('R$', '').replace('.','').replace(',','.').trim()
+
       const pedido = {
         codCli: this.codCli,
         codCpg: this.codCpg,
@@ -2053,9 +2085,7 @@ export default {
         tipFpg: this.formaSelected.tipFpg,
         codOpe: this.formaSelected.codOpe,
         codRep: this.codRep,
-        vlrTot: Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
-                  .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-                  .replace('R$', '').replace('.','').replace(',','.').trim(),
+        vlrTot: vlrTmp,
         itens: itens,
         qtdPar: this.condicaoSelected.qtdParCpg,
         parcelas: this.condicaoSelected.parcelas,
@@ -2063,7 +2093,8 @@ export default {
         catTef: this.cartao.catTef,
         nsuTef: this.cartao.nsuTef,
         fechar: this.fecharVenda,
-        numPed: this.pedPrv === '' ? '0' : this.pedPrv
+        numPed: this.pedPrv === '' ? '0' : this.pedPrv,
+        vlrDar: vlrDar
       }
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.setEverythingDisabled(true)
@@ -2152,6 +2183,24 @@ export default {
 
     isCarrinhoEmpty() {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
+    },
+
+    aplicarDesconto() {
+      const valorTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+      this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)
+
+      if (valorTmp < this.vlrDescPedido) {
+        alert('O desconto não pode ser maior que o valor total do pedido!')
+        this.vlrDesc = ''
+      } else {
+        this.vlrComDesconto = (valorTmp - this.vlrDescPedido).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+      }
+    },
+
+    limparDesconto() {
+      this.vlrDesc = ''
+      this.vlrComDesconto = ''
+      this.tipDesc = ''
     },
 
     /* Pedidos */
