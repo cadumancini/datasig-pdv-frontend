@@ -108,7 +108,7 @@
             </table>
           </div>
           <div class="row margin-y-fields">
-            <div class="col-5">
+            <div class="col-6">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Valor Total</span>
                 <input class="form-control" disabled v-model="vlrTot">
@@ -116,7 +116,7 @@
             </div>
           </div>
           <div class="row margin-y-fields">
-            <div class="col-5">
+            <div class="col-6">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Desconto</span>
                 <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
@@ -130,15 +130,13 @@
                 <span class="input-group-text" v-if="tipDesc === 'porcentagem'">%</span>
               </div>
             </div>
-            <div class="col-2" v-if="tipDesc !== ''">
+            <div class="col" v-if="tipDesc !== ''">
               <button id="btnAplicarDesconto" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="aplicarDesconto()">Aplicar</button>  
               <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto()">Limpar</button>  
             </div>
-            <div class="col-2" v-if="tipDesc !== ''">
-            </div>
           </div>
           <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
-            <div class="col-5">
+            <div class="col-6">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Valor com desconto</span>
                 <input class="form-control" disabled v-model="vlrComDesconto">
