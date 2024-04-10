@@ -2025,11 +2025,6 @@ export default {
         })
       } else {
         await this.enviarVenda()
-        this.clearAllInputs()
-        this.clearInputsCadCli()
-        this.clearInputsCartao()
-        this.limparDesconto()
-        this.clearFocus()
       }
     },  
 
@@ -2040,11 +2035,6 @@ export default {
       else {
         document.getElementById('closeModalCartao').click()
         await this.enviarVenda()
-        this.clearAllInputs()
-        this.clearInputsCadCli()
-        this.clearInputsCartao()
-        this.limparDesconto()
-        this.clearFocus()
       }
     },
 
@@ -2068,7 +2058,7 @@ export default {
     async enviarPedido(itens) {
       let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
       let vlrDar = 0
-      if (this.tipDesc !== '' && this.fecharVenda) {
+      if (this.tipDesc !== '') {
         vlrTmp -= this.vlrDescPedido
         vlrDar = this.vlrDescPedido
       }
@@ -2109,6 +2099,11 @@ export default {
           } else {
             alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
             document.getElementById('closeModalConfirmaVenda').click()
+            this.clearAllInputs()
+            this.clearInputsCadCli()
+            this.clearInputsCartao()
+            this.limparDesconto()
+            this.clearFocus()
           }
         })
         .catch((err) => {
@@ -2132,7 +2127,14 @@ export default {
               ' fechado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
               response.data
             alert(msg)
-          } else alert('Pedido ' + numPed + ' fechado com sucesso!')
+          } else {
+            alert('Pedido ' + numPed + ' fechado com sucesso!')
+            this.clearAllInputs()
+            this.clearInputsCadCli()
+            this.clearInputsCartao()
+            this.limparDesconto()
+            this.clearFocus()
+          } 
         })
         .catch((err) => {
           this.handleRequestError(err)
@@ -2279,7 +2281,8 @@ export default {
       if (pedido.fpg) this.selectFormaPagto(pedido.fpg)
       if (pedido.cpg) this.selectCondicaoPagto(pedido.cpg)
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr})
-      this.preencherItensPedido(pedido)
+      await this.preencherItensPedido(pedido)
+      this.preencherDadosDesconto(pedido)
     },
 
     preencherItensPedido(pedido) {
@@ -2287,6 +2290,14 @@ export default {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
         if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, false)
       })
+    },
+
+    preencherDadosDesconto(pedido) {
+      if(pedido.vlrDar !== '0,00') {
+        this.tipDesc = 'valor'
+        this.vlrDesc = pedido.vlrDar
+        this.aplicarDesconto()
+      }
     },
 
     filtrarPedidos(filter) {
