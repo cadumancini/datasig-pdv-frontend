@@ -866,8 +866,9 @@ export default {
         { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
         { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
         { codAta: 9, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 10, tecAta: 'I', desAta: 'Inserir Pedido' },
-        { codAta: 11, tecAta: 'X', desAta: 'Finalizar Venda' }
+        { codAta: 10, tecAta: 'D', desAta: 'Desconto' },
+        { codAta: 11, tecAta: 'I', desAta: 'Inserir Pedido' },
+        { codAta: 12, tecAta: 'X', desAta: 'Finalizar Venda' }
       ],
 
       //Pedidos
@@ -1051,6 +1052,7 @@ export default {
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
+          else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipDesc').focus()
           else if (event.key.toUpperCase() === 'E') {
             if (this.itensCarrinho.length > 0) { 
               this.editarCarrinho()
