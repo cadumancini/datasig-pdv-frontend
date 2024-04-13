@@ -1284,7 +1284,7 @@ export default {
       document.getElementById('closeModalClientes').click()
       if (this.pedidoSelected) {
         this.fecharVenda = false
-        await this.enviarVenda()
+        await this.enviarVenda(false)
       }
     },
 
@@ -1480,7 +1480,7 @@ export default {
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
-        await this.enviarVenda()
+        await this.enviarVenda(false)
         this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
       }
     },
@@ -1657,7 +1657,7 @@ export default {
         this.clearFocus()
         if (this.itemEditando.seqIpd > 0) {
           this.fecharVenda = false
-          await this.enviarVenda()
+          await this.enviarVenda(false)
         }
         this.itemEditando = null
       }
@@ -1733,7 +1733,7 @@ export default {
           this.atualizarPrecosCarrinho()
           this.status = ''
           this.fecharVenda = false
-          await this.enviarVenda()
+          await this.enviarVenda(false)
         }
       }
     },
@@ -1875,7 +1875,7 @@ export default {
       document.getElementById('closeModalCondicoesPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
-        await this.enviarVenda()
+        await this.enviarVenda(false)
       }
     },
 
@@ -1979,7 +1979,7 @@ export default {
       document.getElementById('closeModalFormasPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
-        await this.enviarVenda()
+        await this.enviarVenda(false)
       }
     },
 
@@ -2088,7 +2088,7 @@ export default {
           document.getElementById('selectBanOpe').focus()
         })
       } else {
-        await this.enviarVenda()
+        await this.enviarVenda(true)
       }
     },  
 
@@ -2098,11 +2098,11 @@ export default {
       else if (this.cartao.nsuTef === '' && this.paramsPDV.usaTEF) alert('Preencha o número da transação (TEF)!') 
       else {
         document.getElementById('closeModalCartao').click()
-        await this.enviarVenda()
+        await this.enviarVenda(true)
       }
     },
 
-    async enviarVenda() {
+    async enviarVenda(limpar) {
       const itens = []
       this.itensCarrinho.forEach(item => {
         const itemPedido = {
@@ -2116,10 +2116,10 @@ export default {
         }
         itens.push(itemPedido)
       })
-      this.enviarPedido(itens)
+      this.enviarPedido(itens, limpar)
     },
 
-    async enviarPedido(itens) {
+    async enviarPedido(itens, limpar) {
       let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
       let vlrDar = 0
       if (this.tipDesc !== '') {
@@ -2161,13 +2161,15 @@ export default {
             this.status = 'nfce'
             await this.gerarNFCe(respostaPedido.numPed)
           } else {
-            alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
             document.getElementById('closeModalConfirmaVenda').click()
-            this.clearAllInputs()
-            this.clearInputsCadCli()
-            this.clearInputsCartao()
-            this.limparDesconto()
-            this.clearFocus()
+            if (limpar) {
+              alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
+              this.clearAllInputs()
+              this.clearInputsCadCli()
+              this.clearInputsCartao()
+              this.limparDesconto()
+              this.clearFocus()
+            }
           }
         })
         .catch((err) => {
@@ -2262,7 +2264,7 @@ export default {
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda
-        await this.enviarVenda()
+        await this.enviarVenda(false)
       }
     },
 
