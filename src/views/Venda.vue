@@ -2120,33 +2120,41 @@ export default {
     },
 
     async enviarPedido(itens, limpar) {
-      let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
-      let vlrDar = 0
-      if (this.tipDesc !== '') {
-        vlrTmp -= this.vlrDescPedido
-        vlrDar = this.vlrDescPedido
-      }
-      vlrTmp = vlrTmp.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-                  .replace('R$', '').replace('.','').replace(',','.').trim()
+      let pedido = null
+      if (this.pedidoSelected && this.fecharVenda) {
+        pedido = {
+          numPed: this.pedPrv,
+          fechar: this.fecharVenda
+        }
+      } else {
+        let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+        let vlrDar = 0
+        if (this.tipDesc !== '') {
+          vlrTmp -= this.vlrDescPedido
+          vlrDar = this.vlrDescPedido
+        }
+        vlrTmp = vlrTmp.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+                    .replace('R$', '').replace('.','').replace(',','.').trim()
 
-      const pedido = {
-        codCli: this.codCli,
-        codCpg: this.codCpg,
-        codFpg: this.codFpg,
-        desFpg: this.formaSelected.desFpg,
-        tipFpg: this.formaSelected.tipFpg,
-        codOpe: this.formaSelected.codOpe,
-        codRep: this.codRep,
-        vlrTot: vlrTmp,
-        itens: itens,
-        qtdPar: this.condicaoSelected.qtdParCpg,
-        parcelas: this.condicaoSelected.parcelas,
-        banOpe: this.cartao.banOpe,
-        catTef: this.cartao.catTef,
-        nsuTef: this.cartao.nsuTef,
-        fechar: this.fecharVenda,
-        numPed: !this.pedidoSelected ? '0' : this.pedPrv,
-        vlrDar: vlrDar
+        pedido = {
+          codCli: this.codCli,
+          codCpg: this.codCpg,
+          codFpg: this.codFpg,
+          desFpg: this.formaSelected.desFpg,
+          tipFpg: this.formaSelected.tipFpg,
+          codOpe: this.formaSelected.codOpe,
+          codRep: this.codRep,
+          vlrTot: vlrTmp,
+          itens: itens,
+          qtdPar: this.condicaoSelected.qtdParCpg,
+          parcelas: this.condicaoSelected.parcelas,
+          banOpe: this.cartao.banOpe,
+          catTef: this.cartao.catTef,
+          nsuTef: this.cartao.nsuTef,
+          fechar: this.fecharVenda,
+          numPed: !this.pedidoSelected ? '0' : this.pedPrv,
+          vlrDar: vlrDar
+        }
       }
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.setEverythingDisabled(true)
