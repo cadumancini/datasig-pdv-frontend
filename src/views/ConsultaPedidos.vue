@@ -126,7 +126,7 @@ export default {
   methods: {
     async initPedidos() {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      await api.getPedidos('TODOS')
+      await api.getPedidos('TODOS', 'DESC')
       .then((response) => {
         this.pedidos = response.data
         this.pedidosFiltrados = this.pedidos
