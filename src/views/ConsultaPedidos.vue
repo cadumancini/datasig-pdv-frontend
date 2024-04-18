@@ -15,7 +15,8 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Pedido</span>
-              <input autocomplete="off" id="inputNumPed" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="numPed" :disabled="!pedidos">
+              <input autocomplete="off" id="inputNumPed" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="numPed" :disabled="!pedidos"
+                :placeholder="!pedidos ? 'Buscando pedidos ...' : ''">
               <button id="btnClearPed" :disabled="numPed === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
             </div>
@@ -28,6 +29,15 @@
                 <option value="ABERTO">Abertos</option>
                 <option value="FECHADO">Fechados</option>
               </select>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Representante</span>
+              <input autocomplete="off" id="inputCodRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="codRep" :disabled="!representantes"
+                :placeholder="!representantes ? 'Buscando representantes ...' : ''">
+              <button id="btnClearRep" :disabled="codRep === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
         </div>  
@@ -84,6 +94,45 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Representantes -->
+  <div class="modal fade" id="representantesModal" tabindex="-1" aria-labelledby="representantesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="representantesModalLabel">Representantes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalRepresentantes"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="representantes != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro" v-on:keydown="navegarModalRepresentantes" v-on:keyup="filtrarModalRepresentantes" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 40%;">Nome</th>
+                  <th class="sm-header" scope="col" style="width: 40%;">Apelido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectRepresentante(row)">
+                  <th :id="'tabRep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.nomRep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.apeRep }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando representantes ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>  
 </template>
 
 <script>
@@ -102,12 +151,22 @@ export default {
       numPed: '',
       tableIndexPed: 0,
 
-      // filtros
+      // filtro situacao
       situacao: 'TODOS',
+
+      // filtro representantes
+      representantes: null,
+      representantesFiltrados: null,
+      representantesFiltro: '',
+      codRep: '',
+      tableIndexRep: 0,
+
+      // filtro clientes
+
+      // filtros
       dataDe: '',
       dataAte: '',
       codCli: '',
-      codRep: '',
 
       // resultados
       pedidosResult: null,
@@ -121,25 +180,10 @@ export default {
     }
 
     this.initPedidos()
+    this.initRepresentantes()
   },
 
   methods: {
-    async initPedidos() {
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      await api.getPedidos('TODOS', 'DESC')
-      .then((response) => {
-        this.pedidos = response.data
-        this.pedidosFiltrados = this.pedidos
-      })
-      .catch((err) => {
-        console.log(err)
-        this.handleRequestError(err)
-      })
-      .finally(() => {
-        document.getElementsByTagName('body')[0].style.cursor = 'auto'
-      })
-    },
-
     // Manipulação tela
     populateTabIndex(list) {
       let index = 0
@@ -167,6 +211,18 @@ export default {
     },
 
     // Filtro pedido
+    async initPedidos() {
+      await api.getPedidos('TODOS', 'DESC')
+      .then((response) => {
+        this.pedidos = response.data
+        this.pedidosFiltrados = this.pedidos
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
+    },
+
     searchPedidos() {
       const pedido = this.pedidos.find(ped => ped.numPed === this.numPed)
       if (pedido) this.selectPedido(pedido)
@@ -203,7 +259,7 @@ export default {
       this.populateTabIndex(this.pedidosFiltrados)
     },
 
-    navegarModalPedidos (key) {
+    navegarModalPedidos(key) {
       if (key.keyCode === 38) this.focusTablePed(-1)
       else if (key.keyCode === 40) this.focusTablePed(1)
       else if (key.keyCode === 13) this.pedListHit()
@@ -236,6 +292,87 @@ export default {
       this.clearFocus()
     },
 
+    // Filtro represenante
+    async initRepresentantes() {
+      await api.getRepresentantes()
+      .then((response) => {
+        this.representantes = response.data
+        this.representantesFiltrados = this.representantes
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
+    },
+
+    searchRepresentantes() {
+      const representante = this.representantes.find(rep => rep.codRep === this.codRep)
+      if (representante) this.selectRepresenante(representante)
+      else {
+        this.representantesFiltro = this.codRep
+        document.getElementById('btnBuscaRepresentantes').click()
+        const modalElement = document.getElementById('representantesModal')
+        modalElement.addEventListener('shown.bs.modal', () => {
+          document.getElementById('inputRepresentantesFiltro').focus()
+        })
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          this.focusRepresentante()
+        })
+      }
+    },
+
+    focusRepresentante() {
+      this.codRep === '' ? document.getElementById('inputCodRep').focus() : document.getElementById('btnClearRep').focus()
+    },
+
+    clearRepresentante() {
+      this.codRep = ''
+    },
+
+    filtrarModalRepresentantes(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarRepresentantes(this.representantesFiltro)
+    },
+
+    filtrarRepresentantes(filter) {
+      this.representantesFiltrados = filter !== '' ? this.representantes.filter(rep => (rep.codRep.startsWith(filter))) : this.representantes
+      this.tableIndexRep = 0
+
+      this.populateTabIndex(this.representantesFiltrados)
+    },
+
+    navegarModalRepresentantes(key) {
+      if (key.keyCode === 38) this.focusTableRep(-1)
+      else if (key.keyCode === 40) this.focusTableRep(1)
+      else if (key.keyCode === 13) this.repListHit()
+    },
+
+    focusTableRep(value) {
+      this.tableIndexRep += value
+      if (this.tableIndexRep < 0) 
+        this.tableIndexRep = 0
+      else if (this.tableIndexRep >= this.representantesFiltrados.length)
+        this.tableIndexRep = (this.representantesFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexRep > 0)
+        elementToScroll = document.getElementById('tabRep' + this.tableIndexRep)
+      else 
+        elementToScroll = document.getElementById('inputRepresentantesFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    repListHit() {
+      const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
+      this.selectRepresentante(rep)
+    },
+
+    selectRepresentante(row) {
+      this.codRep = row.codRep
+      document.getElementById('closeModalRepresentantes').click()
+      this.clearFocus()
+    },
 
     // Erros
     handleRequestError(err) {
