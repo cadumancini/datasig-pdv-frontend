@@ -40,6 +40,15 @@
               <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Cliente</span>
+              <input autocomplete="off" id="inputCodCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="codCli" :disabled="!clientes"
+                :placeholder="!clientes ? 'Buscando clientes ...' : ''">
+              <button id="btnClearCli" :disabled="codCli === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
+            </div>
+          </div>
         </div>  
         <div class="col-3">
           <div class="row">
@@ -133,6 +142,49 @@
       </div>
     </div>
   </div>  
+
+  <!-- Modal Clientes -->
+  <div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="clientesModalLabel">Clientes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalClientes"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="clientes != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro" v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 10%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">Nome</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
+                  <th class="sm-header" scope="col" style="width: 30%;">CPF/CNPJ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in clientesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCliente(row)">
+                  <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.cgcCpf }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando Clientes ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" @click="habilitarCadastroCliente">Novo</button>
+          <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal">Novo</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -162,11 +214,15 @@ export default {
       tableIndexRep: 0,
 
       // filtro clientes
+      clientes: null,
+      clientesFiltrados: null,
+      clientesFiltro: '',
+      codCli: '',
+      tableIndexCli: 0,
 
       // filtros
       dataDe: '',
       dataAte: '',
-      codCli: '',
 
       // resultados
       pedidosResult: null,
@@ -181,6 +237,7 @@ export default {
 
     this.initPedidos()
     this.initRepresentantes()
+    this.initClientes()
   },
 
   methods: {
@@ -292,7 +349,7 @@ export default {
       this.clearFocus()
     },
 
-    // Filtro represenante
+    // Filtro representante
     async initRepresentantes() {
       await api.getRepresentantes()
       .then((response) => {
@@ -306,8 +363,8 @@ export default {
     },
 
     searchRepresentantes() {
-      const representante = this.representantes.find(rep => rep.codRep === this.codRep)
-      if (representante) this.selectRepresenante(representante)
+      this.filtrarRepresentantes(this.codRep)
+      if (this.representantesFiltrados.length === 1) this.selectRepresentante(this.representantesFiltrados[0])
       else {
         this.representantesFiltro = this.codRep
         document.getElementById('btnBuscaRepresentantes').click()
@@ -335,7 +392,9 @@ export default {
     },
 
     filtrarRepresentantes(filter) {
-      this.representantesFiltrados = filter !== '' ? this.representantes.filter(rep => (rep.codRep.startsWith(filter))) : this.representantes
+      this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep === filter ||
+                  rep.nomRep.toUpperCase().includes(filter.toUpperCase()) ||
+                  rep.apeRep.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexRep = 0
 
       this.populateTabIndex(this.representantesFiltrados)
@@ -371,6 +430,91 @@ export default {
     selectRepresentante(row) {
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
+      this.clearFocus()
+    },
+
+    // Filtro cliente
+    async initClientes() {
+      await api.getClientes()
+      .then((response) => {
+        this.clientes = response.data
+        this.clientesFiltrados = this.clientes
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
+    },
+
+    searchClientes() {
+      this.filtrarClientes(this.codCli)
+      if (this.clientesFiltrados.length === 1) this.selectCliente(this.clientesFiltrados[0])
+      else {
+        this.clientesFiltro = this.codCli
+        document.getElementById('btnBuscaClientes').click()
+        const modalElement = document.getElementById('clientesModal')
+        modalElement.addEventListener('shown.bs.modal', () => {
+          document.getElementById('inputClientesFiltro').focus()
+        })
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          this.focusCliente()
+        })
+      }
+    },
+
+    focusCliente() {
+      this.codCli === '' ? document.getElementById('inputCodCli').focus() : document.getElementById('btnClearCli').focus()
+    },
+
+    clearCliente() {
+      this.codCli = ''
+    },
+
+    filtrarModalClientes(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarClientes(this.clientesFiltro)
+    },
+
+    filtrarClientes(filter) {
+      this.clientesFiltrados = this.clientes.filter(cli => (cli.codCli === filter ||
+                  cli.nomCli.toUpperCase().includes(filter.toUpperCase()) ||
+                  cli.apeCli.toUpperCase().includes(filter.toUpperCase()) ||
+                  cli.cgcCpf.startsWith(filter)))
+      this.tableIndexCli = 0
+
+      this.populateTabIndex(this.clientesFiltrados)
+    },
+
+    navegarModalClientes(key) {
+      if (key.keyCode === 38) this.focusTableCli(-1)
+      else if (key.keyCode === 40) this.focusTableCli(1)
+      else if (key.keyCode === 13) this.cliListHit()
+    },
+
+    focusTableCli(value) {
+      this.tableIndexCli += value
+      if (this.tableIndexCli < 0) 
+        this.tableIndexCli = 0
+      else if (this.tableIndexCli >= this.clientesFiltrados.length)
+        this.tableIndexCli = (this.clientesFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexCli > 0)
+        elementToScroll = document.getElementById('tabCli' + this.tableIndexCli)
+      else 
+        elementToScroll = document.getElementById('inputClientesFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    cliListHit() {
+      const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
+      this.selectCliente(cli)
+    },
+
+    selectCliente(row) {
+      this.codCli = row.codCli
+      document.getElementById('closeModalClientes').click()
       this.clearFocus()
     },
 
