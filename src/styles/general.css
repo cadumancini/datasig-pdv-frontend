@@ -57,6 +57,11 @@ html, body {
   height: 1.25rem;
   margin-left: 12px;
 }
+.edit-nota {
+  height: 1.25rem;
+  margin-left: 12px;
+  padding-top: 0rem;
+}
 .icon-cart {
   font-size: 0.75rem !important;
   display: flex;

@@ -35,25 +35,25 @@
             <vue-mask class="form-control disable-on-search" mask="00/00/0000" :raw="false" :options="options" v-model="datFim"></vue-mask>
           </div>
         </div>
-        <div class="col-1">
-          <div class="input-group input-group-sm">
-            <button id="btnBuscar" class="btn btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
-          </div>
+        <div class="col-2">
+          <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
+          <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
         </div>
       </div>
       <div class="row table-nfce border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead style="position: sticky; top: 0;">
             <tr>
-              <th class="sm-header" style="width: 8%;"><small>Empresa</small></th>
-              <th class="sm-header" style="width: 8%;"><small>Filial</small></th>
-              <th class="sm-header" style="width: 8%;"><small>Nota</small></th>
-              <th class="sm-header" style="width: 8%;"><small>Série</small></th>
-              <th class="sm-header" style="width: 8%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 8%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 22%;"><small>Emissão</small></th>
-              <th class="sm-header" style="width: 15%;"><small>Sit. Nota</small></th>
-              <th class="sm-header" style="width: 15%;"><small>Sit. Doc. Eletr.</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Empresa</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Filial</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Nota</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Série</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 18%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 12%;"><small>Sit. Nota</small></th>
+              <th class="sm-header" style="width: 12%;"><small>Sit. Doc. Eletr.</small></th>
+              <th class="sm-header" style="width: 16%;"><small>Ação</small></th>
             </tr>
           </thead>
           <tbody>
@@ -67,9 +67,55 @@
               <th class="fw-normal sm">{{ row.datEmi }} - {{ row.horEmi }}</th>
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
               <th class="fw-normal sm">{{ row.desSitDoe }}</th>
+              <th class="fw-normal sm">
+                <button @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Cancelar</button>
+                <button @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Inutilizar</button>
+                <button id="btnConfirmCancelarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
+                <button id="btnConfirmInutilizarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaInutilizarModal">.</button>
+              </th>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal Confirma Cancelamento -->
+    <div class="modal fade" id="confirmaCancelarModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirma cancelameto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaCancelar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja cancelar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo:</p>
+          <textarea class="form-control" maxlength="255" v-model="jusCan" rows="5"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="cancelarNota(this.notaSelected)">Sim</button>
+          <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Modal Confirma Inutilização -->
+    <div class="modal fade" id="confirmaInutilizarModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirma inutilização</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaInutilizar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja inutilizar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo:</p>
+          <textarea class="form-control" maxlength="255" v-model="jusInu" rows="5"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="inutilizarNota(this.notaSelected)">Sim</button>
+          <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
+        </div>
       </div>
     </div>
   </div>
@@ -93,6 +139,9 @@ export default {
 
       // registros
       notas: null,
+      notaSelected: null,
+      jusCan: '',
+      jusInu: '',
 
       // geral
       options: {
@@ -112,6 +161,19 @@ export default {
       document.activeElement.blur()
     },
 
+    limpar() {
+      this.notas = null
+      this.setEverythingDisabled(false)
+      this.limparCampos()
+    },
+
+    limparCampos() {
+      this.numNfv = ''
+      this.situacao = ''
+      this.datIni = ''
+      this.datFim = ''
+    },
+
     handleRequestError(err) {
       if (err.response) {
         if (err.response.status === 401) {
@@ -127,13 +189,13 @@ export default {
 
     setEverythingDisabled(value) {
       const elements = document.getElementsByClassName('disable-on-search')
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
       for (var i = 0; i < elements.length; i++) elements[i].disabled = value
     },
 
     async buscarNotas() {
       this.notas = null
       this.setEverythingDisabled(true)
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
       const filterNumNfv = this.numNfv !== '' ? this.numNfv : null
       const filterSituacao = this.situacao !== '' ? this.situacao : null
       const filterDatIni = this.datIni !== '' ? this.datIni : null
@@ -148,6 +210,24 @@ export default {
       })
       this.setEverythingDisabled(false)
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
+    },
+
+    confirmCancelarNota(row) {
+      this.notaSelected = row
+      document.getElementById('btnConfirmCancelarNota').click()
+    },
+
+    confirmInutilizarNota(row) {
+      this.notaSelected = row
+      document.getElementById('btnConfirmInutilizarNota').click()
+    },
+
+    cancelarNota(nota) {
+
+    },
+
+    inutilizarNota(nota) {
+
     }
   }
 }
