@@ -41,14 +41,22 @@ var functions = {
     return axios.put(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
   },
   putNFCe(numPed) {
-    return axios.put(urlBase + '/pedidos/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+    return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
   getPedidos(status, order) {
     return axios.get(urlBase + '/pedidos?token=' + sessionStorage.getItem('token') + '&statusPedido=' + status + '&order=' + order)
   },
   deleteItem(pedido, item) {
     return axios.delete(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)
-  }
+  },
+  getNotas(numNfv, sitNfv, datIni, datFim) {
+    let url = urlBase + '/nfce?token=' + sessionStorage.getItem('token')
+    url += numNfv !== null ? '&numNfv=' + numNfv : ''
+    url += sitNfv !== null ? '&sitNfv=' + sitNfv : ''
+    url += datIni !== null ? '&datIni=' + datIni : ''
+    url += datFim !== null ? '&datFim=' + datFim : ''
+    return axios.get(url)
+  },
 }
 
 export default functions

@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Menu from '../views/Menu.vue'
 import Venda from '../views/Venda.vue'
 import ConsultaPedidos from '../views/ConsultaPedidos.vue'
+import ConsultaNotas from '../views/ConsultaNotas.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/consulta-pedidos',
     name: 'ConsultaPedidos',
     component: ConsultaPedidos
+  },
+  {
+    path: '/consulta-notas',
+    name: 'ConsultaNotas',
+    component: ConsultaNotas
   }
 ]
 
