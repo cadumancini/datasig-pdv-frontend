@@ -57,6 +57,12 @@ var functions = {
     url += datFim !== null ? '&datFim=' + datFim : ''
     return axios.get(url)
   },
+  cancelarNFCe(codSnf, numNfv, jusCan) {
+    return axios.put(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
+  },
+  inutilizarNFCe(codSnf, numNfv, jusCan) {
+    return axios.put(urlBase + '/nfce/inutilizar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
+  },
 }
 
 export default functions

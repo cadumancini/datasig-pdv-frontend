@@ -42,7 +42,7 @@
       </div>
       <div class="row table-nfce border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
-          <thead style="position: sticky; top: 0;">
+          <thead>
             <tr>
               <th class="sm-header" style="width: 7%;"><small>Empresa</small></th>
               <th class="sm-header" style="width: 7%;"><small>Filial</small></th>
@@ -68,10 +68,8 @@
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
               <th class="fw-normal sm">{{ row.desSitDoe }}</th>
               <th class="fw-normal sm">
-                <button @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Cancelar</button>
-                <button @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Inutilizar</button>
-                <button id="btnConfirmCancelarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
-                <button id="btnConfirmInutilizarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaInutilizarModal">.</button>
+                <button :id="'btnCancelarNota' + row.codSnf + row.numNfv" :disabled="row.cancelavel === false" @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota">Cancelar</button>
+                <button :id="'btnInutilizarNota' + row.codSnf + row.numNfv" :disabled="row.inutilizavel === false" @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota">Inutilizar</button>
               </th>
             </tr>
           </tbody>
@@ -79,6 +77,8 @@
       </div>
     </div>
   </div>
+  <button id="btnConfirmCancelarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
+  <button id="btnConfirmInutilizarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaInutilizarModal">.</button>
 
     <!-- Modal Confirma Cancelamento -->
     <div class="modal fade" id="confirmaCancelarModal" tabindex="-1">
@@ -89,11 +89,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaCancelar"></button>
         </div>
         <div class="modal-body">
-          <p>Tem certeza que deseja cancelar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo:</p>
+          <p>Tem certeza que deseja cancelar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo (mín. 15 caracteres):</p>
           <textarea class="form-control" maxlength="255" v-model="jusCan" rows="5"></textarea>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="cancelarNota(this.notaSelected)">Sim</button>
+          <button type="button" class="btn btn-secondary" @click="cancelarNota(this.notaSelected)" :disabled="jusCan.length < 15">Sim</button>
           <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -109,11 +109,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaInutilizar"></button>
         </div>
         <div class="modal-body">
-          <p>Tem certeza que deseja inutilizar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo:</p>
+          <p>Tem certeza que deseja inutilizar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo (mín. 15 caracteres):</p>
           <textarea class="form-control" maxlength="255" v-model="jusInu" rows="5"></textarea>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="inutilizarNota(this.notaSelected)">Sim</button>
+          <button type="button" class="btn btn-secondary" @click="inutilizarNota(this.notaSelected)" :disabled="jusInu.length < 15">Sim</button>
           <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -172,6 +172,8 @@ export default {
       this.situacao = ''
       this.datIni = ''
       this.datFim = ''
+      this.jusCan = ''
+      this.jusInu = ''
     },
 
     handleRequestError(err) {
@@ -222,12 +224,52 @@ export default {
       document.getElementById('btnConfirmInutilizarNota').click()
     },
 
-    cancelarNota(nota) {
+    async cancelarNota(nota) {
+      document.getElementById('closeModalConfirmaCancelar').click()
+      this.setEverythingDisabled(true)
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
 
+      await api.cancelarNFCe(nota.codSnf, nota.numNfv, this.jusCan)
+      .then((response) => {
+        const resposta = response.data
+        if(resposta !== 'OK') {
+          alert(resposta)
+        } else {
+          alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso. Favor recarregar a busca para atualizar os valores.')
+          this.limpar()
+        } 
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
+
+      this.setEverythingDisabled(false)
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
-    inutilizarNota(nota) {
+    async inutilizarNota(nota) {
+      document.getElementById('closeModalConfirmaInutilizar').click()
+      this.setEverythingDisabled(true)
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
 
+      await api.inutilizarNFCe(nota.codSnf, nota.numNfv, this.jusInu)
+      .then((response) => {
+        const resposta = response.data
+        if(resposta !== 'OK') {
+          alert(resposta)
+        } else {
+          alert('NFC-e ' + nota.numNfv + ' inutilizada com sucesso. Favor recarregar a busca para atualizar os valores.')
+          this.limpar()
+        } 
+      })
+      .catch((err) => {
+        console.log(err)
+        this.handleRequestError(err)
+      })
+
+      this.setEverythingDisabled(false)
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
     }
   }
 }
