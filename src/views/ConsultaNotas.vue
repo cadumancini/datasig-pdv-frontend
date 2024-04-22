@@ -30,9 +30,11 @@
         <div class="col-4">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Data de Emissão</span>
-            <vue-mask class="form-control disable-on-search" mask="00/00/0000" :raw="false" :options="options" v-model="datIni"></vue-mask>
+            <input class="form-control" type="text" disabled :value="datIni ? datIni.toLocaleDateString('pt-BR') : ''">
+            <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('ini')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
             <span class="input-group-text">até</span>
-            <vue-mask class="form-control disable-on-search" mask="00/00/0000" :raw="false" :options="options" v-model="datFim"></vue-mask>
+            <input class="form-control" type="text" disabled :value="datFim ? datFim.toLocaleDateString('pt-BR') : ''">
+            <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
           </div>
         </div>
         <div class="col-2">
@@ -100,8 +102,8 @@
     </div>
   </div>
 
-    <!-- Modal Confirma Inutilização -->
-    <div class="modal fade" id="confirmaInutilizarModal" tabindex="-1">
+  <!-- Modal Confirma Inutilização -->
+  <div class="modal fade" id="confirmaInutilizarModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -119,16 +121,65 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal DatePicker -->
+  <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="datePickerModalLabel">Selecione uma data</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDatePicker"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 d-flex justify-content-center">
+            <DatePicker v-if="datClick === 'ini'" v-model="datIniPicked" mode="date" locale="br"/>
+            <DatePicker v-else-if="datClick === 'fim'" v-model="datFimPicked" mode="date" locale="br"/>
+          </div>
+          <div class="container">
+            <div class="row">
+              <div class="col text-center">
+                <button type="button" class="btn btn-secondary btn-sm" @click="selectToday(datClick)" data-bs-dismiss="modal">Hoje</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import Navbar from '../components/Navbar.vue'
 import api from '../utils/api'
-import vueMask from 'vue-jquery-mask'
+import { DatePicker } from 'v-calendar'
+import 'v-calendar/style.css'
 
 export default {
   name: 'ConsultaNotas',
-  components: { Navbar, vueMask },
+  components: { Navbar, DatePicker },
+  computed: {
+    datIniPicked: {
+      get() {
+        return this.datIni
+      },
+      set(v) {
+        this.datIni = v
+        document.getElementById('closeModalDatePicker').click()
+      }
+    },
+    datFimPicked: {
+      get() {
+        return this.datFim
+      },
+      set(v) {
+        this.datFim = v
+        document.getElementById('closeModalDatePicker').click()
+      }
+    }
+  },
   data () {
     return {
       // filtros
@@ -136,6 +187,7 @@ export default {
       situacao: '',
       datIni: '',
       datFim: '',
+      datClick: '',
 
       // registros
       notas: null,
@@ -157,6 +209,18 @@ export default {
   },
 
   methods: {
+    selectDate(model) {
+      this.datClick = model
+    },
+
+    selectToday() {
+      if (this.datClick === 'ini') {
+        this.datIniPicked = new Date()
+      } else {
+        this.datFimPicked = new Date()
+      }
+    },
+
     clearFocus() {
       document.activeElement.blur()
     },
