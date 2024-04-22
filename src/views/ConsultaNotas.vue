@@ -206,19 +206,22 @@ export default {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
     }
+    this.initDates()
   },
 
   methods: {
+    initDates() {
+      this.datIniPicked = new Date()
+      this.datFimPicked = new Date()
+    },
+
     selectDate(model) {
       this.datClick = model
     },
 
     selectToday() {
-      if (this.datClick === 'ini') {
-        this.datIniPicked = new Date()
-      } else {
-        this.datFimPicked = new Date()
-      }
+      if (this.datClick === 'ini') this.datIniPicked = new Date()
+      else this.datFimPicked = new Date()
     },
 
     clearFocus() {
