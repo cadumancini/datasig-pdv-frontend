@@ -568,7 +568,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
           <button type="button" id="btnCartao" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cartaoModal"></button>
-          <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
     </div>
