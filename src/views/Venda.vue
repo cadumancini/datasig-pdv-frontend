@@ -1391,7 +1391,6 @@ export default {
             console.log(err)
             shared.handleRequestError(err)
             if(err.response.data) {
-              alert(err.response.data.message)
               document.getElementById('selectTipCli').focus()
             }
           })
@@ -2175,7 +2174,6 @@ export default {
         .catch((err) => {
           shared.handleRequestError(err)
           console.log(err)
-          if(err.response.data) alert (err.response.data.message)
         })
         .finally(() => {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
