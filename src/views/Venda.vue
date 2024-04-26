@@ -1633,7 +1633,7 @@ export default {
       const itens = []
       itens.push(item)
       
-      this.enviarPedido(itens)
+      this.enviarPedido(itens, false, true)
     },
 
     editarItem(item) {
@@ -2116,10 +2116,10 @@ export default {
         }
         itens.push(itemPedido)
       })
-      this.enviarPedido(itens, limpar)
+      this.enviarPedido(itens, limpar, true)
     },
 
-    async enviarPedido(itens, limpar) {
+    async enviarPedido(itens, limpar, parcelas) {
       let pedido = null
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
@@ -2153,7 +2153,8 @@ export default {
           nsuTef: this.cartao.nsuTef,
           fechar: this.fecharVenda,
           numPed: !this.pedidoSelected ? '0' : this.pedPrv,
-          vlrDar: vlrDar
+          vlrDar: vlrDar,
+          incluirParcelas: parcelas
         }
       }
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
@@ -2271,8 +2272,9 @@ export default {
       }
 
       if (this.pedidoSelected && atualizar) {
-        this.fecharVenda
-        await this.enviarVenda(false)
+        this.fecharVenda = false
+        const itens = []
+        this.enviarPedido(itens, false, false)
       }
     },
 
