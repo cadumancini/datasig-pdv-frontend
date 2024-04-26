@@ -5,7 +5,7 @@
       <h1 class="h3 mb-3 font-weight-normal">Sistema PDV</h1>
       <input class="form-control" type="text" id="inputUsuario" placeholder="Usuário" required autofocus v-model="user" ref="inputUser">
       <input class="form-control" type="password" id="inputSenha" placeholder="Senha" required v-model="password">
-      <button id="btnLogin" class="btn btn-lg btn-block btn-secondary">Login</button>
+      <button id="btnLogin" :disabled="this.user === '' || this.password === ''" class="btn btn-lg btn-block btn-secondary">Login</button>
     </form>
   </div>
 </template>

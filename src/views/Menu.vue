@@ -52,7 +52,7 @@ export default {
     },
 
     handleOption(event) {
-      if (sessionStorage.getItem('form', 'menu')) {
+      if (sessionStorage.getItem('form') === 'menu') {
         if(event.key.toUpperCase() === 'V') this.access('Venda')
         // if(event.key.toUpperCase() === 'L') this.access('ConsultaPedidos')
       }

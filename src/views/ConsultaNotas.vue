@@ -206,8 +206,9 @@ export default {
   mounted () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
+    } else {
+      this.initDates()
     }
-    this.initDates()
   },
 
   methods: {
@@ -255,8 +256,8 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       const filterNumNfv = this.numNfv !== '' ? this.numNfv : null
       const filterSituacao = this.situacao !== '' ? this.situacao : null
-      const filterDatIni = this.datIni !== '' ? this.datIni : null
-      const filterDatFim = this.datFim !== '' ? this.datFim : null
+      const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
+      const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
       await api.getNotas(filterNumNfv, filterSituacao, filterDatIni, filterDatFim)
       .then((response) => {
         this.notas = response.data
@@ -296,7 +297,12 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        shared.handleRequestError(err)
+        if (err.response.status === 404) {
+          alert('Nenhum registro encontrado.')
+          this.clearFocus()
+        } else {
+          shared.handleRequestError(err)
+        }
       })
 
       this.setEverythingDisabled(false)

@@ -234,11 +234,11 @@ export default {
   mounted () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
+    } else {
+      this.initPedidos()
+      this.initRepresentantes()
+      this.initClientes()
     }
-
-    this.initPedidos()
-    this.initRepresentantes()
-    this.initClientes()
   },
 
   methods: {

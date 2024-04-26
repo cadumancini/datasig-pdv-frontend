@@ -886,10 +886,10 @@ export default {
   mounted () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
+    } else {
+      this.initEverything()
+      this.addEvents()
     }
-
-    this.initEverything()
-    this.addEvents()
   },
   methods: {
     async initEverything() {
