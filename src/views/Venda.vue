@@ -132,7 +132,7 @@
             </div>
             <div class="col" v-if="tipDesc !== ''">
               <button id="btnAplicarDesconto" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="aplicarDesconto(true)">Aplicar</button>  
-              <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto()">Limpar</button>  
+              <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto(true)">Limpar</button>  
             </div>
           </div>
           <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
@@ -692,6 +692,7 @@
 <script>
 import Navbar from '../components/Navbar.vue'
 import api from '../utils/api'
+import shared from '../utils/sharedFunctions'
 import vueMask from 'vue-jquery-mask'
 
 export default {
@@ -1120,15 +1121,6 @@ export default {
       })
     },
 
-    handleRequestError(err) {
-      if (err.response) {
-        if (err.response.status === 401) {
-          alert('Seu token de acesso não é mais válido. Por favor, faça login novamente.')
-          document.getElementById('linkLogout').click()
-        }
-      }
-    },
-
     /* Representantes */
     async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
@@ -1140,7 +1132,7 @@ export default {
         })
         .catch((err) => {
           console.log(err)
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
         })
       } else {
         this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
@@ -1253,7 +1245,7 @@ export default {
         })
         .catch((err) => {
           console.log(err)
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
         })
       } else {
         this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
@@ -1397,7 +1389,7 @@ export default {
           })
           .catch((err) => {
             console.log(err)
-            this.handleRequestError(err)
+            shared.handleRequestError(err)
             if(err.response.data) {
               alert(err.response.data.message)
               document.getElementById('selectTipCli').focus()
@@ -1673,7 +1665,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
       .finally(() => {
         document.getElementsByTagName('body')[0].style.cursor = 'auto'
@@ -1754,7 +1746,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
       return allProductsPresent
     },
@@ -1773,7 +1765,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
     },
 
@@ -1842,7 +1834,7 @@ export default {
           sessionStorage.setItem('condicoesPagto', JSON.stringify(this.condicoesPagto))
         })
         .catch((err) => {
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
           console.log(err)
         })
       } else {
@@ -1946,7 +1938,7 @@ export default {
           sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
         })
         .catch((err) => {
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
           console.log(err)
         })
       } else {
@@ -2052,7 +2044,7 @@ export default {
           sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
         })
         .catch((err) => {
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
           console.log(err)
         })
       } else {
@@ -2176,13 +2168,13 @@ export default {
               this.clearAllInputs()
               this.clearInputsCadCli()
               this.clearInputsCartao()
-              this.limparDesconto()
+              this.limparDesconto(false)
               this.clearFocus()
             }
           }
         })
         .catch((err) => {
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
           console.log(err)
           if(err.response.data) alert (err.response.data.message)
         })
@@ -2207,12 +2199,12 @@ export default {
             this.clearAllInputs()
             this.clearInputsCadCli()
             this.clearInputsCartao()
-            this.limparDesconto()
+            this.limparDesconto(false)
             this.clearFocus()
           } 
         })
         .catch((err) => {
-          this.handleRequestError(err)
+          shared.handleRequestError(err)
           console.log(err)
         })
         .finally(() => {
@@ -2260,7 +2252,7 @@ export default {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
     },
 
-    async aplicarDesconto(atualizar) {
+    aplicarDesconto(atualizar) {
       const valorTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
       this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)
 
@@ -2278,10 +2270,17 @@ export default {
       }
     },
 
-    limparDesconto() {
+    limparDesconto(atualizar) {
       this.vlrDesc = ''
       this.vlrComDesconto = ''
+      this.vlrDescPedido = 0
       this.tipDesc = ''
+
+      if (this.pedidoSelected && atualizar) {
+        this.fecharVenda = false
+        const itens = []
+        this.enviarPedido(itens, false, false)
+      }
     },
 
     /* Pedidos */
@@ -2295,7 +2294,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
     },
 

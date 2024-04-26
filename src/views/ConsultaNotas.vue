@@ -154,6 +154,7 @@
 <script>
 import Navbar from '../components/Navbar.vue'
 import api from '../utils/api'
+import shared from '../utils/sharedFunctions'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/style.css'
 
@@ -243,19 +244,6 @@ export default {
       this.jusInu = ''
     },
 
-    handleRequestError(err) {
-      if (err.response) {
-        if (err.response.status === 401) {
-          alert('Seu token de acesso não é mais válido. Por favor, faça login novamente.')
-          document.getElementById('linkLogout').click()
-        }
-        else if (err.response.status === 404) {
-          alert('Nenhum registro encontrado.')
-          this.clearFocus()
-        }
-      }
-    },
-
     setEverythingDisabled(value) {
       const elements = document.getElementsByClassName('disable-on-search')
       for (var i = 0; i < elements.length; i++) elements[i].disabled = value
@@ -275,7 +263,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
       this.setEverythingDisabled(false)
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
@@ -308,7 +296,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
 
       this.setEverythingDisabled(false)
@@ -332,7 +320,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
 
       this.setEverythingDisabled(false)

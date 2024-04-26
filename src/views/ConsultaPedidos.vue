@@ -190,6 +190,7 @@
 <script>
 import Navbar from '../components/Navbar.vue'
 import api from '../utils/api'
+import shared from '../utils/sharedFunctions'
 
 export default {
   name: 'ConsultaPedidos',
@@ -276,7 +277,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
     },
 
@@ -358,7 +359,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
     },
 
@@ -442,7 +443,7 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        this.handleRequestError(err)
+        shared.handleRequestError(err)
       })
     },
 
