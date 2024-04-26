@@ -46,16 +46,16 @@
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead>
             <tr>
-              <th class="sm-header" style="width: 7%;"><small>Empresa</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Filial</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Nota</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Série</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Empresa</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Filial</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Nota</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Série</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Cliente</small></th>
               <th class="sm-header" style="width: 7%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 18%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 15%;"><small>Emissão</small></th>
               <th class="sm-header" style="width: 12%;"><small>Sit. Nota</small></th>
               <th class="sm-header" style="width: 12%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 16%;"><small>Ação</small></th>
+              <th class="sm-header" style="width: 26%;"><small>Ação</small></th>
             </tr>
           </thead>
           <tbody>
@@ -72,6 +72,7 @@
               <th class="fw-normal sm">
                 <button :id="'btnCancelarNota' + row.codSnf + row.numNfv" :disabled="row.cancelavel === false" @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota">Cancelar</button>
                 <button :id="'btnInutilizarNota' + row.codSnf + row.numNfv" :disabled="row.inutilizavel === false" @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota">Inutilizar</button>
+                <button :id="'btnConsultaEDocs' + row.codSnf + row.numNfv" @click="consultarEDocs(row)" class="btn btn-secondary btn-sm sm edit-nota">eDocs</button>
               </th>
             </tr>
           </tbody>
@@ -323,6 +324,23 @@ export default {
           alert('NFC-e ' + nota.numNfv + ' inutilizada com sucesso. Favor recarregar a busca para atualizar os valores.')
           this.limpar()
         } 
+      })
+      .catch((err) => {
+        console.log(err)
+        shared.handleRequestError(err)
+      })
+
+      this.setEverythingDisabled(false)
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
+    },
+
+    async consultarEDocs(nota) {
+      this.setEverythingDisabled(true)
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+
+      await api.consultarEDocs(nota.codSnf, nota.numNfv)
+      .then((response) => {
+        alert(response.data)
       })
       .catch((err) => {
         console.log(err)

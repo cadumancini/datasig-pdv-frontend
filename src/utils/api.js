@@ -63,6 +63,9 @@ var functions = {
   inutilizarNFCe(codSnf, numNfv, jusCan) {
     return axios.put(urlBase + '/nfce/inutilizar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },
+  consultarEDocs(codSnf, numNfv) {
+    return axios.get(urlBase + '/nfce/edocs?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv)
+  },
 }
 
 export default functions
