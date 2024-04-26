@@ -2071,8 +2071,7 @@ export default {
 
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
-      // if (['6','7','8','17','18','19','20'].includes(this.formaSelected.tipFpg))
-      if (this.formaSelected.desFpg === 'OUTROS'){ //TODO: temporario
+      if (['6','7','8','17','18','19','20'].includes(this.formaSelected.tipFpg)) {
         this.clearInputsCartao()
         document.getElementById('btnCartao').click()
         const modalElement = document.getElementById('cartaoModal')
