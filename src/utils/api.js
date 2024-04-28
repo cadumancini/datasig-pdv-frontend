@@ -57,6 +57,15 @@ var functions = {
     url += datFim !== null ? '&datFim=' + datFim : ''
     return axios.get(url)
   },
+  getPedidos(status, numPed, datIni, datFim, order) {
+    let url = urlBase + '/pedidos?token=' + sessionStorage.getItem('token')
+    url += '&statusPedido=' + status
+    url += '&order=' + order
+    url += numPed !== null ? '&numPed=' + numPed : ''
+    url += datIni !== null ? '&datIni=' + datIni : ''
+    url += datFim !== null ? '&datFim=' + datFim : ''
+    return axios.get(url)
+  },
   cancelarNFCe(codSnf, numNfv, jusCan) {
     return axios.put(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },

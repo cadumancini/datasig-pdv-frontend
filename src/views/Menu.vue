@@ -10,7 +10,7 @@
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Operações de Venda</span>
         <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda (V)</button>
-        <button disabled class="btn btn-secondary btn-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos</button>
+        <button class="btn btn-secondary btn-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos</button>
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Consultas</span>

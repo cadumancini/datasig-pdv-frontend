@@ -42,7 +42,7 @@
           <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
         </div>
       </div>
-      <div class="row table-nfce border">
+      <div class="row table-registros border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead>
             <tr>
@@ -83,8 +83,8 @@
   <button id="btnConfirmCancelarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
   <button id="btnConfirmInutilizarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaInutilizarModal">.</button>
 
-    <!-- Modal Confirma Cancelamento -->
-    <div class="modal fade" id="confirmaCancelarModal" tabindex="-1">
+  <!-- Modal Confirma Cancelamento -->
+  <div class="modal fade" id="confirmaCancelarModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -235,6 +235,7 @@ export default {
       this.notas = null
       this.setEverythingDisabled(false)
       this.limparCampos()
+      this.initDates()
     },
 
     limparCampos() {

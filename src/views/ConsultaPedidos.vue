@@ -7,179 +7,164 @@
           <span class="fw-bold title">Consulta de Pedidos</span>
         </div>
       </div>
-      <div class="row">
-        <div class="col-3">
-          <div class="row">
-            <span class="fw-bold subtitle">Filtros</span>
+      <div class="row margin-y-fields">
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Pedido</span>
+            <input autocomplete="off" id="inputNumPed" class="form-control disable-on-search" type="text" v-model="numPed">
           </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Pedido</span>
-              <input autocomplete="off" id="inputNumPed" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="numPed" :disabled="!pedidos"
-                :placeholder="!pedidos ? 'Buscando pedidos ...' : ''">
-              <button id="btnClearPed" :disabled="numPed === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
-            </div>
+        </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Status</span>
+            <select class="form-select disable-on-search" v-model="situacao" id="selectTipDesc">
+              <option selected value="TODOS">Todos</option>
+              <option value="ABERTOS">Abertos</option>
+              <option value="FECHADOS">Fechados</option>
+            </select>
           </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Status</span>
-              <select :disabled="!pedidos" class="form-select disable-on-search" v-model="situacao" id="selectTipDesc">
-                <option selected value="TODOS">Todos</option>
-                <option value="ABERTO">Abertos</option>
-                <option value="FECHADO">Fechados</option>
-              </select>
-            </div>
+        </div>
+        <div class="col-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Data de Emissão</span>
+            <input class="form-control" type="text" disabled :value="datIni ? datIni.toLocaleDateString('pt-BR') : ''">
+            <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('ini')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
+            <span class="input-group-text">até</span>
+            <input class="form-control" type="text" disabled :value="datFim ? datFim.toLocaleDateString('pt-BR') : ''">
+            <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
           </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Representante</span>
-              <input autocomplete="off" id="inputCodRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="codRep" :disabled="!representantes"
-                :placeholder="!representantes ? 'Buscando representantes ...' : ''">
-              <button id="btnClearRep" :disabled="codRep === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
-            </div>
-          </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Cliente</span>
-              <input autocomplete="off" id="inputCodCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="codCli" :disabled="!clientes"
-                :placeholder="!clientes ? 'Buscando clientes ...' : ''">
-              <button id="btnClearCli" :disabled="codCli === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
-            </div>
-          </div>
-        </div>  
-        <div class="col-3">
-          <div class="row">
-            <span class="fw-bold subtitle">Pedidos</span>
-          </div>
-        </div>  
-        <div class="col">
+        </div>
+        <div class="col-2">
+          <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarPedidos">Buscar</button>
+          <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
+        </div>
+      </div>
+      <div class="row margin-y-fields">
+        <div class="col table-registros border">
+          <table class="table table-striped table-hover table-sm table-responsive table-items">
+            <thead>
+              <tr>
+                <th class="sm-header"><small>Empresa</small></th>
+                <th class="sm-header"><small>Filial</small></th>
+                <th class="sm-header"><small>Pedido</small></th>
+                <th class="sm-header"><small>Emissão</small></th>
+                <th class="sm-header"><small>Status</small></th>
+                <th class="sm-header"><small>Ação</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in pedidos" :key="row.numPed" @click="selectPedido(row)">
+                <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.codEmp }}</th>
+                <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.codFil }}</th>
+                <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.numPed }}</th>
+                <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.datEmi }}</th>
+                <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.staPed }}</th>
+                <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">
+                  <button :id="'btnCancelarPedido' + row.codSnf + row.numNfv" :disabled="row.staPed === 'FECHADO'"
+                      @click="confirmCancelarPedido(row)" class="btn btn-secondary btn-sm sm edit-nota">Cancelar</button>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-7">
           <div class="row">
             <span class="fw-bold subtitle">Detalhes</span>
           </div>
-        </div>  
+          <div class="row margin-y-fields">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Pedido</span>
+                <input disabled class="form-control" type="text">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Emissão</span>
+                <input disabled class="form-control" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Representante</span>
+                <input disabled class="form-control" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Cliente</span>
+                <input disabled class="form-control" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Status</span>
+                <input disabled class="form-control" type="text">
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Qtde. Itens</span>
+                <input disabled class="form-control" type="text">
+              </div>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <span class="fw-bold">Itens</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  <button id="btnConfirmCancelarPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
 
-  <!-- Modal Pedidos -->
-  <div class="modal fade" id="pedidosModal" tabindex="-1" aria-labelledby="pedidosModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
+  <!-- Modal Confirma Cancelamento -->
+  <div class="modal fade" id="confirmaCancelarModal" tabindex="-1">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="pedidosModalLabel">Pedidos</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalPedidos"></button>
+          <h5 class="modal-title">Confirma cancelameto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaCancelar"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3" v-if="pedidos != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos"
-                v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 35%;">Número</th>
-                  <th class="sm-header" scope="col" style="width: 35%;">Data de Emissão</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in pedidosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectPedido(row)">
-                  <th :id="'tabPed' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm" scope="row">{{ row.numPed }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.datEmi }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.staPed }}</th>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else>
-            <label>Buscando Pedidos ...</label>
-          </div>
+          <p>Tem certeza que deseja cancelar o pedido {{ this.pedidoSelected ? this.pedidoSelected.numPed : '' }}?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-secondary" @click="cancelarPedido(this.pedidoSelected)">Sim</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Modal Representantes -->
-  <div class="modal fade" id="representantesModal" tabindex="-1" aria-labelledby="representantesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+  
+  <!-- Modal DatePicker -->
+  <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-sm">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="representantesModalLabel">Representantes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalRepresentantes"></button>
+          <h5 class="modal-title" id="datePickerModalLabel">Selecione uma data</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDatePicker"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3" v-if="representantes != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro" v-on:keydown="navegarModalRepresentantes" v-on:keyup="filtrarModalRepresentantes" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 40%;">Nome</th>
-                  <th class="sm-header" scope="col" style="width: 40%;">Apelido</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectRepresentante(row)">
-                  <th :id="'tabRep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.nomRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.apeRep }}</th>
-                </tr>
-              </tbody>
-            </table>
+          <div class="mb-3 d-flex justify-content-center">
+            <DatePicker v-if="datClick === 'ini'" v-model="datIniPicked" mode="date" locale="br"/>
+            <DatePicker v-else-if="datClick === 'fim'" v-model="datFimPicked" mode="date" locale="br"/>
           </div>
-          <div v-else>
-            <label>Buscando representantes ...</label>
+          <div class="container">
+            <div class="row">
+              <div class="col text-center">
+                <button type="button" class="btn btn-secondary btn-sm" @click="selectToday(datClick)" data-bs-dismiss="modal">Hoje</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>  
-
-  <!-- Modal Clientes -->
-  <div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="clientesModalLabel">Clientes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalClientes"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3" v-if="clientes != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro" v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 10%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Nome</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">CPF/CNPJ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in clientesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCliente(row)">
-                  <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.cgcCpf }}</th>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else>
-            <label>Buscando Clientes ...</label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" @click="habilitarCadastroCliente">Novo</button>
-          <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal">Novo</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -191,43 +176,49 @@
 import Navbar from '../components/Navbar.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
+import { DatePicker } from 'v-calendar'
+import 'v-calendar/style.css'
 
 export default {
   name: 'ConsultaPedidos',
-  components: { Navbar },
+  components: { Navbar, DatePicker },
+  computed: {
+    datIniPicked: {
+      get() {
+        return this.datIni
+      },
+      set(v) {
+        this.datIni = v
+        document.getElementById('closeModalDatePicker').click()
+      }
+    },
+    datFimPicked: {
+      get() {
+        return this.datFim
+      },
+      set(v) {
+        this.datFim = v
+        document.getElementById('closeModalDatePicker').click()
+      }
+    }
+  },
   data () {
     return {
-      // filtro pedidos
-      pedidos: null,
-      pedidosFiltrados: null,
-      pedidosFiltro: '',
-      numPed: '',
-      tableIndexPed: 0,
-
-      // filtro situacao
-      situacao: 'TODOS',
-
-      // filtro representantes
-      representantes: null,
-      representantesFiltrados: null,
-      representantesFiltro: '',
-      codRep: '',
-      tableIndexRep: 0,
-
-      // filtro clientes
-      clientes: null,
-      clientesFiltrados: null,
-      clientesFiltro: '',
-      codCli: '',
-      tableIndexCli: 0,
-
       // filtros
-      dataDe: '',
-      dataAte: '',
+      numPed: '',
+      situacao: 'TODOS',
+      datIni: '',
+      datFim: '',
+      datClick: '',
 
-      // resultados
-      pedidosResult: null,
-      pedido: null
+      // registros
+      pedidos: null,
+      pedidoSelected: null,
+
+      // geral
+      options: {
+        reverse: false
+      },
     }
   },
 
@@ -235,299 +226,108 @@ export default {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
     } else {
-      this.initPedidos()
-      this.initRepresentantes()
-      this.initClientes()
+      this.initDates()
     }
   },
 
   methods: {
-    // Manipulação tela
-    populateTabIndex(list) {
-      let index = 0
-      list.forEach(item => {
-        item.tabIndex = index
-        index++
-      })
+    initDates() {
+      this.datIniPicked = new Date()
+      this.datFimPicked = new Date()
     },
 
-    scrollToElement(element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start'
-      })
+    selectDate(model) {
+      this.datClick = model
+    },
+
+    selectToday() {
+      if (this.datClick === 'ini') this.datIniPicked = new Date()
+      else this.datFimPicked = new Date()
     },
 
     clearFocus() {
       document.activeElement.blur()
     },
 
-    clearAllFilters() {
-      this.numPed = ''
-      this.situacao = 'TODOS'
+    limpar() {
+      this.pedidos = null
+      this.pedidoSelected = null
+      this.setEverythingDisabled(false)
+      this.limparCampos()
+      this.initDates()
     },
 
-    // Filtro pedido
-    async initPedidos() {
-      await api.getPedidos('TODOS', 'DESC')
+    limparCampos() {
+      this.numPed = ''
+      this.situacao = 'TODOS'
+      this.datIni = ''
+      this.datFim = ''
+    },
+
+    setEverythingDisabled(value) {
+      const elements = document.getElementsByClassName('disable-on-search')
+      for (var i = 0; i < elements.length; i++) elements[i].disabled = value
+    },
+
+    async buscarPedidos() {
+      this.pedidos = null
+      this.setEverythingDisabled(true)
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      const filterNumPed = this.numPed !== '' ? this.numPed : null
+      const filterSituacao = this.situacao !== '' ? this.situacao : null
+      const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
+      const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
+      await api.getPedidos(filterSituacao, filterNumPed, filterDatIni, filterDatFim, 'DESC')
       .then((response) => {
         this.pedidos = response.data
-        this.pedidosFiltrados = this.pedidos
       })
       .catch((err) => {
         console.log(err)
         shared.handleRequestError(err)
       })
+      this.setEverythingDisabled(false)
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
-    searchPedidos() {
-      const pedido = this.pedidos.find(ped => ped.numPed === this.numPed)
-      if (pedido) this.selectPedido(pedido)
-      else {
-        this.pedidosFiltro = this.numPed
-        document.getElementById('btnBuscaPedidos').click()
-        const modalElement = document.getElementById('pedidosModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('inputPedidosFiltro').focus()
-        })
-        modalElement.addEventListener('hidden.bs.modal', () => {
-          this.focusPedido()
-        })
-      }
-    },
-
-    focusPedido() {
-      this.numPed === '' ? document.getElementById('inputNumPed').focus() : document.getElementById('btnClearPed').focus()
-    },
-
-    clearPedido() {
-      this.numPed = ''
-    },
-
-    filtrarModalPedidos(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarPedidos(this.pedidosFiltro)
-    },
-
-    filtrarPedidos(filter) {
-      this.pedidosFiltrados = filter !== '' ? this.pedidos.filter(ped => (ped.numPed.startsWith(filter))) : this.pedidos
-      this.tableIndexPed = 0
-
-      this.populateTabIndex(this.pedidosFiltrados)
-    },
-
-    navegarModalPedidos(key) {
-      if (key.keyCode === 38) this.focusTablePed(-1)
-      else if (key.keyCode === 40) this.focusTablePed(1)
-      else if (key.keyCode === 13) this.pedListHit()
-    },
-
-    focusTablePed(value) {
-      this.tableIndexPed += value
-      if (this.tableIndexPed < 0) 
-        this.tableIndexPed = 0
-      else if (this.tableIndexPed >= this.pedidosFiltrados.length)
-        this.tableIndexPed = (this.pedidosFiltrados.length - 1)
-
-      let elementToScroll
-      if (this.tableIndexPed > 0)
-        elementToScroll = document.getElementById('tabPed' + this.tableIndexPed)
-      else 
-        elementToScroll = document.getElementById('inputPedidosFiltro')
-      
-      this.scrollToElement(elementToScroll)
-    },  
-
-    pedListHit() {
-      const ped = this.pedidosFiltrados.find(pedFil => pedFil.tabIndex === this.tableIndexPed)
-      this.selectPedido(ped)
+    confirmCancelarPedido(row) {
+      this.pedidoSelected = row
+      document.getElementById('btnConfirmCancelarPedido').click()
     },
 
     selectPedido(row) {
-      this.numPed = row.numPed
-      document.getElementById('closeModalPedidos').click()
-      this.clearFocus()
+      this.pedidoSelected = row
+
+      //TODO: carregar detalhes
     },
 
-    // Filtro representante
-    async initRepresentantes() {
-      await api.getRepresentantes()
+    async cancelarPedido(pedido) {
+      document.getElementById('closeModalConfirmaCancelar').click()
+      this.setEverythingDisabled(true)
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+
+      await api.cancelarNFCe(nota.codSnf, nota.numNfv, this.jusCan)
       .then((response) => {
-        this.representantes = response.data
-        this.representantesFiltrados = this.representantes
+        const resposta = response.data
+        if(resposta !== 'OK') {
+          alert(resposta)
+        } else {
+          alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso. Favor recarregar a busca para atualizar os valores.')
+          this.limpar()
+        } 
       })
       .catch((err) => {
         console.log(err)
-        shared.handleRequestError(err)
-      })
-    },
-
-    searchRepresentantes() {
-      this.filtrarRepresentantes(this.codRep)
-      if (this.representantesFiltrados.length === 1) this.selectRepresentante(this.representantesFiltrados[0])
-      else {
-        this.representantesFiltro = this.codRep
-        document.getElementById('btnBuscaRepresentantes').click()
-        const modalElement = document.getElementById('representantesModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('inputRepresentantesFiltro').focus()
-        })
-        modalElement.addEventListener('hidden.bs.modal', () => {
-          this.focusRepresentante()
-        })
-      }
-    },
-
-    focusRepresentante() {
-      this.codRep === '' ? document.getElementById('inputCodRep').focus() : document.getElementById('btnClearRep').focus()
-    },
-
-    clearRepresentante() {
-      this.codRep = ''
-    },
-
-    filtrarModalRepresentantes(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarRepresentantes(this.representantesFiltro)
-    },
-
-    filtrarRepresentantes(filter) {
-      this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep === filter ||
-                  rep.nomRep.toUpperCase().includes(filter.toUpperCase()) ||
-                  rep.apeRep.toUpperCase().includes(filter.toUpperCase())))
-      this.tableIndexRep = 0
-
-      this.populateTabIndex(this.representantesFiltrados)
-    },
-
-    navegarModalRepresentantes(key) {
-      if (key.keyCode === 38) this.focusTableRep(-1)
-      else if (key.keyCode === 40) this.focusTableRep(1)
-      else if (key.keyCode === 13) this.repListHit()
-    },
-
-    focusTableRep(value) {
-      this.tableIndexRep += value
-      if (this.tableIndexRep < 0) 
-        this.tableIndexRep = 0
-      else if (this.tableIndexRep >= this.representantesFiltrados.length)
-        this.tableIndexRep = (this.representantesFiltrados.length - 1)
-
-      let elementToScroll
-      if (this.tableIndexRep > 0)
-        elementToScroll = document.getElementById('tabRep' + this.tableIndexRep)
-      else 
-        elementToScroll = document.getElementById('inputRepresentantesFiltro')
-      
-      this.scrollToElement(elementToScroll)
-    },  
-
-    repListHit() {
-      const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
-      this.selectRepresentante(rep)
-    },
-
-    selectRepresentante(row) {
-      this.codRep = row.codRep
-      document.getElementById('closeModalRepresentantes').click()
-      this.clearFocus()
-    },
-
-    // Filtro cliente
-    async initClientes() {
-      await api.getClientes()
-      .then((response) => {
-        this.clientes = response.data
-        this.clientesFiltrados = this.clientes
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-    },
-
-    searchClientes() {
-      this.filtrarClientes(this.codCli)
-      if (this.clientesFiltrados.length === 1) this.selectCliente(this.clientesFiltrados[0])
-      else {
-        this.clientesFiltro = this.codCli
-        document.getElementById('btnBuscaClientes').click()
-        const modalElement = document.getElementById('clientesModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('inputClientesFiltro').focus()
-        })
-        modalElement.addEventListener('hidden.bs.modal', () => {
-          this.focusCliente()
-        })
-      }
-    },
-
-    focusCliente() {
-      this.codCli === '' ? document.getElementById('inputCodCli').focus() : document.getElementById('btnClearCli').focus()
-    },
-
-    clearCliente() {
-      this.codCli = ''
-    },
-
-    filtrarModalClientes(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarClientes(this.clientesFiltro)
-    },
-
-    filtrarClientes(filter) {
-      this.clientesFiltrados = this.clientes.filter(cli => (cli.codCli === filter ||
-                  cli.nomCli.toUpperCase().includes(filter.toUpperCase()) ||
-                  cli.apeCli.toUpperCase().includes(filter.toUpperCase()) ||
-                  cli.cgcCpf.startsWith(filter)))
-      this.tableIndexCli = 0
-
-      this.populateTabIndex(this.clientesFiltrados)
-    },
-
-    navegarModalClientes(key) {
-      if (key.keyCode === 38) this.focusTableCli(-1)
-      else if (key.keyCode === 40) this.focusTableCli(1)
-      else if (key.keyCode === 13) this.cliListHit()
-    },
-
-    focusTableCli(value) {
-      this.tableIndexCli += value
-      if (this.tableIndexCli < 0) 
-        this.tableIndexCli = 0
-      else if (this.tableIndexCli >= this.clientesFiltrados.length)
-        this.tableIndexCli = (this.clientesFiltrados.length - 1)
-
-      let elementToScroll
-      if (this.tableIndexCli > 0)
-        elementToScroll = document.getElementById('tabCli' + this.tableIndexCli)
-      else 
-        elementToScroll = document.getElementById('inputClientesFiltro')
-      
-      this.scrollToElement(elementToScroll)
-    },  
-
-    cliListHit() {
-      const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
-      this.selectCliente(cli)
-    },
-
-    selectCliente(row) {
-      this.codCli = row.codCli
-      document.getElementById('closeModalClientes').click()
-      this.clearFocus()
-    },
-
-    // Erros
-    handleRequestError(err) {
-      if (err.response) {
-        if (err.response.status === 401) {
-          alert('Seu token de acesso não é mais válido. Por favor, faça login novamente.')
-          document.getElementById('linkLogout').click()
+        if (err.response.status === 404) {
+          alert('Nenhum registro encontrado.')
+          this.clearFocus()
+        } else {
+          shared.handleRequestError(err)
         }
-      }
-    }
+      })
+
+      this.setEverythingDisabled(false)
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
+    },
   }
   
 }
