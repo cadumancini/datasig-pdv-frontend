@@ -1124,6 +1124,7 @@ export default {
         .then((response) => {
           this.representantes = response.data
           this.representantesFiltrados = this.representantes
+          if(this.representantes.length === 1) this.selectRepresentante(this.representantes[0])
           sessionStorage.setItem('representantes', JSON.stringify(this.representantes))
         })
         .catch((err) => {
@@ -1133,6 +1134,7 @@ export default {
       } else {
         this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
         this.representantesFiltrados = this.representantes
+        if(this.representantes.length === 1) this.selectRepresentante(this.representantes[0])
       }
     },
 
