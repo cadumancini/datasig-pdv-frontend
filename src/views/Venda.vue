@@ -22,7 +22,7 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Pedido</span>
               <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
-                :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || !this.condicoesPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
+                :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
               <button id="btnClearPed" :disabled="!this.pedidoSelected" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
@@ -1823,24 +1823,24 @@ export default {
 
     /* Condições de Pagamento */
     async beginCondicaoPagto() {
+      this.ideCpg = ''
+      this.codCpg = ''
+      this.condicoesPagtoFiltro = ''
+    },
+
+    async searchCondicoesPagto() {
       if(!this.codFpg.length) {
         alert('Favor informar uma forma de pagamento!')
         document.getElementById('inputIdeFpg').focus()
       } else {
-        this.ideCpg = ''
-        this.codCpg = ''
-        this.condicoesPagtoFiltro = ''
-      }
-    },
-
-    async searchCondicoesPagto() {
-      this.filtrarCondicoesPagto(this.ideCpg)
-      if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
-        this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
-      } else if (this.condicoesPagtoFiltrados.length === 0) {
-        alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
-      } else { // nao encontramos, abrir modal
-        this.openCondicoesPagtoModal()
+        this.filtrarCondicoesPagto(this.ideCpg)
+        if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
+          this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
+        } else if (this.condicoesPagtoFiltrados.length === 0) {
+          alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
+        } else { // nao encontramos, abrir modal
+          this.openCondicoesPagtoModal()
+        }
       }
     },
 
