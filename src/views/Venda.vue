@@ -69,7 +69,7 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Condição de Pagamento</span>
               <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
-                :disabled="!this.condicoesPagto.length || this.codCpg !== ''" :placeholder="!this.condicoesPagto.length ? 'Buscando condições de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
+                :disabled="!this.formasPagto.length || this.codCpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
               <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
@@ -163,7 +163,6 @@
                 <span class="status" v-else-if="status === 'b_representantes'">Buscando representantes ...</span>
                 <span class="status" v-else-if="status === 'b_clientes'">Buscando clientes ...</span>
                 <span class="status" v-else-if="status === 'b_formas'">Buscando formas de pagamento ...</span>
-                <span class="status" v-else-if="status === 'b_condicoes'">Buscando condições de pagamento ...</span>
                 <span class="status" v-else-if="status === 'b_pedidos'">Buscando pedidos abertos ...</span>
                 <span class="status" v-else-if="status === 'b_produtos'">Buscando produtos ...</span>
                 <span class="status" v-else-if="status === 'd_item'">Removendo item do pedido ...</span>
@@ -899,8 +898,6 @@ export default {
       await this.initClientes()    
       this.status = 'b_formas'
       await this.initFormasPagto()    
-      this.status = 'b_condicoes'
-      await this.initCondicoesPagto() 
       this.initParams()  
       this.status = '' 
     },
@@ -919,7 +916,6 @@ export default {
     emptyStorage() {
       sessionStorage.removeItem('representantes')
       sessionStorage.removeItem('clientes')
-      sessionStorage.removeItem('condicoesPagto')
       sessionStorage.removeItem('formasPagto')
       sessionStorage.removeItem('pedidos')
     },
@@ -1824,36 +1820,23 @@ export default {
     },
 
     /* Condições de Pagamento */
-    async initCondicoesPagto() {
-      if (!sessionStorage.getItem('condicoesPagto')) {
-        await api.getCondicoesPagto()
-        .then((response) => {
-          this.condicoesPagto = response.data
-          this.condicoesPagtoFiltrados = this.condicoesPagto
-          sessionStorage.setItem('condicoesPagto', JSON.stringify(this.condicoesPagto))
-        })
-        .catch((err) => {
-          shared.handleRequestError(err)
-          console.log(err)
-        })
-      } else {
-        this.condicoesPagto = JSON.parse(sessionStorage.getItem('condicoesPagto'))
-        this.condicoesPagtoFiltrados = this.condicoesPagto
-      }
-    },
-
     async beginCondicaoPagto() {
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicoesPagtoFiltro = ''
-      
-      if(!this.condicoesPagto.length) await this.initCondicoesPagto()
+      if(!this.codFpg.length) {
+        alert('Favor informar uma forma de pagamento!')
+        document.getElementById('inputIdeFpg').focus()
+      } else {
+        this.ideCpg = ''
+        this.codCpg = ''
+        this.condicoesPagtoFiltro = ''
+      }
     },
 
     async searchCondicoesPagto() {
       this.filtrarCondicoesPagto(this.ideCpg)
       if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
         this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
+      } else if (this.condicoesPagtoFiltrados.length === 0) {
+        alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
       } else { // nao encontramos, abrir modal
         this.openCondicoesPagtoModal()
       }
@@ -1950,6 +1933,9 @@ export default {
       this.ideFpg = ''
       this.codFpg = ''
       this.formasPagtoFiltro = ''
+      this.ideCpg = ''
+      this.codCpg = ''
+      this.condicoesPagtoFiltro = ''
       
       if(!this.formasPagto.length) await this.initFormasPagto()
     },
@@ -1967,6 +1953,9 @@ export default {
       this.ideFpg = row.desFpg
       this.codFpg = row.codFpg
       this.formaSelected = row
+      this.condicoesPagto = this.formaSelected.condicoes
+      this.condicoesPagtoFiltrados = this.condicoesPagto
+      if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0])
       document.getElementById('closeModalFormasPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false

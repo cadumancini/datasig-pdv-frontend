@@ -36,7 +36,6 @@ export default {
     if(sessionStorage.getItem('form') === 'menu') {
       this.populateRepresentantes()
       this.populateClientes()
-      this.populateCondicoesPagto()
       this.populateFormasPagto()
       this.populateParams()
 
@@ -77,16 +76,6 @@ export default {
       api.getClientes()
       .then((response) => {
         sessionStorage.setItem('clientes', JSON.stringify(response.data))
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    },
-
-    populateCondicoesPagto () {
-      api.getCondicoesPagto()
-      .then((response) => {
-        sessionStorage.setItem('condicoesPagto', JSON.stringify(response.data))
       })
       .catch((err) => {
         console.log(err)
