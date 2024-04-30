@@ -630,7 +630,7 @@
               <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
             </div>
           </div>
-          <div class="row mb-2" v-if="this.paramsPDV.usaTEF">
+          <div class="row mb-2" v-if="this.this.formaSelected.tipInt === '1'">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Número da Transação (TEF)</span>
               <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
@@ -800,7 +800,7 @@ export default {
 
       //venda
       finalizandoVenda: false,
-      paramsPDV: { usaTEF: false, codTpr: '' },
+      paramsPDV: { codTpr: '' },
       vlrTot: 'R$ 0,00',
       cartoes: [
         { codBan: '01', desBan: 'Visa' },
@@ -2028,7 +2028,6 @@ export default {
         await api.getUserParams()
         .then((response) => {
           this.paramsPDV = {
-            usaTEF: response.data.usaTEF,
             codTpr: response.data.parametrosPDV.codTpr
           }
           sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
@@ -2061,7 +2060,7 @@ export default {
 
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
-      if (['6','7','8','17','18','19','20'].includes(this.formaSelected.tipFpg)) {
+      if (['1','2'].includes(this.formaSelected.tipInt)) {
         this.clearInputsCartao()
         document.getElementById('btnCartao').click()
         const modalElement = document.getElementById('cartaoModal')
@@ -2076,7 +2075,7 @@ export default {
     async confirmarDadosCartao() {
       if (this.cartao.banOpe === '') alert('Selecione a bandeira do cartão!')
       else if (this.cartao.catTef === '') alert('Preencha o número da autorização!') 
-      else if (this.cartao.nsuTef === '' && this.paramsPDV.usaTEF) alert('Preencha o número da transação (TEF)!') 
+      else if (this.cartao.nsuTef === '' && this.formaSelected.tipInt === '1') alert('Preencha o número da transação (TEF)!') 
       else {
         document.getElementById('closeModalCartao').click()
         await this.enviarVenda(true)
@@ -2123,6 +2122,7 @@ export default {
           codFpg: this.codFpg,
           desFpg: this.formaSelected.desFpg,
           tipFpg: this.formaSelected.tipFpg,
+          tipInt: this.formaSelected.tipInt,
           codOpe: this.formaSelected.codOpe,
           codRep: this.codRep,
           vlrTot: vlrTmp,
