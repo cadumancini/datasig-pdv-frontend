@@ -2103,7 +2103,13 @@ export default {
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
-          fechar: this.fecharVenda
+          fechar: this.fecharVenda,
+          parcelas: this.condicaoSelected.parcelas,
+          codOpe: this.formaSelected.codOpe,
+          banOpe: this.cartao.banOpe,
+          catTef: this.cartao.catTef,
+          nsuTef: this.cartao.nsuTef,
+          tipInt: this.formaSelected.tipInt,
         }
       } else {
         let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
