@@ -630,7 +630,7 @@
               <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
             </div>
           </div>
-          <div class="row mb-2" v-if="this.this.formaSelected.tipInt === '1'">
+          <div class="row mb-2" v-if="this.formaSelected && this.formaSelected.tipInt === '1'">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Número da Transação (TEF)</span>
               <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
@@ -956,6 +956,7 @@ export default {
       this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
       this.status = ''
+      this.limparDesconto(false)
     },
     clearInputsCadCli() {
       document.getElementById('selectTipCli').selectedIndex = "0";
@@ -1701,8 +1702,6 @@ export default {
 
     async selectTabelaPreco(row, atualizar) {
       let seguir = true
-
-      console.log('aqui')
       if (this.pedidoSelected && atualizar) {
         seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
       }
@@ -2060,7 +2059,7 @@ export default {
 
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
-      if (['1','2'].includes(this.formaSelected.tipInt)) {
+      if (['1','2'].includes(this.formaSelected.tipInt) && this.fecharVenda) {
         this.clearInputsCartao()
         document.getElementById('btnCartao').click()
         const modalElement = document.getElementById('cartaoModal')
@@ -2300,8 +2299,8 @@ export default {
           const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
           if(fpg) ped.fpg = fpg
         }
-        if (ped.codCpg) {
-          const cpg = this.condicoesPagto.find(cpgRow => cpgRow.codCpg === ped.codCpg)
+        if (ped.codCpg && ped.fpg) {
+          const cpg = ped.fpg.condicoes.find(cpgRow => cpgRow.codCpg === ped.codCpg)
           if(cpg) ped.cpg = cpg
         }
       })
