@@ -611,7 +611,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="cartaoModalLabel">Informações Cartão</h5>
+          <h5 class="modal-title" id="cartaoModalLabel">Informações da Transação</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCartao"></button>
         </div>
         <div class="modal-body">
@@ -2059,7 +2059,7 @@ export default {
 
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
-      if (['1','2'].includes(this.formaSelected.tipInt) && this.fecharVenda) {
+      if (['1','2'].includes(this.formaSelected.tipInt) && this.fecharVenda && this.formaSelected.tipFpg !== '30') {
         this.clearInputsCartao()
         document.getElementById('btnCartao').click()
         const modalElement = document.getElementById('cartaoModal')
