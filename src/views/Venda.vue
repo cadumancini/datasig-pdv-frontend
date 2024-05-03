@@ -216,7 +216,7 @@
 
   <!-- Modal Clientes -->
   <div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="clientesModalLabel">Clientes</h5>
@@ -225,21 +225,14 @@
         <div class="modal-body">
           <div class="mb-3" v-if="clientes != null">
             <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro" v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
-            <div class="row mb-2">
-              <div class="col text-center">
-                <button class="btn btn-secondary btn-sm" @click="changePageCli(-1)" :disabled="this.numPagCli === 1"> &lt; </button>
-                <span class="mx-2">{{ this.numPagCli }}</span>
-                <button class="btn btn-secondary btn-sm"  @click="changePageCli(1)" :disabled="this.numPagCli === this.numPagMax"> &gt; </button>
-              </div>
-            </div>
             <div class="row">
               <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                 <thead>
                   <tr>
-                    <th class="sm-header" scope="col" style="width: 10%;">Código</th>
-                    <th class="sm-header" scope="col" style="width: 30%;">Nome</th>
+                    <th class="sm-header" scope="col" style="width: 8%;">Código</th>
+                    <th class="sm-header" scope="col" style="width: 42%;">Nome</th>
                     <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
-                    <th class="sm-header" scope="col" style="width: 30%;">CPF/CNPJ</th>
+                    <th class="sm-header" scope="col" style="width: 20%;">CPF/CNPJ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -253,6 +246,13 @@
                   </template>
                 </tbody>
               </table>
+            </div>
+            <div class="row mb-2">
+              <div class="col text-center">
+                <button class="btn btn-secondary btn-sm" @click="changePageCli(-1)" :disabled="this.numPagCli === 1"> &lt; </button>
+                <span class="mx-2">{{ this.numPagCli }} de {{ this.numPagMax }}</span>
+                <button class="btn btn-secondary btn-sm"  @click="changePageCli(1)" :disabled="this.numPagCli === this.numPagMax"> &gt; </button>
+              </div>
             </div>
           </div>
           <div v-else>
@@ -727,6 +727,7 @@ export default {
       tableIndexCli: 0,
       numPagCli: 1,
       numPagMax: 0,
+      ipp: 15,
 
       //cadastro clientes
       cadCliTipCli: '',
@@ -1270,7 +1271,6 @@ export default {
     paginarClientes() {
       this.numPagCli = 1
       this.numPagMax = 0
-      const ipp = 15
       let numPag = 1
       let index = 0
       this.clientesFiltrados.forEach(cli => {
@@ -1278,7 +1278,7 @@ export default {
         cli.tabIndex = index
         index++
 
-        if (index === ipp) {
+        if (index === this.ipp) {
           numPag++
           index = 0
           this.numPagMax = numPag
@@ -1374,8 +1374,8 @@ export default {
       this.tableIndexCli += value
       if (this.tableIndexCli < 0) 
         this.tableIndexCli = 0
-      else if (this.tableIndexCli >= this.clientesFiltrados.length)
-        this.tableIndexCli = (this.clientesFiltrados.length - 1)
+      else if (this.tableIndexCli >= this.ipp)
+        this.tableIndexCli = (this.ipp - 1)
 
       let elementToScroll
       if (this.tableIndexCli > 0)
