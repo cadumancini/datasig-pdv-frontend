@@ -34,8 +34,14 @@ html, body {
 .sm {
   font-size: 0.8rem !important;
 }
+.ssm {
+  font-size: 0.75rem !important;
+}
 .sm-header {
   font-size: 0.9rem !important;
+}
+.ssm-header {
+  font-size: 0.8rem !important;
 }
 .active {
   background-color: rgb(166, 166, 166);

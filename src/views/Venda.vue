@@ -229,19 +229,19 @@
               <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                 <thead>
                   <tr>
-                    <th class="sm-header" scope="col" style="width: 8%;">Código</th>
-                    <th class="sm-header" scope="col" style="width: 42%;">Nome</th>
-                    <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
-                    <th class="sm-header" scope="col" style="width: 20%;">CPF/CNPJ</th>
+                    <th class="ssm-header" scope="col" style="width: 8%;">Código</th>
+                    <th class="ssm-header" scope="col" style="width: 42%;">Nome</th>
+                    <th class="ssm-header" scope="col" style="width: 30%;">Apelido</th>
+                    <th class="ssm-header" scope="col" style="width: 20%;">CPF/CNPJ</th>
                   </tr>
                 </thead>
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
                     <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal" @click="selectCliente(row)">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.cgcCpf }}</th>
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
                     </tr>
                   </template>
                 </tbody>
