@@ -225,24 +225,35 @@
         <div class="modal-body">
           <div class="mb-3" v-if="clientes != null">
             <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro" v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 10%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Nome</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">CPF/CNPJ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in clientesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCliente(row)">
-                  <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.cgcCpf }}</th>
-                </tr>
-              </tbody>
-            </table>
+            <div class="row mb-2">
+              <div class="col text-center">
+                <button class="btn btn-secondary btn-sm" @click="changePageCli(-1)" :disabled="this.numPagCli === 1"> &lt; </button>
+                <span class="mx-2">{{ this.numPagCli }}</span>
+                <button class="btn btn-secondary btn-sm"  @click="changePageCli(1)" :disabled="this.numPagCli === this.numPagMax"> &gt; </button>
+              </div>
+            </div>
+            <div class="row">
+              <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                <thead>
+                  <tr>
+                    <th class="sm-header" scope="col" style="width: 10%;">Código</th>
+                    <th class="sm-header" scope="col" style="width: 30%;">Nome</th>
+                    <th class="sm-header" scope="col" style="width: 30%;">Apelido</th>
+                    <th class="sm-header" scope="col" style="width: 30%;">CPF/CNPJ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template v-for="row in clientesFiltrados" :key="row.tabIndex">
+                    <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal" @click="selectCliente(row)">
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm" scope="row">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal sm">{{ row.cgcCpf }}</th>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
           </div>
           <div v-else>
             <label>Buscando Clientes ...</label>
@@ -714,6 +725,8 @@ export default {
       clientesFiltro: '',
       clientesFiltrados: [],
       tableIndexCli: 0,
+      numPagCli: 1,
+      numPagMax: 0,
 
       //cadastro clientes
       cadCliTipCli: '',
@@ -1240,6 +1253,7 @@ export default {
         .then((response) => {
           this.clientes = response.data
           this.clientesFiltrados = this.clientes
+          this.paginarClientes()
           sessionStorage.setItem('clientes', JSON.stringify(this.clientes))
         })
         .catch((err) => {
@@ -1249,6 +1263,32 @@ export default {
       } else {
         this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
         this.clientesFiltrados = this.clientes
+        this.paginarClientes()
+      }
+    },
+
+    paginarClientes() {
+      this.numPagCli = 1
+      this.numPagMax = 0
+      const ipp = 15
+      let numPag = 1
+      let index = 0
+      this.clientesFiltrados.forEach(cli => {
+        cli.numPag = numPag
+        cli.tabIndex = index
+        index++
+
+        if (index === ipp) {
+          numPag++
+          index = 0
+          this.numPagMax = numPag
+        }
+      })
+    },
+
+    changePageCli(value) {
+      if ((this.numPagCli + value) >= 1 && (this.numPagCli + value) <= this.numPagMax) {
+        this.numPagCli += value
       }
     },
 
@@ -1286,7 +1326,7 @@ export default {
                   cli.cgcCpf.startsWith(filter)))
       this.tableIndexCli = 0
 
-      this.populateTabIndex(this.clientesFiltrados)
+      this.paginarClientes()
     },
 
     openClientesModal() {
@@ -1306,13 +1346,27 @@ export default {
     },
 
     navegarModalClientes(key) {
-      if (key.keyCode === 38) this.focusTableCli(-1)
-      else if (key.keyCode === 40) this.focusTableCli(1)
+      if (key.keyCode === 37){
+        this.changePageCli(-1)
+        key.preventDefault()
+      } 
+      else if (key.keyCode === 38) {
+        this.focusTableCli(-1)
+        key.preventDefault()
+      }
+      else if (key.keyCode === 39) {
+        this.changePageCli(1)
+        key.preventDefault()
+      }
+      else if (key.keyCode === 40) {
+        this.focusTableCli(1)
+        key.preventDefault()
+      }
       else if (key.keyCode === 13) this.cliListHit()
     },
 
     filtrarModalClientes(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+      if(key.keyCode !== 37 && key.keyCode !== 38 && key.keyCode !== 39 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarClientes(this.clientesFiltro)
     },
 
