@@ -814,7 +814,7 @@ export default {
 
       //venda
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '' },
+      paramsPDV: { codTpr: '', dscTot: '' },
       vlrTot: 'R$ 0,00',
       cartoes: [
         { codBan: '01', desBan: 'Visa' },
@@ -932,6 +932,7 @@ export default {
       sessionStorage.removeItem('clientes')
       sessionStorage.removeItem('formasPagto')
       sessionStorage.removeItem('pedidos')
+      sessionStorage.removeItem('paramsPDV')
     },
     clearAllLists() {
       this.representantes = []
@@ -2011,10 +2012,19 @@ export default {
       this.condicoesPagto = this.formaSelected.condicoes
       this.condicoesPagtoFiltrados = this.condicoesPagto
       if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0])
+      this.aplicarDescontoFormaPagto()
       document.getElementById('closeModalFormasPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
         await this.enviarVenda(false)
+      }
+    },
+
+    aplicarDescontoFormaPagto() {
+      if(this.formaSelected.perDsc !== '0,00') {
+        this.tipDesc = 'porcentagem'
+        this.vlrDesc = this.formaSelected.perDsc
+        this.aplicarDesconto(false)
       }
     },
 
@@ -2081,9 +2091,10 @@ export default {
         await api.getUserParams()
         .then((response) => {
           this.paramsPDV = {
-            codTpr: response.data.parametrosPDV.codTpr
+            codTpr: response.data.parametrosPDV.codTpr,
+            dscTot: response.data.parametrosPDV.dscTot
           }
-          sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
+          sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
         })
         .catch((err) => {
           shared.handleRequestError(err)
@@ -2306,6 +2317,11 @@ export default {
       if (valorTmp < this.vlrDescPedido) {
         alert('O desconto não pode ser maior que o valor total do pedido!')
         this.vlrDesc = ''
+        this.vlrDescPedido = ''
+      } else if (this.descontoExcedeLimite(valorTmp)) {
+        alert('O desconto não pode ser maior que o estipulado nos parâmetros, que é de ' + this.paramsPDV.dscTot + '% do valor da compra!')
+        this.vlrDesc = ''
+        this.vlrDescPedido = ''
       } else {
         this.vlrComDesconto = (valorTmp - this.vlrDescPedido).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
       }
@@ -2315,6 +2331,20 @@ export default {
         const itens = []
         this.enviarPedido(itens, false, false)
       }
+    },
+
+    descontoExcedeLimite(vlrTmp) {
+      console.log(vlrTmp)
+      if (this.paramsPDV.dscTot) {
+        const percMax = Number(this.paramsPDV.dscTot.replace(',', '.'))
+        if (percMax > 0) {
+          const descMax = vlrTmp * percMax / 100
+          if (this.vlrDescPedido > descMax) return true
+          else return false
+        } 
+        else return false
+      }
+      return false
     },
 
     limparDesconto(atualizar) {
