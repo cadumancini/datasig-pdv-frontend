@@ -96,8 +96,8 @@ export default {
       api.getUserParams()
       .then((response) => {
         const paramsPDV = {
-          usaTEF: response.data.usaTEF,
-          codTpr: response.data.parametrosPDV.codTpr
+          codTpr: response.data.parametrosPDV.codTpr,
+          dscTot: response.data.parametrosPDV.dscTot
         }
         sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
       })
