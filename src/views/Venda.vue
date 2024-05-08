@@ -110,7 +110,7 @@
           <div class="row margin-y-fields">
             <div class="col-6">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Valor Total</span>
+                <span class="input-group-text">Valor Itens</span>
                 <input class="form-control" disabled v-model="vlrTot">
               </div>
             </div>
@@ -141,6 +141,22 @@
                 <span class="input-group-text">Valor com desconto</span>
                 <input class="form-control" disabled v-model="vlrComDesconto">
               </div>  
+            </div>
+          </div>
+          <div class="row margin-y-fields" v-if="prcDescontoForma !== ''">
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Desconto (forma de pagamento)</span>
+                <input class="form-control" disabled :value="prcDescontoForma + ' %'">
+              </div>  
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Valor Final</span>
+                <input class="form-control" disabled v-model="vlrFinal">
+              </div>
             </div>
           </div>
           <div class="row margin-y-fields">
@@ -856,7 +872,10 @@ export default {
       tipDesc: '',
       vlrDesc: '',
       vlrDescPedido: 0,
+      vlrFinalNbr: 0,
+      vlrFinal: 'R$ 0,00',
       vlrComDesconto: '',
+      prcDescontoForma: '',
 
       //geral
       status: '',
@@ -971,6 +990,9 @@ export default {
       this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
       this.status = ''
+      this.vlrFinalNbr = 0
+      this.vlrFinal = 'R$ 0,00'
+      this.prcDescontoForma = ''
       this.limparDesconto(false)
     },
     clearInputsCadCli() {
@@ -1553,7 +1575,9 @@ export default {
     atualizarValorTotalCompra() {
       this.vlrTot = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
                   .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-      if (this.tipDesc !== '') {
+      this.vlrFinalNbr = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+      this.vlrFinal = this.vlrTot
+      if (this.tipDesc !== '' || this.prcDescontoForma !== '') {
         this.aplicarDesconto(false)
       }
     },
@@ -1992,6 +2016,8 @@ export default {
       this.ideCpg = ''
       this.codCpg = ''
       this.condicoesPagtoFiltro = ''
+      this.prcDescontoForma = ''
+      this.atualizarValorTotalCompra()
       
       if(!this.formasPagto.length) await this.initFormasPagto()
     },
@@ -2022,8 +2048,7 @@ export default {
 
     aplicarDescontoFormaPagto() {
       if(this.formaSelected.perDsc !== '0,00') {
-        this.tipDesc = 'porcentagem'
-        this.vlrDesc = this.formaSelected.perDsc
+        this.prcDescontoForma = this.formaSelected.perDsc
         this.aplicarDesconto(false)
       }
     },
@@ -2177,14 +2202,9 @@ export default {
           tipInt: this.formaSelected.tipInt,
         }
       } else {
-        let vlrTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
-        let vlrDar = 0
-        if (this.tipDesc !== '') {
-          vlrTmp -= this.vlrDescPedido
-          vlrDar = this.vlrDescPedido
-        }
-        vlrTmp = vlrTmp.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-                    .replace('R$', '').replace('.','').replace(',','.').trim()
+        const vlrDar = Number(((Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))) - this.vlrFinalNbr)
+                    .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+                    .replace('R$', '').replace('.','').replace(',','.').trim())
 
         pedido = {
           codCli: this.codCli,
@@ -2195,7 +2215,7 @@ export default {
           tipInt: this.formaSelected.tipInt,
           codOpe: this.formaSelected.codOpe,
           codRep: this.codRep,
-          vlrTot: vlrTmp,
+          vlrTot: this.vlrFinalNbr,
           itens: itens,
           qtdPar: this.condicaoSelected.qtdParCpg,
           parcelas: this.condicaoSelected.parcelas,
@@ -2311,19 +2331,31 @@ export default {
     },
 
     aplicarDesconto(atualizar) {
-      const valorTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
-      this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)
+      if(this.tipDesc !== '') {
+        const valorTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)
 
-      if (valorTmp < this.vlrDescPedido) {
-        alert('O desconto não pode ser maior que o valor total do pedido!')
-        this.vlrDesc = ''
-        this.vlrDescPedido = ''
-      } else if (this.descontoExcedeLimite(valorTmp)) {
-        alert('O desconto não pode ser maior que o estipulado nos parâmetros, que é de ' + this.paramsPDV.dscTot + '% do valor da compra!')
-        this.vlrDesc = ''
-        this.vlrDescPedido = ''
-      } else {
-        this.vlrComDesconto = (valorTmp - this.vlrDescPedido).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        if (valorTmp < this.vlrDescPedido) {
+          alert('O desconto não pode ser maior que o valor total do pedido!')
+          this.vlrDesc = ''
+          this.vlrDescPedido = ''
+          this.vlrFinalNbr = valorTmp
+        } else if (this.descontoExcedeLimite(valorTmp)) {
+          alert('O desconto não pode ser maior que o estipulado nos parâmetros, que é de ' + this.paramsPDV.dscTot + '% do valor da compra!')
+          this.vlrDesc = ''
+          this.vlrDescPedido = ''
+          this.vlrFinalNbr = valorTmp
+        } else {
+          this.vlrComDesconto = (valorTmp - this.vlrDescPedido).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+          this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
+          this.vlrFinal = this.vlrComDesconto
+        }
+      }
+      if (this.prcDescontoForma !== '') {
+        this.vlrFinalNbr = this.vlrFinalNbr - (this.vlrFinalNbr * (Number(this.prcDescontoForma.replace(',', '.')) / 100))
+        this.vlrFinal = this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        this.vlrFinalNbr = Number(this.vlrFinal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+                    .replace('R$', '').replace('.','').replace(',','.').trim())
       }
 
       if (this.pedidoSelected && atualizar) {
@@ -2352,6 +2384,7 @@ export default {
       this.vlrComDesconto = ''
       this.vlrDescPedido = 0
       this.tipDesc = ''
+      this.atualizarValorTotalCompra()
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false

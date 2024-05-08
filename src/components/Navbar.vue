@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-md navbar-light mb-2" style="background-color: #dedede;">
+  <nav class="navbar navbar-expand-md navbar-light mb-1" style="background-color: #dedede;">
     <a class="navbar-brand logo" href="#"><img alt="Logo DataSIG" width="20%" height="20%" src="../assets/logo.png"></a>
     <ul class="navbar-nav ms-auto actions">
       <li class="nav-item mx-2">
