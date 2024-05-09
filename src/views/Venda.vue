@@ -2217,7 +2217,7 @@ export default {
           tipInt: this.formaSelected.tipInt,
           codOpe: this.formaSelected.codOpe,
           codRep: this.codRep,
-          vlrTot: this.vlrFinalNbr,
+          vlrTot: Number(this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '')),
           itens: itens,
           qtdPar: this.condicaoSelected.qtdParCpg,
           parcelas: this.condicaoSelected.parcelas,
@@ -2342,11 +2342,13 @@ export default {
           this.vlrDesc = ''
           this.vlrDescPedido = ''
           this.vlrFinalNbr = valorTmp
+          atualizar = false
         } else if (this.descontoExcedeLimite(valorTmp)) {
           alert('O desconto não pode ser maior que o estipulado nos parâmetros, que é de ' + this.paramsPDV.dscTot + '% do valor da compra!')
           this.vlrDesc = ''
           this.vlrDescPedido = ''
           this.vlrFinalNbr = valorTmp
+          atualizar = false
         } else {
           this.vlrComDesconto = (valorTmp - this.vlrDescPedido).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
