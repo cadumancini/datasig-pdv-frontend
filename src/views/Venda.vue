@@ -2049,8 +2049,10 @@ export default {
     aplicarDescontoFormaPagto() {
       if(this.formaSelected.perDsc !== '0,00') {
         this.prcDescontoForma = this.formaSelected.perDsc
-        this.aplicarDesconto(false)
+      } else {
+        this.prcDescontoForma = ''
       }
+      this.atualizarValorTotalCompra()
     },
 
     filtrarFormasPagto(filter) {
