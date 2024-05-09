@@ -1702,7 +1702,7 @@ export default {
       const itens = []
       itens.push(item)
       
-      this.enviarPedido(itens, false, true)
+      this.enviarPedido(itens, false)
     },
 
     editarItem(item) {
@@ -1929,7 +1929,8 @@ export default {
       document.getElementById('closeModalCondicoesPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
-        await this.enviarVenda(false)
+        const itens = []
+        this.enviarPedido(itens, false)
       }
     },
 
@@ -2037,12 +2038,13 @@ export default {
       this.formaSelected = row
       this.condicoesPagto = this.formaSelected.condicoes
       this.condicoesPagtoFiltrados = this.condicoesPagto
-      if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0])
+      if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0], false)
       this.aplicarDescontoFormaPagto()
       document.getElementById('closeModalFormasPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
-        await this.enviarVenda(false)
+        const itens = []
+        this.enviarPedido(itens, false)
       }
     },
 
@@ -2187,21 +2189,23 @@ export default {
         }
         itens.push(itemPedido)
       })
-      this.enviarPedido(itens, limpar, true)
+      this.enviarPedido(itens, limpar)
     },
 
-    async enviarPedido(itens, limpar, parcelas) {
+    async enviarPedido(itens, limpar) {
       let pedido = null
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
+          qtdPar: this.condicaoSelected.qtdParCpg,
           parcelas: this.condicaoSelected.parcelas,
           codOpe: this.formaSelected.codOpe,
           banOpe: this.cartao.banOpe,
           catTef: this.cartao.catTef,
           nsuTef: this.cartao.nsuTef,
           tipInt: this.formaSelected.tipInt,
+          vlrTot: this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').replace('.','').replace(',','.').trim()
         }
       } else {
         const vlrDar = Number(((Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))) - this.vlrFinalNbr)
@@ -2217,17 +2221,10 @@ export default {
           tipInt: this.formaSelected.tipInt,
           codOpe: this.formaSelected.codOpe,
           codRep: this.codRep,
-          vlrTot: Number(this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '')),
           itens: itens,
-          qtdPar: this.condicaoSelected.qtdParCpg,
-          parcelas: this.condicaoSelected.parcelas,
-          banOpe: this.cartao.banOpe,
-          catTef: this.cartao.catTef,
-          nsuTef: this.cartao.nsuTef,
           fechar: this.fecharVenda,
           numPed: !this.pedidoSelected ? '0' : this.pedPrv,
-          vlrDar: vlrDar,
-          incluirParcelas: parcelas
+          vlrDar: vlrDar
         }
       }
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
@@ -2365,7 +2362,7 @@ export default {
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
         const itens = []
-        this.enviarPedido(itens, false, false)
+        this.enviarPedido(itens, false)
       }
     },
 
@@ -2392,7 +2389,7 @@ export default {
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
         const itens = []
-        this.enviarPedido(itens, false, false)
+        this.enviarPedido(itens, false)
       }
     },
 
