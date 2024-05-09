@@ -2366,7 +2366,6 @@ export default {
     },
 
     descontoExcedeLimite(vlrTmp) {
-      console.log(vlrTmp)
       if (this.paramsPDV.dscTot) {
         const percMax = Number(this.paramsPDV.dscTot.replace(',', '.'))
         if (percMax > 0) {
@@ -2485,9 +2484,26 @@ export default {
 
     preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
-        this.tipDesc = 'valor'
-        this.vlrDesc = pedido.vlrDar
-        this.aplicarDesconto(false)
+        if (pedido.fpg && pedido.fpg.perDsc !== '0,00') {
+          const vlrCarrinho = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0)) 
+          const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
+          const vlrDscFinal = vlrCarrinho - vlrDarNbr
+          const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100))
+          const vlrComDescontoManualStr = vlrComDescontoManual.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').trim()
+          const vlrDescNbr = vlrCarrinho - Number(vlrComDescontoManualStr.replace(',', '.'))
+          
+          if (vlrDescNbr > 0) {
+            this.tipDesc = 'valor'
+            this.vlrDesc = vlrDescNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').trim()
+          } else {
+            this.tipDesc = ''
+            this.vlrDesc = ''
+          }
+        } else {
+          this.tipDesc = 'valor'
+          this.vlrDesc = pedido.vlrDar
+        }
+        this.atualizarValorTotalCompra()
       }
     },
 
