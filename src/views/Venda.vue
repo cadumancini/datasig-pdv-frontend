@@ -2220,9 +2220,15 @@ export default {
           tipFpg: this.formaSelected.tipFpg,
           tipInt: this.formaSelected.tipInt,
           codOpe: this.formaSelected.codOpe,
+          banOpe: this.cartao.banOpe,
+          catTef: this.cartao.catTef,
+          nsuTef: this.cartao.nsuTef,
           codRep: this.codRep,
           itens: itens,
           fechar: this.fecharVenda,
+          vlrTot: this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').replace('.','').replace(',','.').trim(),
+          qtdPar: this.condicaoSelected.qtdParCpg,
+          parcelas: this.condicaoSelected.parcelas,
           numPed: !this.pedidoSelected ? '0' : this.pedPrv,
           vlrDar: vlrDar
         }
