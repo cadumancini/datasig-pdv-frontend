@@ -46,6 +46,9 @@ html, body {
 .active {
   background-color: rgb(166, 166, 166);
 }
+.missingFields {
+  background-color: rgb(218, 198, 198);
+}
 .options {
   border-radius: 10px;
   padding: 1rem;

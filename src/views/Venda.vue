@@ -254,10 +254,10 @@
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
                     <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal" @click="selectCliente(row)">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
                     </tr>
                   </template>
                 </tbody>
@@ -1333,13 +1333,30 @@ export default {
     },
 
     async selectCliente(row) {
-      this.ideCli = row.nomCli
-      this.codCli = row.codCli
-      document.getElementById('closeModalClientes').click()
-      if (this.pedidoSelected) {
-        this.fecharVenda = false
-        await this.enviarVenda(false)
+      if (!this.dadosClientePreenchidos(row)) {
+        alert('O cliente possui dados incompletos!')
+      } else {
+        this.ideCli = row.nomCli
+        this.codCli = row.codCli
+        document.getElementById('closeModalClientes').click()
+        if (this.pedidoSelected) {
+          this.fecharVenda = false
+          await this.enviarVenda(false)
+        }
       }
+    },
+
+    dadosClientePreenchidos(cliente) {
+      if (cliente.tipCli === '' ||
+          cliente.cgcCpf === '' ||
+          cliente.nomCli === '' ||
+          cliente.endCli === '' ||
+          cliente.baiCli === '' ||
+          cliente.cidCli === '' ||
+          cliente.intNet === '' ||
+          cliente.sigUfs === '' )
+          return false 
+      return true
     },
 
     filtrarClientes(filter) {
