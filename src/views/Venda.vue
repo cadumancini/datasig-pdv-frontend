@@ -2258,6 +2258,7 @@ export default {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
           qtdPar: this.condicaoSelected.qtdParCpg,
+          tipPar: this.condicaoSelected.tipPar,
           parcelas: this.condicaoSelected.parcelas,
           codOpe: this.formaSelected.codOpe,
           banOpe: this.cartao.banOpe,
@@ -2287,6 +2288,7 @@ export default {
           fechar: this.fecharVenda,
           vlrTot: this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').replace('.','').replace(',','.').trim(),
           qtdPar: this.condicaoSelected.qtdParCpg,
+          tipPar: this.condicaoSelected.tipPar,
           parcelas: this.condicaoSelected.parcelas,
           numPed: !this.pedidoSelected ? '0' : this.pedPrv,
           vlrDar: vlrDar
