@@ -245,10 +245,11 @@
               <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                 <thead>
                   <tr>
-                    <th class="ssm-header" scope="col" style="width: 8%;">Código</th>
-                    <th class="ssm-header" scope="col" style="width: 42%;">Nome</th>
-                    <th class="ssm-header" scope="col" style="width: 30%;">Apelido</th>
+                    <th class="ssm-header" scope="col" style="width: 7%;">Código</th>
+                    <th class="ssm-header" scope="col" style="width: 43%;">Nome</th>
+                    <th class="ssm-header" scope="col" style="width: 20%;">Apelido</th>
                     <th class="ssm-header" scope="col" style="width: 20%;">CPF/CNPJ</th>
+                    <th class="ssm-header" scope="col" style="width: 10%;">Dados</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -258,6 +259,9 @@
                       <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.nomCli }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.apeCli }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">
+                        <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
+                      </th>
                     </tr>
                   </template>
                 </tbody>
@@ -746,6 +750,8 @@ export default {
       ipp: 15,
 
       //cadastro clientes
+      erroCliente: true,
+      cadCliCodCli: '',
       cadCliTipCli: '',
       cadCliCgcCpf: '',
       cadCliNomCli: '',
@@ -998,6 +1004,7 @@ export default {
     clearInputsCadCli() {
       document.getElementById('selectTipCli').selectedIndex = "0";
       document.getElementById('selectSigUfs').selectedIndex = "0";
+      this.cadCliCodCli = ''
       this.cadCliTipCli = ''
       this.cadCliCgcCpf = ''
       this.cadCliNomCli = ''
@@ -1334,7 +1341,8 @@ export default {
 
     async selectCliente(row) {
       if (!this.dadosClientePreenchidos(row)) {
-        alert('O cliente possui dados incompletos!')
+        if (this.erroCliente) alert('O cliente possui dados incompletos!')
+        else this.erroCliente = true
       } else {
         this.ideCli = row.nomCli
         this.codCli = row.codCli
@@ -1430,6 +1438,28 @@ export default {
       this.selectCliente(cli)
     },
 
+    abrirDadosCliente(cliente) {
+      this.erroCliente = false
+      this.habilitarCadastroCliente()
+      this.preencherDadosCadastroCliente(cliente)
+    },
+
+    preencherDadosCadastroCliente(cliente) {
+      this.cadCliCodCli = cliente.codCli
+      this.cadCliTipCli = cliente.tipCli
+      this.cadCliCgcCpf = cliente.cgcCpf
+      this.cadCliNomCli = cliente.nomCli
+      this.cadCliCepCli = cliente.cepCli
+      this.cadCliEndCli = cliente.endCli
+      this.cadCliNenCli = cliente.nenCli
+      this.cadCliCplEnd = cliente.cplEnd
+      this.cadCliBaiCli = cliente.baiCli
+      this.cadCliCidCli = cliente.cidCli
+      this.cadCliSigUfs = cliente.sigUfs
+      this.cadCliFonCli = cliente.fonCli
+      this.cadCliEmaCli = cliente.intNet
+    },
+
     habilitarCadastroCliente() {
       document.getElementById('closeModalClientes').click()
       this.clearInputsCadCli()
@@ -1449,6 +1479,7 @@ export default {
     async cadastrarCliente() {
       if(this.validarCamposCliente()) {
         const cliente = {
+          codCli: this.cadCliCodCli !== '' ? this.cadCliCodCli : '0',
           tipCli: this.cadCliTipCli,
           cgcCpf: this.cadCliCgcCpf,
           cepCli: this.cadCliCepCli,
@@ -1468,16 +1499,28 @@ export default {
           .then((response) => {
             alert('Cliente cadastrado com sucesso.')         
             document.getElementById('closeModalCadastroClientes').click()
-            this.clearInputsCadCli()
             this.clientes = []
             sessionStorage.removeItem('clientes')
             this.beginCliente()
             
             const newCli = {
               codCli: response.data.codCli,
-              nomCli: cliente.nomCli.toUpperCase()
+              nomCli: cliente.nomCli.toUpperCase(),
+              tipCli: this.cadCliTipCli,
+              cgcCpf: this.cadCliCgcCpf,
+              cepCli: this.cadCliCepCli,
+              endCli: this.cadCliEndCli,
+              nenCli: this.cadCliNenCli,
+              cplEnd: this.cadCliCplEnd,
+              baiCli: this.cadCliBaiCli,
+              cidCli: this.cadCliCidCli,
+              sigUfs: this.cadCliSigUfs,
+              fonCli: this.cadCliFonCli,
+              emaCli: this.cadCliEmaCli,
+              codRep: this.codRep
             }
             this.selectCliente(newCli)
+            this.clearInputsCadCli()
           })
           .catch((err) => {
             console.log(err)
