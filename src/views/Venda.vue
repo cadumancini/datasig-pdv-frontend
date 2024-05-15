@@ -1347,14 +1347,13 @@ export default {
     },
 
     dadosClientePreenchidos(cliente) {
-      if (cliente.tipCli === '' ||
-          cliente.cgcCpf === '' ||
-          cliente.nomCli === '' ||
-          cliente.endCli === '' ||
-          cliente.baiCli === '' ||
-          cliente.cidCli === '' ||
-          cliente.intNet === '' ||
-          cliente.sigUfs === '' )
+      if (cliente.tipCli.trim() === '' ||
+          cliente.cgcCpf.trim() === '' ||
+          cliente.nomCli.trim() === '' ||
+          cliente.endCli.trim() === '' ||
+          cliente.baiCli.trim() === '' ||
+          cliente.cidCli.trim() === '' ||
+          cliente.sigUfs.trim() === '' )
           return false 
       return true
     },
