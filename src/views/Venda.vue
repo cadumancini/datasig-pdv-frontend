@@ -2332,19 +2332,20 @@ export default {
     async gerarNFCe(numPed) {
       await api.putNFCe(numPed)
         .then((response) => {
-          const resposta = response.data
+          const resposta = response.data.toString()
           if(resposta.startsWith('ERRO')) {
             const msg = 'Pedido ' + numPed + 
               ' fechado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
-              response.data
+              resposta
             alert(msg)
           } else {
-            alert('Pedido ' + numPed + ' fechado com sucesso!')
+            alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta)
             this.clearAllInputs()
             this.clearInputsCadCli()
             this.clearInputsCartao()
             this.limparDesconto(false)
             this.clearFocus()
+            this.initRepresentantes()
           } 
         })
         .catch((err) => {
