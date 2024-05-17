@@ -1536,31 +1536,31 @@ export default {
     },
 
     validarCamposCliente() {
-      if (this.cadCliTipCli === '') {
+      if (this.cadCliTipCli.trim() === '') {
         alert('É necessário informar o tipo de cliente!')
         return false
       }
-      else if (this.cadCliCgcCpf === '') {
+      else if (this.cadCliCgcCpf.trim() === '') {
         alert('É necessário informar o CPF/CNPJ!')
         return false
       }
-      else if (this.cadCliNomCli === '') {
+      else if (this.cadCliNomCli.trim() === '') {
         alert('É necessário informar o Nome!')
         return false
       }
-      else if (this.cadCliEndCli === '') {
+      else if (this.cadCliEndCli.trim() === '') {
         alert('É necessário informar o Endereco!')
         return false
       }
-      else if (this.cadCliBaiCli === '') {
+      else if (this.cadCliBaiCli.trim() === '') {
         alert('É necessário informar o Bairro!')
         return false
       }
-      else if (this.cadCliCidCli === '') {
+      else if (this.cadCliCidCli.trim() === '') {
         alert('É necessário informar a Cidade!')
         return false
       }
-      else if (this.cadCliSigUfs === '') {
+      else if (this.cadCliSigUfs.trim() === '') {
         alert('É necessário informar o Estado!')
         return false
       }
