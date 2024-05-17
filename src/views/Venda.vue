@@ -91,8 +91,9 @@
             <table class="table table-striped table-hover table-sm table-responsive table-items">
               <thead>
                 <tr id="cart-head">
-                  <th class="sm-header" style="width: 70%;"><small>Produto</small></th>
+                  <th class="sm-header" style="width: 60%;"><small>Produto</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Quantidade</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Obs.</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
                 </tr>
@@ -101,6 +102,7 @@
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
                   <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> {{ row.desPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
@@ -427,7 +429,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, true)">
+                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', true)">
                   <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -717,6 +719,25 @@
     </div>
   </div>
 
+    <!-- Modal Observação item -->
+    <div class="modal fade" id="obsItemModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Observação do item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalObsItem"></button>
+        </div>
+        <div class="modal-body">
+          <textarea id="inputObsItem" class="form-control" maxlength="255" v-model="obsIpd" rows="5" placeholder="Informe a observação do item"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="gravarObsIpd">Gravar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -805,6 +826,7 @@ export default {
       loadingProdutos: false,
       editandoCarrinho: false,
       newValue: '',
+      obsIpd: '',
       itemEditando: null,
       
       //tabelas preco
@@ -905,10 +927,11 @@ export default {
         { codAta: 6, tecAta: 'P', desAta: 'Produto' },
         { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
         { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
-        { codAta: 9, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 10, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 11, tecAta: 'I', desAta: 'Inserir Pedido' },
-        { codAta: 12, tecAta: 'X', desAta: 'Finalizar Venda' }
+        { codAta: 9, tecAta: 'B', desAta: 'Observação do Item' },
+        { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
+        { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
+        { codAta: 12, tecAta: 'I', desAta: 'Inserir Pedido' },
+        { codAta: 13, tecAta: 'X', desAta: 'Finalizar Venda' }
       ],
 
       //Pedidos
@@ -999,6 +1022,8 @@ export default {
       this.vlrFinalNbr = 0
       this.vlrFinal = 'R$ 0,00'
       this.prcDescontoForma = ''
+      this.newValue = ''
+      this.obsIpd = ''
       this.limparDesconto(false)
     },
     clearInputsCadCli() {
@@ -1110,8 +1135,9 @@ export default {
           if (event.key === 'Escape') this.clearFocus()
         }
 
-        if (this.editandoCarrinho) {
+        if (this.editandoCarrinho && this.noInputIsFocused()) {
           if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
+          if (event.key.toUpperCase() === 'B') document.getElementById('btnObs' + this.tableIndexCar).click()
           if (event.key === 'Delete') document.getElementById('btnDelete' + this.tableIndexCar).click()
         }
 
@@ -1576,23 +1602,25 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, true)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', true)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    async selectProduto(row, qtde, seqIpd, atualizar) {
+    async selectProduto(row, qtde, seqIpd, obsIpd, atualizar) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
         itemDoCarrinho.qtdPed += qtde
+        itemDoCarrinho.obsIpd = obsIpd
         this.definirPreco(itemDoCarrinho)
       }
       else {
         newItem.qtdPed = qtde
         newItem.seqIpd = seqIpd
+        newItem.obsIpd = obsIpd
         this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
@@ -1718,7 +1746,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0, true)
+      this.selectProduto(pro, 1, 0, '', true)
     },
 
     focusTableCar(value) {
@@ -1789,6 +1817,27 @@ export default {
         }
         this.itemEditando = null
       }
+    },
+
+    editarObsItem(item) {
+      this.obsIpd = item.obsIpd
+      this.itemEditando = item
+      const modalElement = document.getElementById('obsItemModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputObsItem').focus()
+        document.getElementById('inputObsItem').select()
+      })
+    },
+
+    async gravarObsIpd() {
+      this.itemEditando.obsIpd = this.obsIpd.trim()
+      document.getElementById('closeModalObsItem').click()
+      this.clearFocus()
+      if (this.itemEditando.seqIpd > 0) {
+        this.fecharVenda = false
+        await this.enviarVenda(false)
+      }
+      this.itemEditando = null
     },
 
     /* Tabelas Preco */
@@ -2244,6 +2293,7 @@ export default {
           qtdPed: item.qtdPed,
           vlrTot: item.vlrTot,
           seqIpd: item.seqIpd,
+          obsIpd: item.obsIpd,
           excluir: false
         }
         itens.push(itemPedido)
@@ -2547,7 +2597,7 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, false)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, false)
       })
     },
 
