@@ -32,11 +32,11 @@
             <span class="input-group-text">Data de Emissão</span>
             <input class="form-control" type="text" disabled :value="datIni ? datIni.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('ini')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
-            <button id="btnClearIni" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('ini')"><font-awesome-icon icon="fa-circle-xmark"/></button>
+            <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('ini')"><font-awesome-icon icon="fa-circle-xmark"/></button>
             <span class="input-group-text">até</span>
             <input class="form-control" type="text" disabled :value="datFim ? datFim.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
-            <button id="btnClearIni" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
+            <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
         <div class="col-2">
@@ -72,9 +72,9 @@
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
               <th class="fw-normal sm">{{ row.desSitDoe }}</th>
               <th class="fw-normal sm">
-                <button :id="'btnCancelarNota' + row.codSnf + row.numNfv" :disabled="row.cancelavel === false" @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota">Cancelar</button>
-                <button :id="'btnInutilizarNota' + row.codSnf + row.numNfv" :disabled="row.inutilizavel === false" @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota">Inutilizar</button>
-                <button :id="'btnConsultaEDocs' + row.codSnf + row.numNfv" @click="consultarEDocs(row)" class="btn btn-secondary btn-sm sm edit-nota">eDocs</button>
+                <button :id="'btnCancelarNota' + row.codSnf + row.numNfv" :disabled="row.cancelavel === false" @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Cancelar</button>
+                <button :id="'btnInutilizarNota' + row.codSnf + row.numNfv" :disabled="row.inutilizavel === false" @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Inutilizar</button>
+                <button :id="'btnConsultaEDocs' + row.codSnf + row.numNfv" @click="consultarEDocs(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">eDocs</button>
               </th>
             </tr>
           </tbody>
@@ -348,7 +348,9 @@ export default {
 
       await api.consultarEDocs(nota.codSnf, nota.numNfv)
       .then((response) => {
-        alert(response.data)
+        alert(response.data.response)
+        const index = this.notas.findIndex(notaFound => notaFound.numNfv === response.data.notaFiscal.numNfv)
+        this.notas[index] = response.data.notaFiscal
       })
       .catch((err) => {
         console.log(err)
