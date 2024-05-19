@@ -32,9 +32,11 @@
             <span class="input-group-text">Data de Emissão</span>
             <input class="form-control" type="text" disabled :value="datIni ? datIni.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('ini')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
+            <button id="btnClearIni" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('ini')"><font-awesome-icon icon="fa-circle-xmark"/></button>
             <span class="input-group-text">até</span>
             <input class="form-control" type="text" disabled :value="datFim ? datFim.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
+            <button id="btnClearIni" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
         <div class="col-2">
@@ -225,6 +227,11 @@ export default {
     selectToday() {
       if (this.datClick === 'ini') this.datIniPicked = new Date()
       else this.datFimPicked = new Date()
+    },
+
+    clearDate(date) {
+      if(date === 'ini') this.datIni = ''
+      else this.datFim = ''
     },
 
     clearFocus() {
