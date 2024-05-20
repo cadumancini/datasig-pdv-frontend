@@ -14,7 +14,7 @@
             <input autocomplete="off" id="inputNumNfv" class="form-control disable-on-search" v-model="numNfv">
           </div>
         </div>
-        <div class="col">
+        <div class="col-3">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Situação</span>
             <select class="form-select disable-on-search" v-model="situacao" id="selectTipDesc">
@@ -27,9 +27,9 @@
             </select>
           </div>
         </div>
-        <div class="col-4">
+        <div class="col-5">
           <div class="input-group input-group-sm">
-            <span class="input-group-text">Data de Emissão</span>
+            <span class="input-group-text">Emissão</span>
             <input class="form-control" type="text" disabled :value="datIni ? datIni.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('ini')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('ini')"><font-awesome-icon icon="fa-circle-xmark"/></button>
@@ -39,9 +39,11 @@
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
-        <div class="col-2">
-          <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
-          <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
+        <div class="col">
+          <div class="float-end">
+            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
+            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
+          </div>
         </div>
       </div>
       <div class="row table-registros border">
