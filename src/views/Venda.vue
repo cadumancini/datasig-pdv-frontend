@@ -108,7 +108,7 @@
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrLiq).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
               </tbody>
             </table>
@@ -433,7 +433,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', true)">
+                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true)">
                   <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -752,15 +752,16 @@
       </div>
       <div class="modal-body">
         <div class="input-group input-group-sm">
-          <select @change="vlrDescIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
+          <span class="input-group-text">Desconto</span>
+          <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
             <option selected value="">Nenhum</option>
             <option value="valor">Valor</option>
             <option value="porcentagem">Porcentagem</option>
           </select>
           <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
-          <vue-mask :disabled="tipDtipDescIpdesc === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDescIpd"></vue-mask>
-          <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="vlrDescIpd"></vue-mask>
-          <span class="input-group-text" v-if="tipDesc === 'porcentagem'">%</span>
+          <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
+          <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
+          <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
         </div>
       </div>
       <div class="modal-footer">
@@ -861,7 +862,8 @@ export default {
       newValue: '',
       obsIpd: '',
       tipDescIpd: '',
-      vlrDescIpd: '',
+      vlrDscIpd: '',
+      perDscIpd: '',
       itemEditando: null,
       
       //tabelas preco
@@ -1637,25 +1639,31 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', true)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    async selectProduto(row, qtde, seqIpd, obsIpd, atualizar) {
+    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
         itemDoCarrinho.qtdPed += qtde
         itemDoCarrinho.obsIpd = obsIpd
+        itemDoCarrinho.tipDsc = tipDsc
+        itemDoCarrinho.vlrDsc = vlrDsc
+        itemDoCarrinho.perDsc = perDsc
         this.definirPreco(itemDoCarrinho)
       }
       else {
         newItem.qtdPed = qtde
         newItem.seqIpd = seqIpd
         newItem.obsIpd = obsIpd
+        newItem.tipDsc = tipDsc
+        newItem.vlrDsc = vlrDsc
+        newItem.perDsc = perDsc
         this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
@@ -1682,6 +1690,7 @@ export default {
           const vlrTot = Number(preBas) * Number(produto.qtdPed)
           produto.preBas = preBas
           produto.vlrTot = vlrTot
+          produto.vlrLiq = vlrTot
         }
         if (preBas !== null) return false
         return true
@@ -1690,6 +1699,7 @@ export default {
       if (preBas === null) {
         produto.preBas = 0
         produto.vlrTot = 0
+        produto.vlrLiq = 0
         alert ('Preço não encontrado para quantidade comprada.')
       }
     },
@@ -1781,7 +1791,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0, '', true)
+      this.selectProduto(pro, 1, 0, '', '', '', '', true)
     },
 
     focusTableCar(value) {
@@ -1845,12 +1855,7 @@ export default {
         this.definirPreco(this.itemEditando)
         document.getElementById('closeModalEditarItem').click()
         this.atualizarValorTotalCompra()
-        this.clearFocus()
-        if (this.itemEditando.seqIpd > 0) {
-          this.fecharVenda = false
-          await this.enviarVenda(false)
-        }
-        this.itemEditando = null
+        this.finalizarEdicaoItem()
       }
     },
 
@@ -1865,7 +1870,8 @@ export default {
     },
 
     editarDescItem(item) {
-      // this. = item.obsIpd
+      this.tipDescIpd = item.tipDsc
+      this.vlrDescIpd = item.tipDsc === 'valor' ? item.vlrDsc : item.perDsc
       this.itemEditando = item
       const modalElement = document.getElementById('descItemModal')
       modalElement.addEventListener('shown.bs.modal', () => {
@@ -1876,12 +1882,24 @@ export default {
     async gravarObsIpd() {
       this.itemEditando.obsIpd = this.obsIpd.trim()
       document.getElementById('closeModalObsItem').click()
+      this.finalizarEdicaoItem()
+    },
+
+    async gravarDescItem() {
+      this.itemEditando.vlrDsc = this.vlrDscIpd
+      this.itemEditando.pdcDsc = this.perDscIpd
+      document.getElementById('closeModalDescItem').click()
+      this.atualizarValorTotalCompra()
+      this.finalizarEdicaoItem()
+    },
+
+    async finalizarEdicaoItem() {
       this.clearFocus()
       if (this.itemEditando.seqIpd > 0) {
         this.fecharVenda = false
         await this.enviarVenda(false)
       }
-      this.itemEditando = null
+      this.itemEditando = null  
     },
 
     /* Tabelas Preco */
@@ -2641,7 +2659,7 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, false)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, '', '', '', false)
       })
     },
 
