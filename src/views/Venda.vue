@@ -91,11 +91,13 @@
             <table class="table table-striped table-hover table-sm table-responsive table-items">
               <thead>
                 <tr id="cart-head">
-                  <th class="sm-header" style="width: 60%;"><small>Produto</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Quantidade</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Obs.</small></th>
+                  <th class="sm-header" style="width: 50%;"><small>Produto</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Qtde.</small></th>
+                  <th class="sm-header" style="width: 6%;"><small>Obs.</small></th>
+                  <th class="sm-header" style="width: 6%;"><small>Desc.</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
                   <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Valor Líq.</small></th>
                 </tr>
               </thead>
               <tbody>
@@ -103,7 +105,9 @@
                   <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> {{ row.desPro }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
                 </tr>
               </tbody>
@@ -738,6 +742,35 @@
     </div>
   </div>
 
+  <!-- Modal Desconto item -->
+  <div class="modal fade" id="descItemModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Desconto do item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDescItem"></button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group input-group-sm">
+          <select @change="vlrDescIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
+            <option selected value="">Nenhum</option>
+            <option value="valor">Valor</option>
+            <option value="porcentagem">Porcentagem</option>
+          </select>
+          <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
+          <vue-mask :disabled="tipDtipDescIpdesc === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDescIpd"></vue-mask>
+          <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="vlrDescIpd"></vue-mask>
+          <span class="input-group-text" v-if="tipDesc === 'porcentagem'">%</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @click="gravarDescItem">Gravar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
 </template>
 
 <script>
@@ -827,6 +860,8 @@ export default {
       editandoCarrinho: false,
       newValue: '',
       obsIpd: '',
+      tipDescIpd: '',
+      vlrDescIpd: '',
       itemEditando: null,
       
       //tabelas preco
@@ -1826,6 +1861,15 @@ export default {
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputObsItem').focus()
         document.getElementById('inputObsItem').select()
+      })
+    },
+
+    editarDescItem(item) {
+      // this. = item.obsIpd
+      this.itemEditando = item
+      const modalElement = document.getElementById('descItemModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('selectTipDescItem').focus()
       })
     },
 
