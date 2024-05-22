@@ -972,10 +972,11 @@ export default {
         { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
         { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
         { codAta: 9, tecAta: 'B', desAta: 'Observação do Item' },
-        { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 12, tecAta: 'I', desAta: 'Inserir Pedido' },
-        { codAta: 13, tecAta: 'X', desAta: 'Finalizar Venda' }
+        { codAta: 10, tecAta: 'S', desAta: 'Desconto do Item' },
+        { codAta: 12, tecAta: 'Delete', desAta: 'Remover Item' },
+        { codAta: 13, tecAta: 'D', desAta: 'Desconto' },
+        { codAta: 14, tecAta: 'I', desAta: 'Inserir Pedido' },
+        { codAta: 15, tecAta: 'X', desAta: 'Finalizar Venda' }
       ],
 
       //Pedidos
@@ -1182,6 +1183,7 @@ export default {
         if (this.editandoCarrinho && this.noInputIsFocused()) {
           if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
           if (event.key.toUpperCase() === 'B') document.getElementById('btnObs' + this.tableIndexCar).click()
+          if (event.key.toUpperCase() === 'S') document.getElementById('btnDesc' + this.tableIndexCar).click()
           if (event.key === 'Delete') document.getElementById('btnDelete' + this.tableIndexCar).click()
         }
 
