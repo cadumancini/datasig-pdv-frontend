@@ -751,17 +751,24 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDescItem"></button>
       </div>
       <div class="modal-body">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text">Desconto</span>
-          <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
-            <option selected value="">Nenhum</option>
-            <option value="valor">Valor</option>
-            <option value="porcentagem">Porcentagem</option>
-          </select>
-          <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
-          <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
-          <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
-          <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
+        <div class="row">
+          <div class="col">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Desconto</span>
+              <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
+                <option selected value="">Nenhum</option>
+                <option value="valor">Valor</option>
+                <option value="porcentagem">Porcentagem</option>
+              </select>
+              <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
+              <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
+              <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
+              <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
+            </div>
+          </div>
+          <div class="col-2">
+            <button class="btn btn-secondary btn-sm" @click="limparDescontoItemFromModal">Limpar</button>
+          </div>  
         </div>
       </div>
       <div class="modal-footer">
@@ -1705,13 +1712,44 @@ export default {
     },
 
     atualizarValorTotalCompra() {
-      this.vlrTot = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
-                  .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-      this.vlrFinalNbr = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
-      this.vlrFinal = this.vlrTot
-      if (this.tipDesc !== '' || this.prcDescontoForma !== '') {
-        this.aplicarDesconto(false)
+      if (this.calcularValorLiqItens()) {
+        this.vlrTot = this.getVlrCarrinho().toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        this.vlrFinalNbr = this.getVlrCarrinho()
+        this.vlrFinal = this.vlrTot
+        if (this.tipDesc !== '' || this.prcDescontoForma !== '') {
+          this.aplicarDesconto(false)
+        }
       }
+    },
+
+    calcularValorLiqItens() {
+      this.itensCarrinho.forEach(item => {
+        if (item.tipDsc === 'valor') {
+          const vlrDsc = Number(item.vlrDsc.replace('.','').replace(',','.').trim())
+          if(vlrDsc > item.vlrTot) {
+            alert('O desconto não pode ser maior que o valor do produto!')
+            this.limparDescontoItem(item)
+            return false
+          }
+          item.vlrLiq = item.vlrTot - vlrDsc
+        } else if (item.tipDsc === 'porcentagem') {
+          const perDsc = Number(item.perDsc.replace(',','.').trim())
+          item.vlrLiq = item.vlrTot - (item.vlrTot * (perDsc / 100))
+        } else {
+          item.vlrLiq = item.vlrTot
+        }
+      })
+      return true
+    },
+
+    getVlrCarrinho() {
+      return Number(this.itensCarrinho.map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+    },
+
+    limparDescontoItem(item) {
+      item.tipDsc = ''
+      item.vlrDsc = ''
+      item.perDsc = ''
     },
     
     filtrarProdutos(filter) {
@@ -1886,8 +1924,16 @@ export default {
     },
 
     async gravarDescItem() {
+      this.itemEditando.tipDsc = this.tipDescIpd
       this.itemEditando.vlrDsc = this.vlrDscIpd
-      this.itemEditando.pdcDsc = this.perDscIpd
+      this.itemEditando.perDsc = this.perDscIpd
+      document.getElementById('closeModalDescItem').click()
+      this.atualizarValorTotalCompra()
+      this.finalizarEdicaoItem()
+    },
+
+    limparDescontoItemFromModal() {
+      this.limparDescontoItem(this.itemEditando)
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
@@ -2354,6 +2400,8 @@ export default {
           codTpr: item.codTpr,
           qtdPed: item.qtdPed,
           vlrTot: item.vlrTot,
+          vlrDsc: item.vlrDsc,
+          perDsc: item.perDsc,
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
           excluir: false
@@ -2380,7 +2428,7 @@ export default {
           vlrTot: this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').replace('.','').replace(',','.').trim()
         }
       } else {
-        const vlrDar = Number(((Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))) - this.vlrFinalNbr)
+        const vlrDar = Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)
                     .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
                     .replace('R$', '').replace('.','').replace(',','.').trim())
 
@@ -2511,7 +2559,7 @@ export default {
 
     aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
-        const valorTmp = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0))
+        const valorTmp = this.getVlrCarrinho()
         this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)
 
         if (valorTmp < this.vlrDescPedido) {
@@ -2659,14 +2707,14 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, '', '', '', false)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false)
       })
     },
 
     preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
         if (pedido.fpg && pedido.fpg.perDsc !== '0,00') {
-          const vlrCarrinho = Number(this.itensCarrinho.map(item => item.vlrTot).reduce((prev, curr) => prev + curr, 0)) 
+          const vlrCarrinho = this.getVlrCarrinho() 
           const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
           const vlrDscFinal = vlrCarrinho - vlrDarNbr
           const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100))
