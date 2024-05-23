@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faRefresh, faTrash, faCircleXmark, faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import { faRefresh, faTrash, faCircleXmark, faCircleInfo, faDollarSign } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -15,5 +15,6 @@ library.add(faRefresh)
 library.add(faTrash)
 library.add(faCircleXmark)
 library.add(faCircleInfo)
+library.add(faDollarSign)
 
 createApp(App).use(router).use(setupCalendar, {}).component('font-awesome-icon', FontAwesomeIcon).mount('#app')
