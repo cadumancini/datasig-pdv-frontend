@@ -336,6 +336,7 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CEP</span>
                 <vue-mask class="form-control" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli"></vue-mask>
+                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
             <div class="col">
@@ -1429,6 +1430,7 @@ export default {
     dadosClientePreenchidos(cliente) {
       if (cliente.tipCli.trim() === '' ||
           cliente.cgcCpf.trim() === '' ||
+          cliente.cepCli.trim() === '' ||
           cliente.nomCli.trim() === '' ||
           cliente.endCli.trim() === '' ||
           cliente.baiCli.trim() === '' ||
@@ -1634,6 +1636,10 @@ export default {
       }
       else if (this.cadCliSigUfs.trim() === '') {
         alert('É necessário informar o Estado!')
+        return false
+      }
+      else if (this.cadCliCepCli.trim() === '') {
+        alert('É necessário informar o CEP!')
         return false
       }
       return true
