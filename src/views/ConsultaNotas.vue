@@ -259,6 +259,13 @@ export default {
     setEverythingDisabled(value) {
       const elements = document.getElementsByClassName('disable-on-search')
       for (var i = 0; i < elements.length; i++) elements[i].disabled = value
+
+      if (value === false) {
+        this.notas.forEach(nota => {
+          if(!nota.cancelavel) document.getElementById('btnCancelarNota' + nota.codSnf + nota.numNfv).disabled = true
+          if(!nota.inutilizavel) document.getElementById('btnInutilizarNota' + nota.codSnf + nota.numNfv).disabled = true
+        });
+      }
     },
 
     async buscarNotas() {
