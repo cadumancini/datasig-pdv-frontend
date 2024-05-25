@@ -106,9 +106,9 @@
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.preBas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrTot).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ Number(row.vlrLiq).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.preBas)) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.vlrTot)) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.vlrLiq)) }}</th>
                 </tr>
               </tbody>
             </table>
@@ -173,7 +173,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="col">
-              <div class="float-end mx-2">
+              <div class="float-end">
                 <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true)" :disabled="!this.itensCarrinho.length">Finalizar Venda</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
@@ -607,6 +607,36 @@
         <div class="modal-body">
           <p>{{ this.msgConfirmacao }}</p>
           <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
+          <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda && ideFpg.toUpperCase() === 'DINHEIRO'">
+            <div class="row mt-2">
+              <span>Calcular troco:</span>
+            </div>
+            <div class="row my-2">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Valor Final</span>
+                  <input class="form-control" disabled v-model="vlrFinal">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Pago (R$)</span>
+                  <vue-mask id="inputVlrPagoDin" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrPagoDin"></vue-mask>
+                </div>
+              </div>
+            </div>
+            <div class="row my-2">
+              <div class="col-6">
+                <button id="btnCalcularTroco" class="btn btn-secondary btn-sm form-control" @click="calcularTroco">Calcular</button>  
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Troco (R$)</span>
+                  <input class="form-control" disabled v-model="vlrTroco">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -912,6 +942,8 @@ export default {
       paramsPDV: { codTpr: '', dscTot: '' },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
+      vlrPagoDin: '',
+      vlrTroco: 'R$ 0,00',
       cartoes: [
         { codBan: '01', desBan: 'Visa' },
         { codBan: '02', desBan: 'Mastercard' },
@@ -1240,6 +1272,10 @@ export default {
         block: 'nearest',
         inline: 'start'
       })
+    },
+
+    toMoneyString(value) {
+      return value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
     },
 
     /* Representantes */
@@ -1728,7 +1764,7 @@ export default {
 
     atualizarValorTotalCompra() {
       if (this.calcularValorLiqItens()) {
-        this.vlrTot = this.getVlrCarrinho().toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        this.vlrTot = this.toMoneyString(this.getVlrCarrinho())
         this.vlrFinalNbr = this.getVlrCarrinho()
         this.vlrFinal = this.vlrTot
         this.qtdTot = this.getQtdeItensCarrinho()
@@ -2383,8 +2419,33 @@ export default {
       this.msgConfirmacao = this.fecharVenda ? 'Tem certeza que deseja finalizar a venda?' 
                                              : !this.pedidoSelected ? 'Tem certeza que deseja inserir o pedido?' 
                                                                   : 'Tem certeza que deseja atualizar o pedido?'
-      if (this.fecharVenda) document.getElementById('btnOpenFinalizarVendaModal').click()
+      if (this.fecharVenda) {
+        document.getElementById('btnOpenFinalizarVendaModal').click()
+        if (this.fecharVenda && this.ideFpg.toUpperCase() === 'DINHEIRO') this.prepararTroco()
+      }
       else document.getElementById('btnOpenInserirPedidoModal').click()
+    },
+
+    prepararTroco() {
+      this.vlrPagoDin = this.vlrFinal.replace('R$ ', '')
+      this.vlrTroco = 'R$ 0,00'
+      const modalElement = document.getElementById('confirmaVendaModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputVlrPagoDin').focus()
+        document.getElementById('inputVlrPagoDin').select()
+      })
+    },
+
+    calcularTroco() {
+      const troco = (Number(this.vlrPagoDin.replace('.', '').replace(',', '.')) - this.vlrFinalNbr)
+      if (troco <= 0) {
+        alert('O valor pago em dinheiro não pode ser menor que o valor da venda!')
+        document.getElementById('inputVlrPagoDin').focus()
+        document.getElementById('inputVlrPagoDin').select()
+      } else {
+        this.vlrTroco = this.toMoneyString(troco)
+        document.getElementById('inputVlrPagoDin').focus()
+      }
     },
 
     async finalizarVenda() {
@@ -2445,11 +2506,10 @@ export default {
           catTef: this.cartao.catTef,
           nsuTef: this.cartao.nsuTef,
           tipInt: this.formaSelected.tipInt,
-          vlrTot: this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').replace('.','').replace(',','.').trim()
+          vlrTot: this.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim()
         }
       } else {
-        const vlrDar = Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)
-                    .toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        const vlrDar = this.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr))
                     .replace('R$', '').replace('.','').replace(',','.').trim())
 
         pedido = {
@@ -2466,7 +2526,7 @@ export default {
           codRep: this.codRep,
           itens: itens,
           fechar: this.fecharVenda,
-          vlrTot: this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').replace('.','').replace(',','.').trim(),
+          vlrTot: this.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           qtdPar: this.condicaoSelected.qtdParCpg,
           tipPar: this.condicaoSelected.tipPar,
           parcelas: this.condicaoSelected.parcelas,
@@ -2593,15 +2653,15 @@ export default {
           this.vlrFinalNbr = valorTmp
           atualizar = false
         } else {
-          this.vlrComDesconto = (valorTmp - this.vlrDescPedido).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+          this.vlrComDesconto = this.toMoneyString((valorTmp - this.vlrDescPedido))
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
           this.vlrFinal = this.vlrComDesconto
         }
       }
       if (this.prcDescontoForma !== '') {
         this.vlrFinalNbr = this.vlrFinalNbr - (this.vlrFinalNbr * (Number(this.prcDescontoForma.replace(',', '.')) / 100))
-        this.vlrFinal = this.vlrFinalNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-        this.vlrFinalNbr = Number(this.vlrFinal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        this.vlrFinal = this.toMoneyString(this.vlrFinalNbr)
+        this.vlrFinalNbr = Number(this.toMoneyString(this.vlrFinal)
                     .replace('R$', '').replace('.','').replace(',','.').trim())
       }
 
@@ -2736,12 +2796,12 @@ export default {
           const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
           const vlrDscFinal = vlrCarrinho - vlrDarNbr
           const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100))
-          const vlrComDescontoManualStr = vlrComDescontoManual.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').trim()
+          const vlrComDescontoManualStr = this.toMoneyString(vlrComDescontoManual).replace('R$', '').trim()
           const vlrDescNbr = vlrCarrinho - Number(vlrComDescontoManualStr.replace(',', '.'))
           
           if (vlrDescNbr > 0) {
             this.tipDesc = 'valor'
-            this.vlrDesc = vlrDescNbr.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace('R$', '').trim()
+            this.vlrDesc = this.toMoneyString(vlrDescNbr).replace('R$', '').trim()
           } else {
             this.tipDesc = ''
             this.vlrDesc = ''
