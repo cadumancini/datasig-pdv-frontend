@@ -120,6 +120,12 @@
                 <input class="form-control" disabled v-model="vlrTot">
               </div>
             </div>
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Qtde. Itens</span>
+                <input class="form-control" disabled v-model="qtdTot">
+              </div>
+            </div>
           </div>
           <div class="row margin-y-fields">
             <div class="col-6">
@@ -905,6 +911,7 @@ export default {
       finalizandoVenda: false,
       paramsPDV: { codTpr: '', dscTot: '' },
       vlrTot: 'R$ 0,00',
+      qtdTot: 0,
       cartoes: [
         { codBan: '01', desBan: 'Visa' },
         { codBan: '02', desBan: 'Mastercard' },
@@ -1724,6 +1731,7 @@ export default {
         this.vlrTot = this.getVlrCarrinho().toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
         this.vlrFinalNbr = this.getVlrCarrinho()
         this.vlrFinal = this.vlrTot
+        this.qtdTot = this.getQtdeItensCarrinho()
         if (this.tipDesc !== '' || this.prcDescontoForma !== '') {
           this.aplicarDesconto(false)
         }
@@ -1752,6 +1760,10 @@ export default {
 
     getVlrCarrinho() {
       return Number(this.itensCarrinho.map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+    },
+
+    getQtdeItensCarrinho() {
+      return Number(this.itensCarrinho.map(item => item.qtdPed).reduce((prev, curr) => prev + curr, 0))
     },
 
     limparDescontoItem(item) {
