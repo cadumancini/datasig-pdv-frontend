@@ -631,7 +631,7 @@
               </div>
               <div class="col-6">
                 <div class="input-group input-group-sm">
-                  <span class="input-group-text">Troco (R$)</span>
+                  <span class="input-group-text">Troco</span>
                   <input class="form-control" disabled v-model="vlrTroco">
                 </div>
               </div>
@@ -988,6 +988,7 @@ export default {
       vlrFinal: 'R$ 0,00',
       vlrComDesconto: '',
       prcDescontoForma: '',
+      pagamentos: [],
 
       //geral
       status: '',
@@ -2198,6 +2199,8 @@ export default {
       this.ideCpg = row.desCpg
       this.codCpg = row.codCpg
       this.condicaoSelected = row
+      this.pagamentos = []
+      this.pagamentos.push({forma: this.formaSelected, condicao: this.condicaoSelected})
       document.getElementById('closeModalCondicoesPagto').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
@@ -2427,7 +2430,7 @@ export default {
     },
 
     prepararTroco() {
-      this.vlrPagoDin = this.vlrFinal.replace('R$ ', '')
+      this.vlrPagoDin = this.vlrFinal.replace('R$', '').trim()
       this.vlrTroco = 'R$ 0,00'
       const modalElement = document.getElementById('confirmaVendaModal')
       modalElement.addEventListener('shown.bs.modal', () => {
@@ -2437,13 +2440,13 @@ export default {
     },
 
     calcularTroco() {
-      const troco = (Number(this.vlrPagoDin.replace('.', '').replace(',', '.')) - this.vlrFinalNbr)
-      if (troco <= 0) {
+        const troco = (Number(this.vlrPagoDin.replace('.', '').replace(',', '.')) - this.vlrFinalNbr)
+        if (troco <= 0) {
         alert('O valor pago em dinheiro não pode ser menor que o valor da venda!')
         document.getElementById('inputVlrPagoDin').focus()
         document.getElementById('inputVlrPagoDin').select()
-      } else {
-        this.vlrTroco = this.toMoneyString(troco)
+        } else {
+          this.vlrTroco = this.toMoneyString(troco)
         document.getElementById('inputVlrPagoDin').focus()
       }
     },
@@ -2509,8 +2512,8 @@ export default {
           vlrTot: this.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim()
         }
       } else {
-        const vlrDar = this.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr))
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
+        const vlrDar = this.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)))
+                    .replace('R$', '').replace('.','').replace(',','.').trim()
 
         pedido = {
           codCli: this.codCli,
