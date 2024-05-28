@@ -9,6 +9,9 @@ var functions = {
         if(err.response.data.message) alert (err.response.data.message)
       }
     }
+  },
+  toMoneyString(value) {
+    return value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
   }
 }
 

@@ -598,7 +598,7 @@
 
   <!-- Modal Gerar Pedido -->
   <div class="modal fade" id="confirmaVendaModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirma venda</h5>
@@ -608,34 +608,7 @@
           <p>{{ this.msgConfirmacao }}</p>
           <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
           <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda && ideFpg.toUpperCase() === 'DINHEIRO'">
-            <div class="row mt-2">
-              <span>Calcular troco:</span>
-            </div>
-            <div class="row my-2">
-              <div class="col-6">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text">Valor Final</span>
-                  <input class="form-control" disabled v-model="vlrFinal">
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text">Pago (R$)</span>
-                  <vue-mask id="inputVlrPagoDin" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrPagoDin"></vue-mask>
-                </div>
-              </div>
-            </div>
-            <div class="row my-2">
-              <div class="col-6">
-                <button id="btnCalcularTroco" class="btn btn-secondary btn-sm form-control" @click="calcularTroco">Calcular</button>  
-              </div>
-              <div class="col-6">
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text">Troco</span>
-                  <input class="form-control" disabled v-model="vlrTroco">
-                </div>
-              </div>
-            </div>
+            <CalculoTroco :vlrPagoDin="vlrPagoDin" :vlrFinal="vlrFinal" :vlrFinalNbr="vlrFinalNbr"/>  
           </div>
         </div>
         <div class="modal-footer">
@@ -820,13 +793,14 @@
 
 <script>
 import Navbar from '../components/Navbar.vue'
+import CalculoTroco from '../components/CalculoTroco.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
 import vueMask from 'vue-jquery-mask'
 
 export default {
   name: 'Venda',
-  components: { Navbar, vueMask },
+  components: { Navbar, CalculoTroco, vueMask },
   data () {
     return {
       // representantes
@@ -943,7 +917,6 @@ export default {
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
-      vlrTroco: 'R$ 0,00',
       cartoes: [
         { codBan: '01', desBan: 'Visa' },
         { codBan: '02', desBan: 'Mastercard' },
@@ -1276,7 +1249,7 @@ export default {
     },
 
     toMoneyString(value) {
-      return value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+      return shared.toMoneyString(value)
     },
 
     /* Representantes */
@@ -1765,7 +1738,7 @@ export default {
 
     atualizarValorTotalCompra() {
       if (this.calcularValorLiqItens()) {
-        this.vlrTot = this.toMoneyString(this.getVlrCarrinho())
+        this.vlrTot = shared.toMoneyString(this.getVlrCarrinho())
         this.vlrFinalNbr = this.getVlrCarrinho()
         this.vlrFinal = this.vlrTot
         this.qtdTot = this.getQtdeItensCarrinho()
@@ -2423,32 +2396,19 @@ export default {
                                              : !this.pedidoSelected ? 'Tem certeza que deseja inserir o pedido?' 
                                                                   : 'Tem certeza que deseja atualizar o pedido?'
       if (this.fecharVenda) {
-        document.getElementById('btnOpenFinalizarVendaModal').click()
         if (this.fecharVenda && this.ideFpg.toUpperCase() === 'DINHEIRO') this.prepararTroco()
+        document.getElementById('btnOpenFinalizarVendaModal').click()
       }
       else document.getElementById('btnOpenInserirPedidoModal').click()
     },
 
     prepararTroco() {
       this.vlrPagoDin = this.vlrFinal.replace('R$', '').trim()
-      this.vlrTroco = 'R$ 0,00'
       const modalElement = document.getElementById('confirmaVendaModal')
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('inputVlrPagoDin').focus()
         document.getElementById('inputVlrPagoDin').select()
       })
-    },
-
-    calcularTroco() {
-        const troco = (Number(this.vlrPagoDin.replace('.', '').replace(',', '.')) - this.vlrFinalNbr)
-        if (troco <= 0) {
-        alert('O valor pago em dinheiro não pode ser menor que o valor da venda!')
-        document.getElementById('inputVlrPagoDin').focus()
-        document.getElementById('inputVlrPagoDin').select()
-        } else {
-          this.vlrTroco = this.toMoneyString(troco)
-        document.getElementById('inputVlrPagoDin').focus()
-      }
     },
 
     async finalizarVenda() {
@@ -2509,10 +2469,10 @@ export default {
           catTef: this.cartao.catTef,
           nsuTef: this.cartao.nsuTef,
           tipInt: this.formaSelected.tipInt,
-          vlrTot: this.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim()
+          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim()
         }
       } else {
-        const vlrDar = this.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)))
+        const vlrDar = shared.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)))
                     .replace('R$', '').replace('.','').replace(',','.').trim()
 
         pedido = {
@@ -2529,7 +2489,7 @@ export default {
           codRep: this.codRep,
           itens: itens,
           fechar: this.fecharVenda,
-          vlrTot: this.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
+          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           qtdPar: this.condicaoSelected.qtdParCpg,
           tipPar: this.condicaoSelected.tipPar,
           parcelas: this.condicaoSelected.parcelas,
@@ -2656,15 +2616,15 @@ export default {
           this.vlrFinalNbr = valorTmp
           atualizar = false
         } else {
-          this.vlrComDesconto = this.toMoneyString((valorTmp - this.vlrDescPedido))
+          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido))
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
           this.vlrFinal = this.vlrComDesconto
         }
       }
       if (this.prcDescontoForma !== '') {
         this.vlrFinalNbr = this.vlrFinalNbr - (this.vlrFinalNbr * (Number(this.prcDescontoForma.replace(',', '.')) / 100))
-        this.vlrFinal = this.toMoneyString(this.vlrFinalNbr)
-        this.vlrFinalNbr = Number(this.toMoneyString(this.vlrFinal)
+        this.vlrFinal = shared.toMoneyString(this.vlrFinalNbr)
+        this.vlrFinalNbr = Number(shared.toMoneyString(this.vlrFinal)
                     .replace('R$', '').replace('.','').replace(',','.').trim())
       }
 
@@ -2799,12 +2759,12 @@ export default {
           const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
           const vlrDscFinal = vlrCarrinho - vlrDarNbr
           const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100))
-          const vlrComDescontoManualStr = this.toMoneyString(vlrComDescontoManual).replace('R$', '').trim()
+          const vlrComDescontoManualStr = shared.toMoneyString(vlrComDescontoManual).replace('R$', '').trim()
           const vlrDescNbr = vlrCarrinho - Number(vlrComDescontoManualStr.replace(',', '.'))
           
           if (vlrDescNbr > 0) {
             this.tipDesc = 'valor'
-            this.vlrDesc = this.toMoneyString(vlrDescNbr).replace('R$', '').trim()
+            this.vlrDesc = shared.toMoneyString(vlrDescNbr).replace('R$', '').trim()
           } else {
             this.tipDesc = ''
             this.vlrDesc = ''
