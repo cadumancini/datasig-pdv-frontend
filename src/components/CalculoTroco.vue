@@ -39,6 +39,10 @@ export default {
       }
     }
   },
+  mounted () {
+    document.getElementById('inputVlrPagoDin').focus()
+    document.getElementById('inputVlrPagoDin').select()
+  },
   methods: {
     calcularTroco() {
       try {

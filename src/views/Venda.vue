@@ -2404,11 +2404,6 @@ export default {
 
     prepararTroco() {
       this.vlrPagoDin = this.vlrFinal.replace('R$', '').trim()
-      const modalElement = document.getElementById('confirmaVendaModal')
-      modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('inputVlrPagoDin').focus()
-        document.getElementById('inputVlrPagoDin').select()
-      })
     },
 
     async finalizarVenda() {
