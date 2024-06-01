@@ -56,7 +56,7 @@
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
-          <div class="row margin-y-fields">
+          <!-- <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Forma de Pagamento</span>
               <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
@@ -73,7 +73,7 @@
               <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="col-7">
           <span class="fw-bold subtitle">Carrinho</span>
@@ -155,14 +155,14 @@
               </div>  
             </div>
           </div>
-          <div class="row margin-y-fields" v-if="prcDescontoForma !== ''">
+          <!-- <div class="row margin-y-fields" v-if="prcDescontoForma !== ''">
             <div class="col-6">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Desconto (forma de pagamento)</span>
                 <input class="form-control" disabled :value="prcDescontoForma + ' %'">
               </div>  
             </div>
-          </div>
+          </div> -->
           <div class="row margin-y-fields">
             <div class="col-6">
               <div class="input-group input-group-sm">
@@ -519,7 +519,7 @@
   </div>
 
   <!-- Modal Condicoes Pagto -->
-  <div class="modal fade" id="condicoesPagtoModal" tabindex="-1" aria-labelledby="condicoesPagtoModalLabel" aria-hidden="true">
+  <!-- <div class="modal fade" id="condicoesPagtoModal" tabindex="-1" aria-labelledby="condicoesPagtoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -555,10 +555,10 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Modal Formas Pagto -->
-  <div class="modal fade" id="formasPagtoModal" tabindex="-1" aria-labelledby="formasPagtoModalLabel" aria-hidden="true">
+  <!-- <div class="modal fade" id="formasPagtoModal" tabindex="-1" aria-labelledby="formasPagtoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -594,11 +594,11 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Modal Gerar Pedido -->
   <div class="modal fade" id="confirmaVendaModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirma venda</h5>
@@ -607,9 +607,55 @@
         <div class="modal-body">
           <p>{{ this.msgConfirmacao }}</p>
           <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
-          <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda && ideFpg.toUpperCase() === 'DINHEIRO'">
-            <CalculoTroco :vlrPagoDin="vlrPagoDin" :vlrFinal="vlrFinal" :vlrFinalNbr="vlrFinalNbr"/>  
+          <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda">
+            <div class="row mt-2">
+              <span>Pagamento:</span>
+              <div class="row my-2">
+                <span>Valor a pagar: {{ vlrFinal }}</span>
+              </div>
+              <div class="row my-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Forma</span>
+                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto()" id="selectFpg">
+                      <option selected disabled :value="null" >Selecione ...</option>
+                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.desFpg }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Condição</span>
+                    <select class="form-select" :disabled="formaSelecionada === null" v-model="condicaoSelecionada" @change="calculatePaymentValue()" id="selectCpg">
+                      <option selected disabled :value="null" >Selecione ...</option>
+                      <option v-if="formaSelecionada !== null" v-for="condicao in formaSelecionada.condicoes" :key="condicao.codCpg" :value="condicao">{{ condicao.desCpg }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row my-2" v-if="prcDescontoForma !== ''">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Desconto (forma de pagamento)</span>
+                    <input class="form-control" disabled :value="prcDescontoForma + ' %'">
+                  </div>  
+                </div>
+              </div>
+              <div class="row my-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago"></vue-mask>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <button id="btnProcessarPagto" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar</button>
+                </div>
+              </div>
+            </div>
           </div>
+          <!-- <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda && ideFpg.toUpperCase() === 'DINHEIRO'">
+            <CalculoTroco :vlrPagoDin="vlrPagoDin" :vlrFinal="vlrFinal" :vlrFinalNbr="vlrFinalNbr"/>  
+          </div> -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -894,22 +940,22 @@ export default {
       tableIndexTpr: 0,
       
       //condicoes de pagamento
-      ideCpg: '',
-      codCpg: '',
-      condicaoSelected: null,
-      condicoesPagto: [],
-      condicoesPagtoFiltro: '',
-      condicoesPagtoFiltrados: [],
-      tableIndexCpg: 0,
+      // ideCpg: '',
+      // codCpg: '',
+      // condicaoSelected: null,
+      // condicoesPagto: [],
+      // condicoesPagtoFiltro: '',
+      // condicoesPagtoFiltrados: [],
+      // tableIndexCpg: 0,
       
       //formas de pagamento
-      ideFpg: '',
-      codFpg: '',
-      formaSelected: null,
+      // ideFpg: '',
+      // codFpg: '',
+      // formaSelected: null,
       formasPagto: [],
-      formasPagtoFiltro: '',
-      formasPagtoFiltrados: [],
-      tableIndexFpg: 0,
+      // formasPagtoFiltro: '',
+      // formasPagtoFiltrados: [],
+      // tableIndexFpg: 0,
 
       //venda
       finalizandoVenda: false,
@@ -961,6 +1007,8 @@ export default {
       vlrFinal: 'R$ 0,00',
       vlrComDesconto: '',
       prcDescontoForma: '',
+      formaSelecionada: null,
+      condicaoSelecionada: null,
       pagamentos: [],
 
       //geral
@@ -980,8 +1028,8 @@ export default {
         { codAta: 1, tecAta: 'R', desAta: 'Representante' },
         { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
         { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
-        { codAta: 4, tecAta: 'F', desAta: 'Forma de Pagamento' },
-        { codAta: 5, tecAta: 'O', desAta: 'Condição de Pagamento' },
+        // { codAta: 4, tecAta: 'F', desAta: 'Forma de Pagamento' },
+        // { codAta: 5, tecAta: 'O', desAta: 'Condição de Pagamento' },
         { codAta: 6, tecAta: 'P', desAta: 'Produto' },
         { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
         { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
@@ -1045,7 +1093,7 @@ export default {
       this.representantes = []
       this.tabelasPreco = []
       this.clientes = []
-      this.condicoesPagto = []
+      // this.condicoesPagto = []
       this.formasPagto = []
       this.produtosTabelaPreco = []
       this.itensCarrinho = []
@@ -1068,14 +1116,14 @@ export default {
       this.ideTpr = ''
       this.codTpr = ''
       this.tabelasPrecoFiltro = ''
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicaoSelected = null
-      this.condicoesPagtoFiltro = ''
-      this.ideFpg = ''
-      this.codFpg = ''
-      this.formaSelected = null
-      this.formasPagtoFiltro = ''
+      // this.ideCpg = ''
+      // this.codCpg = ''
+      // this.condicaoSelected = null
+      // this.condicoesPagtoFiltro = ''
+      // this.ideFpg = ''
+      // this.codFpg = ''
+      // this.formaSelected = null
+      // this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
       this.status = ''
       this.vlrFinalNbr = 0
@@ -1145,17 +1193,17 @@ export default {
         this.beginTabelasPreco()
       });
 
-      const inputIdeCpg = document.getElementById('inputIdeCpg')
-      inputIdeCpg.addEventListener('focus', (event) => {
-        this.editandoCarrinho = false
-        this.beginCondicaoPagto()
-      });
+      // const inputIdeCpg = document.getElementById('inputIdeCpg')
+      // inputIdeCpg.addEventListener('focus', (event) => {
+      //   this.editandoCarrinho = false
+      //   this.beginCondicaoPagto()
+      // });
 
-      const inputIdeFpg = document.getElementById('inputIdeFpg')
-      inputIdeFpg.addEventListener('focus', (event) => {
-        this.editandoCarrinho = false
-        this.beginFormaPagto()
-      });
+      // const inputIdeFpg = document.getElementById('inputIdeFpg')
+      // inputIdeFpg.addEventListener('focus', (event) => {
+      //   this.editandoCarrinho = false
+      //   this.beginFormaPagto()
+      // });
 
       const inputPedPrv = document.getElementById('inputPedPrv')
       inputPedPrv.addEventListener('focus', (event) => {
@@ -1176,8 +1224,8 @@ export default {
           else if (event.key.toUpperCase() === 'C') this.focusCliente()
           else if (event.key.toUpperCase() === 'P') this.focusProduto()
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
-          else if (event.key.toUpperCase() === 'O') this.focusCondicaoPagto()
-          else if (event.key.toUpperCase() === 'F') this.focusFormaPagto()
+          // else if (event.key.toUpperCase() === 'O') this.focusCondicaoPagto()
+          // else if (event.key.toUpperCase() === 'F') this.focusFormaPagto()
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
@@ -2146,98 +2194,98 @@ export default {
     },
 
     /* Condições de Pagamento */
-    async beginCondicaoPagto() {
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicoesPagtoFiltro = ''
-    },
+    // async beginCondicaoPagto() {
+    //   this.ideCpg = ''
+    //   this.codCpg = ''
+    //   this.condicoesPagtoFiltro = ''
+    // },
 
-    async searchCondicoesPagto() {
-      if(!this.codFpg.length) {
-        alert('Favor informar uma forma de pagamento!')
-        document.getElementById('inputIdeFpg').focus()
-      } else {
-        this.filtrarCondicoesPagto(this.ideCpg)
-        if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
-          this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
-        } else if (this.condicoesPagtoFiltrados.length === 0) {
-          alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
-        } else { // nao encontramos, abrir modal
-          this.openCondicoesPagtoModal()
-        }
-      }
-    },
+    // async searchCondicoesPagto() {
+    //   if(!this.codFpg.length) {
+    //     alert('Favor informar uma forma de pagamento!')
+    //     document.getElementById('inputIdeFpg').focus()
+    //   } else {
+    //     this.filtrarCondicoesPagto(this.ideCpg)
+    //     if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
+    //       this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
+    //     } else if (this.condicoesPagtoFiltrados.length === 0) {
+    //       alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
+    //     } else { // nao encontramos, abrir modal
+    //       this.openCondicoesPagtoModal()
+    //     }
+    //   }
+    // },
 
-    async selectCondicaoPagto(row, atualizar) {
-      this.ideCpg = row.desCpg
-      this.codCpg = row.codCpg
-      this.condicaoSelected = row
-      this.pagamentos = []
-      this.pagamentos.push({forma: this.formaSelected, condicao: this.condicaoSelected})
-      document.getElementById('closeModalCondicoesPagto').click()
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        const itens = []
-        this.enviarPedido(itens, false)
-      }
-    },
+    // async selectCondicaoPagto(row, atualizar) {
+    //   this.ideCpg = row.desCpg
+    //   this.codCpg = row.codCpg
+    //   this.condicaoSelected = row
+    //   this.pagamentos = []
+    //   this.pagamentos.push({forma: this.formaSelected, condicao: this.condicaoSelected})
+    //   document.getElementById('closeModalCondicoesPagto').click()
+    //   if (this.pedidoSelected && atualizar) {
+    //     this.fecharVenda = false
+    //     const itens = []
+    //     this.enviarPedido(itens, false)
+    //   }
+    // },
 
-    filtrarCondicoesPagto(filter) {
-      this.condicoesPagtoFiltrados = this.condicoesPagto.filter(cpg => (cpg.codCpg === filter ||
-                cpg.desCpg.toUpperCase().includes(filter.toUpperCase()) ||
-                cpg.abrCpg.toUpperCase().includes(filter.toUpperCase())))
-      this.tableIndexCpg = 0
+    // filtrarCondicoesPagto(filter) {
+    //   this.condicoesPagtoFiltrados = this.condicoesPagto.filter(cpg => (cpg.codCpg === filter ||
+    //             cpg.desCpg.toUpperCase().includes(filter.toUpperCase()) ||
+    //             cpg.abrCpg.toUpperCase().includes(filter.toUpperCase())))
+    //   this.tableIndexCpg = 0
 
-      this.populateTabIndex(this.condicoesPagtoFiltrados)
-    },
+    //   this.populateTabIndex(this.condicoesPagtoFiltrados)
+    // },
 
-    openCondicoesPagtoModal() {
-      this.condicoesPagtoFiltro = this.ideCpg
-      document.getElementById('btnBuscaCondicoesPagto').click()
-      const modalElement = document.getElementById('condicoesPagtoModal')
-      modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('inputCondicoesPagtoFiltro').focus()
-      })
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.focusCondicaoPagto()
-      })
-    },
+    // openCondicoesPagtoModal() {
+    //   this.condicoesPagtoFiltro = this.ideCpg
+    //   document.getElementById('btnBuscaCondicoesPagto').click()
+    //   const modalElement = document.getElementById('condicoesPagtoModal')
+    //   modalElement.addEventListener('shown.bs.modal', () => {
+    //     document.getElementById('inputCondicoesPagtoFiltro').focus()
+    //   })
+    //   modalElement.addEventListener('hidden.bs.modal', () => {
+    //     this.focusCondicaoPagto()
+    //   })
+    // },
 
-    focusCondicaoPagto() {
-      this.codCpg === '' ? document.getElementById('inputIdeCpg').focus() : document.getElementById('btnClearCpg').focus()
-    },
+    // focusCondicaoPagto() {
+    //   this.codCpg === '' ? document.getElementById('inputIdeCpg').focus() : document.getElementById('btnClearCpg').focus()
+    // },
 
-    navegarModalCondicoesPagto(key) {
-      if (key.keyCode === 38) this.focusTableCpg(-1)
-      else if (key.keyCode === 40) this.focusTableCpg(1)
-      else if (key.keyCode === 13) this.cpgListHit()
-    },
+    // navegarModalCondicoesPagto(key) {
+    //   if (key.keyCode === 38) this.focusTableCpg(-1)
+    //   else if (key.keyCode === 40) this.focusTableCpg(1)
+    //   else if (key.keyCode === 13) this.cpgListHit()
+    // },
 
-    filtrarModalCondicoesPagto(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarCondicoesPagto(this.condicoesPagtoFiltro)
-    },
+    // filtrarModalCondicoesPagto(key) {
+    //   if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+    //     this.filtrarCondicoesPagto(this.condicoesPagtoFiltro)
+    // },
 
-    focusTableCpg(value) {
-      this.tableIndexCpg += value
-      if (this.tableIndexCpg < 0) 
-        this.tableIndexCpg = 0
-      else if (this.tableIndexCpg >= this.condicoesPagtoFiltrados.length)
-        this.tableIndexCpg = (this.condicoesPagtoFiltrados.length - 1)
+    // focusTableCpg(value) {
+    //   this.tableIndexCpg += value
+    //   if (this.tableIndexCpg < 0) 
+    //     this.tableIndexCpg = 0
+    //   else if (this.tableIndexCpg >= this.condicoesPagtoFiltrados.length)
+    //     this.tableIndexCpg = (this.condicoesPagtoFiltrados.length - 1)
 
-      let elementToScroll
-      if (this.tableIndexCpg > 0)
-        elementToScroll = document.getElementById('tabCpg' + this.tableIndexCpg)
-      else 
-        elementToScroll = document.getElementById('inputCondicoesPagtoFiltro')
+    //   let elementToScroll
+    //   if (this.tableIndexCpg > 0)
+    //     elementToScroll = document.getElementById('tabCpg' + this.tableIndexCpg)
+    //   else 
+    //     elementToScroll = document.getElementById('inputCondicoesPagtoFiltro')
       
-      this.scrollToElement(elementToScroll)
-    },  
+    //   this.scrollToElement(elementToScroll)
+    // },  
 
-    cpgListHit() {
-      const cpg = this.condicoesPagtoFiltrados.find(cpgFil => cpgFil.tabIndex === this.tableIndexCpg)
-      this.selectCondicaoPagto(cpg, true)
-    },
+    // cpgListHit() {
+    //   const cpg = this.condicoesPagtoFiltrados.find(cpgFil => cpgFil.tabIndex === this.tableIndexCpg)
+    //   this.selectCondicaoPagto(cpg, true)
+    // },
 
     /* Formas de Pagamento */
     async initFormasPagto() {
@@ -2245,7 +2293,7 @@ export default {
         await api.getFormasPagto()
         .then((response) => {
           this.formasPagto = response.data
-          this.formasPagtoFiltrados = this.formasPagto
+          // this.formasPagtoFiltrados = this.formasPagto
           sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
         })
         .catch((err) => {
@@ -2254,113 +2302,113 @@ export default {
         })
       } else {
         this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
-        this.formasPagtoFiltrados = this.formasPagto
+        // this.formasPagtoFiltrados = this.formasPagto
       }
     },
 
-    async beginFormaPagto() {
-      this.ideFpg = ''
-      this.codFpg = ''
-      this.formasPagtoFiltro = ''
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicoesPagtoFiltro = ''
-      this.prcDescontoForma = ''
-      this.atualizarValorTotalCompra()
+    // async beginFormaPagto() {
+    //   this.ideFpg = ''
+    //   this.codFpg = ''
+    //   this.formasPagtoFiltro = ''
+    //   this.ideCpg = ''
+    //   this.codCpg = ''
+    //   this.condicoesPagtoFiltro = ''
+    //   this.prcDescontoForma = ''
+    //   this.atualizarValorTotalCompra()
       
-      if(!this.formasPagto.length) await this.initFormasPagto()
-    },
+    //   if(!this.formasPagto.length) await this.initFormasPagto()
+    // },
 
-    async searchFormasPagto() {
-      this.filtrarFormasPagto(this.ideFpg)
-      if (this.formasPagtoFiltrados.length === 1) { // encontramos, selecionar
-        this.selectFormaPagto(this.formasPagtoFiltrados[0], true)
-      } else { // nao encontramos, abrir modal
-        this.openFormasPagtoModal()
-      }
-    },
+    // async searchFormasPagto() {
+    //   this.filtrarFormasPagto(this.ideFpg)
+    //   if (this.formasPagtoFiltrados.length === 1) { // encontramos, selecionar
+    //     this.selectFormaPagto(this.formasPagtoFiltrados[0], true)
+    //   } else { // nao encontramos, abrir modal
+    //     this.openFormasPagtoModal()
+    //   }
+    // },
 
-    async selectFormaPagto(row, atualizar) {
-      this.ideFpg = row.desFpg
-      this.codFpg = row.codFpg
-      this.formaSelected = row
-      this.condicoesPagto = this.formaSelected.condicoes
-      this.condicoesPagtoFiltrados = this.condicoesPagto
-      if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0], false)
-      this.aplicarDescontoFormaPagto()
-      document.getElementById('closeModalFormasPagto').click()
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        const itens = []
-        this.enviarPedido(itens, false)
-      }
-    },
+    // async selectFormaPagto(row, atualizar) {
+    //   this.ideFpg = row.desFpg
+    //   this.codFpg = row.codFpg
+    //   this.formaSelected = row
+    //   this.condicoesPagto = this.formaSelected.condicoes
+    //   this.condicoesPagtoFiltrados = this.condicoesPagto
+    //   if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0], false)
+    //   this.aplicarDescontoFormaPagto()
+    //   document.getElementById('closeModalFormasPagto').click()
+    //   if (this.pedidoSelected && atualizar) {
+    //     this.fecharVenda = false
+    //     const itens = []
+    //     this.enviarPedido(itens, false)
+    //   }
+    // },
 
-    aplicarDescontoFormaPagto() {
-      if(this.formaSelected.perDsc !== '0,00') {
-        this.prcDescontoForma = this.formaSelected.perDsc
-      } else {
-        this.prcDescontoForma = ''
-      }
-      this.atualizarValorTotalCompra()
-    },
+    // aplicarDescontoFormaPagto() {
+    //   if(this.formaSelected.perDsc !== '0,00') {
+    //     this.prcDescontoForma = this.formaSelected.perDsc
+    //   } else {
+    //     this.prcDescontoForma = ''
+    //   }
+    //   this.atualizarValorTotalCompra()
+    // },
 
-    filtrarFormasPagto(filter) {
-      this.formasPagtoFiltrados = this.formasPagto.filter(fpg => (fpg.codFpg === filter ||
-                fpg.desFpg.toUpperCase().includes(filter.toUpperCase()) ||
-                fpg.abrFpg.toUpperCase().includes(filter.toUpperCase())))
-      this.tableIndexFpg = 0
+    // filtrarFormasPagto(filter) {
+    //   this.formasPagtoFiltrados = this.formasPagto.filter(fpg => (fpg.codFpg === filter ||
+    //             fpg.desFpg.toUpperCase().includes(filter.toUpperCase()) ||
+    //             fpg.abrFpg.toUpperCase().includes(filter.toUpperCase())))
+    //   this.tableIndexFpg = 0
 
-      this.populateTabIndex(this.formasPagtoFiltrados)
-    },
+    //   this.populateTabIndex(this.formasPagtoFiltrados)
+    // },
 
-    openFormasPagtoModal() {
-      this.formasPagtoFiltro = this.ideFpg
-      document.getElementById('btnBuscaFormasPagto').click()
-      const modalElement = document.getElementById('formasPagtoModal')
-      modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('inputFormasPagtoFiltro').focus()
-      })
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.focusFormaPagto()
-      })
-    },
+    // openFormasPagtoModal() {
+    //   this.formasPagtoFiltro = this.ideFpg
+    //   document.getElementById('btnBuscaFormasPagto').click()
+    //   const modalElement = document.getElementById('formasPagtoModal')
+    //   modalElement.addEventListener('shown.bs.modal', () => {
+    //     document.getElementById('inputFormasPagtoFiltro').focus()
+    //   })
+    //   modalElement.addEventListener('hidden.bs.modal', () => {
+    //     this.focusFormaPagto()
+    //   })
+    // },
 
-    focusFormaPagto() {
-      this.codFpg === '' ? document.getElementById('inputIdeFpg').focus() : document.getElementById('btnClearFpg').focus()
-    },
+    // focusFormaPagto() {
+    //   this.codFpg === '' ? document.getElementById('inputIdeFpg').focus() : document.getElementById('btnClearFpg').focus()
+    // },
 
-    navegarModalFormasPagto(key) {
-      if (key.keyCode === 38) this.focusTableFpg(-1)
-      else if (key.keyCode === 40) this.focusTableFpg(1)
-      else if (key.keyCode === 13) this.fpgListHit()
-    },
+    // navegarModalFormasPagto(key) {
+    //   if (key.keyCode === 38) this.focusTableFpg(-1)
+    //   else if (key.keyCode === 40) this.focusTableFpg(1)
+    //   else if (key.keyCode === 13) this.fpgListHit()
+    // },
 
-    filtrarModalFormasPagto(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarFormasPagto(this.formasPagtoFiltro)
-    },
+    // filtrarModalFormasPagto(key) {
+    //   if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+    //     this.filtrarFormasPagto(this.formasPagtoFiltro)
+    // },
 
-    focusTableFpg(value) {
-      this.tableIndexFpg += value
-      if (this.tableIndexFpg < 0) 
-        this.tableIndexFpg = 0
-      else if (this.tableIndexFpg >= this.formasPagtoFiltrados.length)
-        this.tableIndexFpg = (this.formasPagtoFiltrados.length - 1)
+    // focusTableFpg(value) {
+    //   this.tableIndexFpg += value
+    //   if (this.tableIndexFpg < 0) 
+    //     this.tableIndexFpg = 0
+    //   else if (this.tableIndexFpg >= this.formasPagtoFiltrados.length)
+    //     this.tableIndexFpg = (this.formasPagtoFiltrados.length - 1)
 
-      let elementToScroll
-      if (this.tableIndexFpg > 0)
-        elementToScroll = document.getElementById('tabFpg' + this.tableIndexFpg)
-      else 
-        elementToScroll = document.getElementById('inputFormasPagtoFiltro')
+    //   let elementToScroll
+    //   if (this.tableIndexFpg > 0)
+    //     elementToScroll = document.getElementById('tabFpg' + this.tableIndexFpg)
+    //   else 
+    //     elementToScroll = document.getElementById('inputFormasPagtoFiltro')
       
-      this.scrollToElement(elementToScroll)
-    },  
+    //   this.scrollToElement(elementToScroll)
+    // },  
 
-    fpgListHit() {
-      const fpg = this.formasPagtoFiltrados.find(fpgFil => fpgFil.tabIndex === this.tableIndexFpg)
-      this.selectFormaPagto(fpg, true)
-    },
+    // fpgListHit() {
+    //   const fpg = this.formasPagtoFiltrados.find(fpgFil => fpgFil.tabIndex === this.tableIndexFpg)
+    //   this.selectFormaPagto(fpg, true)
+    // },
 
     /* Finalizar Venda */
     async initParams() {
@@ -2396,10 +2444,30 @@ export default {
                                              : !this.pedidoSelected ? 'Tem certeza que deseja inserir o pedido?' 
                                                                   : 'Tem certeza que deseja atualizar o pedido?'
       if (this.fecharVenda) {
-        if (this.fecharVenda && this.ideFpg.toUpperCase() === 'DINHEIRO') this.prepararTroco()
+        // if (this.fecharVenda && this.ideFpg.toUpperCase() === 'DINHEIRO') this.prepararTroco()
         document.getElementById('btnOpenFinalizarVendaModal').click()
       }
       else document.getElementById('btnOpenInserirPedidoModal').click()
+    },
+
+    attemptToFillCondicaoPagto() {
+      if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length === 1) {
+        this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
+      } else {
+        this.condicaoSelecionada = null
+      }
+      this.aplicarDescontoFormaPagto() 
+    },
+
+    calculatePaymentValue() { 
+    },
+
+    aplicarDescontoFormaPagto() {
+      if(this.formaSelecionada.perDsc !== '0,00') {
+        this.prcDescontoForma = this.formaSelecionada.perDsc
+      } else {
+        this.prcDescontoForma = ''
+      }
     },
 
     prepararTroco() {
@@ -2560,12 +2628,13 @@ export default {
       } else if (this.isTabelaPrecoEmpty()) {
         alert('Favor informar uma tabela de preço!')
         return false
-      } else if (this.isCondicaoPagtoEmpty()) {
-        alert('Favor informar uma condição de pagamento!')
-        return false
-      } else if (this.isFormaPagtoEmpty()) {
-        alert('Favor informar uma forma de pagamento!')
-        return false
+      // } else if (this.isCondicaoPagtoEmpty()) {
+      //   alert('Favor informar uma condição de pagamento!')
+      //   return false
+      // }
+      // } else if (this.isFormaPagtoEmpty()) {
+      //   alert('Favor informar uma forma de pagamento!')
+      //   return false
       } else if (this.isCarrinhoEmpty()) {
         alert('Favor adicionar ao menos um item ao carrinho!')
         return false
@@ -2581,13 +2650,13 @@ export default {
       return this.codTpr === ''
     },
 
-    isCondicaoPagtoEmpty() {
-      return this.codCpg === ''
-    },
+    // isCondicaoPagtoEmpty() {
+    //   return this.codCpg === ''
+    // },
 
-    isFormaPagtoEmpty() {
-      return this.codFpg === ''
-    },
+    // isFormaPagtoEmpty() {
+    //   return this.codFpg === ''
+    // },
 
     isCarrinhoEmpty() {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
@@ -2682,14 +2751,14 @@ export default {
           const cli = this.clientes.find(cliRow => cliRow.codCli === ped.codCli)
           if(cli) ped.ideCli = ped.codCli + ' - ' + cli.nomCli
         }
-        if (ped.codFpg) {
-          const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
-          if(fpg) ped.fpg = fpg
-        }
-        if (ped.codCpg && ped.fpg) {
-          const cpg = ped.fpg.condicoes.find(cpgRow => cpgRow.codCpg === ped.codCpg)
-          if(cpg) ped.cpg = cpg
-        }
+        // if (ped.codFpg) {
+        //   const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
+        //   if(fpg) ped.fpg = fpg
+        // }
+        // if (ped.codCpg && ped.fpg) {
+        //   const cpg = ped.fpg.condicoes.find(cpgRow => cpgRow.codCpg === ped.codCpg)
+        //   if(cpg) ped.cpg = cpg
+        // }
       })
     },
 
@@ -2733,8 +2802,8 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
-      if (pedido.fpg) this.selectFormaPagto(pedido.fpg, false)
-      if (pedido.cpg) this.selectCondicaoPagto(pedido.cpg, false)
+      // if (pedido.fpg) this.selectFormaPagto(pedido.fpg, false)
+      // if (pedido.cpg) this.selectCondicaoPagto(pedido.cpg, false)
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
