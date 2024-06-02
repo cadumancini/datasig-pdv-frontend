@@ -605,8 +605,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"></button>
         </div>
         <div class="modal-body">
-          <p>{{ this.msgConfirmacao }}</p>
-          <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
           <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda">
             <div class="row mt-2">
               <span>Pagamento:</span>
@@ -626,7 +624,7 @@
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Condição</span>
-                    <select class="form-select" :disabled="formaSelecionada === null" v-model="condicaoSelecionada" @change="calculatePaymentValue()" id="selectCpg">
+                    <select class="form-select" :disabled="formaSelecionada === null" v-model="condicaoSelecionada" @change="calcValorPagto()" id="selectCpg">
                       <option selected disabled :value="null" >Selecione ...</option>
                       <option v-if="formaSelecionada !== null" v-for="condicao in formaSelecionada.condicoes" :key="condicao.codCpg" :value="condicao">{{ condicao.desCpg }}</option>
                     </select>
@@ -654,15 +652,42 @@
                     <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago" v-on:keyup="calcularTroco"></vue-mask>
                   </div>
                 </div>
-                <div class="col-6">
-                  <button id="btnProcessarPagto" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar</button>
+              </div>
+              <div class="row my-2" v-if="pagamentoCartao()">
+                <span>Informações da Transação (cartão)</span>  
+                <div class="row mb-2">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Bandeira</span>
+                    <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
+                      <option selected disabled value="" >Selecione</option>
+                      <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{ row.desBan }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Número da Autorização de Transação</span>
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
+                  </div>
+                </div>
+                <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1'">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Número da Transação (TEF)</span>
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
+                  </div>
+                </div>
+              </div>
+              <div class="row my-2">
+                <div class="col">
+                  <button id="btnProcessarPagto" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar Pagamento</button>
                 </div>
               </div>
             </div>
           </div>
+          <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
+          <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button> <!-- TODO: mudar texto se for fechar venda -->
           <button type="button" id="btnCartao" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cartaoModal"></button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
@@ -2463,27 +2488,32 @@ export default {
       this.aplicarDescontoFormaPagto() 
       if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length === 1) {
         this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
-        this.calculatePaymentValue()
+        this.calcValorPagto()
       } else {
         this.condicaoSelecionada = null
       }
     },
 
-    calculatePaymentValue() { 
+    calcValorPagto() { 
       this.valorParcial = this.valorPendente
       if (this.prcDescontoForma !== '') {
-        this.valorParcial = this.valorParcial - (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100)
+        this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100)
+        this.valorDescontoParcial = Number(shared.toMoneyString(this.valorDescontoParcial)
+                    .replace('R$', '').replace('.','').replace(',','.').trim())
+        this.valorParcial = this.valorParcial - this.valorDescontoParcial
+      } else {
+        this.valorDescontoParcial = 0
       }
-      this.vlrPago = this.toMoneyString(this.valorParcial).replace('R$', '').trim()
+      this.vlrPago = shared.toMoneyString(this.valorParcial).replace('R$', '').trim()
       this.vlrTroco = 'R$ 0,00'
+      this.clearInputsCartao()
       document.getElementById('inputVlrPago').focus()
       document.getElementById('inputVlrPago').select()
     },
 
     calcularTroco() {
       try {
-        const vlrPago = document.getElementById('inputVlrPago').value
-        const troco = (Number(vlrPago.replace('.', '').replace(',', '.')) - this.valorParcial)
+        const troco = (this.valorPagoNumber() - this.valorParcial)
         if (troco <= 0) this.vlrTroco = 'R$ 0,00' 
         else this.vlrTroco = shared.toMoneyString(troco)
       } catch (ex) {
@@ -2499,28 +2529,57 @@ export default {
       }
     },
 
+    pagamentoCartao() {
+      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && this.formaSelecionada.tipFpg !== '30'
+    },
+
+    processarPagto() {
+      if (!this.valorExcede()) {
+        if(!this.pagamentoCartao() || this.confirmarDadosCartao()) {
+          this.pagamentos.push({
+            forma: this.formaSelecionada,
+            condicao: this.condicaoSelecionada,
+            valorPago: this.valorPagoNumber(),
+            valorDesconto: this.valorDescontoParcial,
+            valorTotalPago: (this.valorPagoNumber() + this.valorDescontoParcial)
+          })
+          this.valorPendente = this.valorPendente - (this.valorPagoNumber() + this.valorDescontoParcial)
+        }
+      }
+    },
+
+    valorExcede() {
+      if ((this.valorPagoNumber() + this.valorDescontoParcial) > this.valorPendente) {
+        alert('O valor pago não deve exceder o valor pendente!')
+        return true
+      }
+      return false
+    },
+
+    valorPagoNumber() {
+      const vlrPago = document.getElementById('inputVlrPago').value
+      return Number(vlrPago.replace('.', '').replace(',', '.'))
+    },
+
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
-      if (['1','2'].includes(this.formaSelected.tipInt) && this.fecharVenda && this.formaSelected.tipFpg !== '30') {
-        this.clearInputsCartao()
-        document.getElementById('btnCartao').click()
-        const modalElement = document.getElementById('cartaoModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('selectBanOpe').focus()
-        })
-      } else {
         await this.enviarVenda(true)
-      }
     },  
 
-    async confirmarDadosCartao() {
-      if (this.cartao.banOpe === '') alert('Selecione a bandeira do cartão!')
-      else if (this.cartao.catTef === '') alert('Preencha o número da autorização!') 
-      else if (this.cartao.nsuTef === '' && this.formaSelected.tipInt === '1') alert('Preencha o número da transação (TEF)!') 
-      else {
-        document.getElementById('closeModalCartao').click()
-        await this.enviarVenda(true)
+    confirmarDadosCartao() {
+      if (this.cartao.banOpe === '') {
+        alert('Selecione a bandeira do cartão!')
+        return false
       }
+      else if (this.cartao.catTef === '') {
+        alert('Preencha o número da autorização!') 
+        return false
+      }
+      else if (this.cartao.nsuTef === '' && this.formaSelecionada.tipInt === '1') {
+        alert('Preencha o número da transação (TEF)!') 
+        return false
+      }
+      return true
     },
 
     async enviarVenda(limpar) {
