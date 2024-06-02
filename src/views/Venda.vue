@@ -611,7 +611,7 @@
             <div class="row mt-2">
               <span>Pagamento:</span>
               <div class="row my-2">
-                <span>Valor a pagar: {{ vlrFinal }}</span>
+                <span>Valor a pagar: {{ toMoneyString(valorPendente) }}</span>
               </div>
               <div class="row my-2">
                 <div class="col-6">
@@ -633,18 +633,25 @@
                   </div>
                 </div>
               </div>
-              <div class="row my-2" v-if="prcDescontoForma !== ''">
-                <div class="col-6">
+              <div class="row my-2" v-if="prcDescontoForma !== '' || (formaSelecionada !== null && formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO')">
+                <div class="col-6" v-if="prcDescontoForma !== ''">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Desconto (forma de pagamento)</span>
                     <input class="form-control" disabled :value="prcDescontoForma + ' %'">
+                  </div>  
+                </div>
+                <div class="col-6" v-if="formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO'">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Troco</span>
+                    <input class="form-control" disabled v-model="vlrTroco">
                   </div>  
                 </div>
               </div>
               <div class="row my-2">
                 <div class="col-6">
                   <div class="input-group input-group-sm">
-                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago"></vue-mask>
+                    <span class="input-group-text">Valor pago (R$)</span>
+                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago" v-on:keyup="calcularTroco"></vue-mask>
                   </div>
                 </div>
                 <div class="col-6">
@@ -653,9 +660,6 @@
               </div>
             </div>
           </div>
-          <!-- <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda && ideFpg.toUpperCase() === 'DINHEIRO'">
-            <CalculoTroco :vlrPagoDin="vlrPagoDin" :vlrFinal="vlrFinal" :vlrFinalNbr="vlrFinalNbr"/>  
-          </div> -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -839,14 +843,13 @@
 
 <script>
 import Navbar from '../components/Navbar.vue'
-import CalculoTroco from '../components/CalculoTroco.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
 import vueMask from 'vue-jquery-mask'
 
 export default {
   name: 'Venda',
-  components: { Navbar, CalculoTroco, vueMask },
+  components: { Navbar, vueMask },
   data () {
     return {
       // representantes
@@ -1010,6 +1013,12 @@ export default {
       formaSelecionada: null,
       condicaoSelecionada: null,
       pagamentos: [],
+      valorProcessado: 0,
+      valorDescontos: 0,
+      valorDescontoParcial: 0,
+      valorParcial: 0,
+      valorPendente: 0,
+      vlrTroco: 'R$ 0,00',
 
       //geral
       status: '',
@@ -2444,22 +2453,42 @@ export default {
                                              : !this.pedidoSelected ? 'Tem certeza que deseja inserir o pedido?' 
                                                                   : 'Tem certeza que deseja atualizar o pedido?'
       if (this.fecharVenda) {
-        // if (this.fecharVenda && this.ideFpg.toUpperCase() === 'DINHEIRO') this.prepararTroco()
         document.getElementById('btnOpenFinalizarVendaModal').click()
+        this.valorPendente = this.vlrFinalNbr
       }
       else document.getElementById('btnOpenInserirPedidoModal').click()
     },
 
     attemptToFillCondicaoPagto() {
+      this.aplicarDescontoFormaPagto() 
       if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length === 1) {
         this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
+        this.calculatePaymentValue()
       } else {
         this.condicaoSelecionada = null
       }
-      this.aplicarDescontoFormaPagto() 
     },
 
     calculatePaymentValue() { 
+      this.valorParcial = this.valorPendente
+      if (this.prcDescontoForma !== '') {
+        this.valorParcial = this.valorParcial - (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100)
+      }
+      this.vlrPago = this.toMoneyString(this.valorParcial).replace('R$', '').trim()
+      this.vlrTroco = 'R$ 0,00'
+      document.getElementById('inputVlrPago').focus()
+      document.getElementById('inputVlrPago').select()
+    },
+
+    calcularTroco() {
+      try {
+        const vlrPago = document.getElementById('inputVlrPago').value
+        const troco = (Number(vlrPago.replace('.', '').replace(',', '.')) - this.valorParcial)
+        if (troco <= 0) this.vlrTroco = 'R$ 0,00' 
+        else this.vlrTroco = shared.toMoneyString(troco)
+      } catch (ex) {
+        this.vlrTroco = 'R$ 0,00'  
+      }
     },
 
     aplicarDescontoFormaPagto() {
@@ -2468,10 +2497,6 @@ export default {
       } else {
         this.prcDescontoForma = ''
       }
-    },
-
-    prepararTroco() {
-      this.vlrPagoDin = this.vlrFinal.replace('R$', '').trim()
     },
 
     async finalizarVenda() {
