@@ -56,24 +56,6 @@
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
-          <!-- <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Forma de Pagamento</span>
-              <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
-                :disabled="!this.formasPagto.length || this.codFpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
-              <button id="btnClearFpg" :disabled="this.codFpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginFormaPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
-            </div>
-          </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Condição de Pagamento</span>
-              <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
-                :disabled="!this.formasPagto.length || this.codCpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
-              <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
-            </div>
-          </div> -->
         </div>
         <div class="col-7">
           <span class="fw-bold subtitle">Carrinho</span>
@@ -155,14 +137,6 @@
               </div>  
             </div>
           </div>
-          <!-- <div class="row margin-y-fields" v-if="prcDescontoForma !== ''">
-            <div class="col-6">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Desconto (forma de pagamento)</span>
-                <input class="form-control" disabled :value="prcDescontoForma + ' %'">
-              </div>  
-            </div>
-          </div> -->
           <div class="row margin-y-fields">
             <div class="col-6">
               <div class="input-group input-group-sm">
@@ -518,84 +492,6 @@
     </div>
   </div>
 
-  <!-- Modal Condicoes Pagto -->
-  <!-- <div class="modal fade" id="condicoesPagtoModal" tabindex="-1" aria-labelledby="condicoesPagtoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="condicoesPagtoModalLabel">Condições de Pagamento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCondicoesPagto"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3" v-if="condicoesPagto != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputCondicoesPagtoFiltro" v-on:keydown="navegarModalCondicoesPagto" v-on:keyup="filtrarModalCondicoesPagto" v-model="condicoesPagtoFiltro" placeholder="Digite para buscar a condição de pagamento abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 50%;">Abreviação</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Descrição</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in condicoesPagtoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCondicaoPagto(row, true)">
-                  <th :id="'tabCpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm" scope="row">{{ row.codCpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.abrCpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.desCpg }}</th>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else>
-            <label>Buscando Condições de Pagamento ...</label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
-  <!-- Modal Formas Pagto -->
-  <!-- <div class="modal fade" id="formasPagtoModal" tabindex="-1" aria-labelledby="formasPagtoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="formasPagtoModalLabel">Formas de Pagamento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalFormasPagto"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3" v-if="formasPagto != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputFormasPagtoFiltro" v-on:keydown="navegarModalFormasPagto" v-on:keyup="filtrarModalFormasPagto" v-model="formasPagtoFiltro" placeholder="Digite para buscar a forma de pagamento abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 50%;">Abreviação</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Descrição</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in formasPagtoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectFormaPagto(row, true)">
-                  <th :id="'tabFpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm" scope="row">{{ row.codFpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.abrFpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.desFpg }}</th>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else>
-            <label>Buscando Formas de Pagamento ...</label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
   <!-- Modal Gerar Pedido -->
   <div class="modal fade" id="confirmaVendaModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
@@ -722,45 +618,6 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Informações Cartão -->
-  <div class="modal fade" id="cartaoModal" tabindex="-1" aria-labelledby="cartaoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="cartaoModalLabel">Informações da Transação</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCartao"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Bandeira</span>
-              <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
-                <option selected disabled value="" >Selecione</option>
-                <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{ row.desBan }}</option>
-              </select>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Número da Autorização de Transação</span>
-              <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
-            </div>
-          </div>
-          <div class="row mb-2" v-if="this.formaSelected && this.formaSelected.tipInt === '1'">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Número da Transação (TEF)</span>
-              <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" @click="confirmarDadosCartao">Confirmar</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -967,23 +824,8 @@ export default {
       tabelasPrecoFiltrados: [],
       tableIndexTpr: 0,
       
-      //condicoes de pagamento
-      // ideCpg: '',
-      // codCpg: '',
-      // condicaoSelected: null,
-      // condicoesPagto: [],
-      // condicoesPagtoFiltro: '',
-      // condicoesPagtoFiltrados: [],
-      // tableIndexCpg: 0,
-      
       //formas de pagamento
-      // ideFpg: '',
-      // codFpg: '',
-      // formaSelected: null,
       formasPagto: [],
-      // formasPagtoFiltro: '',
-      // formasPagtoFiltrados: [],
-      // tableIndexFpg: 0,
 
       //venda
       finalizandoVenda: false,
@@ -1062,8 +904,6 @@ export default {
         { codAta: 1, tecAta: 'R', desAta: 'Representante' },
         { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
         { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
-        // { codAta: 4, tecAta: 'F', desAta: 'Forma de Pagamento' },
-        // { codAta: 5, tecAta: 'O', desAta: 'Condição de Pagamento' },
         { codAta: 6, tecAta: 'P', desAta: 'Produto' },
         { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
         { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
@@ -1127,7 +967,6 @@ export default {
       this.representantes = []
       this.tabelasPreco = []
       this.clientes = []
-      // this.condicoesPagto = []
       this.formasPagto = []
       this.produtosTabelaPreco = []
       this.itensCarrinho = []
@@ -1150,14 +989,6 @@ export default {
       this.ideTpr = ''
       this.codTpr = ''
       this.tabelasPrecoFiltro = ''
-      // this.ideCpg = ''
-      // this.codCpg = ''
-      // this.condicaoSelected = null
-      // this.condicoesPagtoFiltro = ''
-      // this.ideFpg = ''
-      // this.codFpg = ''
-      // this.formaSelected = null
-      // this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
       this.status = ''
       this.vlrFinalNbr = 0
@@ -1227,18 +1058,6 @@ export default {
         this.beginTabelasPreco()
       });
 
-      // const inputIdeCpg = document.getElementById('inputIdeCpg')
-      // inputIdeCpg.addEventListener('focus', (event) => {
-      //   this.editandoCarrinho = false
-      //   this.beginCondicaoPagto()
-      // });
-
-      // const inputIdeFpg = document.getElementById('inputIdeFpg')
-      // inputIdeFpg.addEventListener('focus', (event) => {
-      //   this.editandoCarrinho = false
-      //   this.beginFormaPagto()
-      // });
-
       const inputPedPrv = document.getElementById('inputPedPrv')
       inputPedPrv.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
@@ -1258,8 +1077,6 @@ export default {
           else if (event.key.toUpperCase() === 'C') this.focusCliente()
           else if (event.key.toUpperCase() === 'P') this.focusProduto()
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
-          // else if (event.key.toUpperCase() === 'O') this.focusCondicaoPagto()
-          // else if (event.key.toUpperCase() === 'F') this.focusFormaPagto()
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
@@ -2227,107 +2044,12 @@ export default {
       if (tpr) this.selectTabelaPreco(tpr, true)
     },
 
-    /* Condições de Pagamento */
-    // async beginCondicaoPagto() {
-    //   this.ideCpg = ''
-    //   this.codCpg = ''
-    //   this.condicoesPagtoFiltro = ''
-    // },
-
-    // async searchCondicoesPagto() {
-    //   if(!this.codFpg.length) {
-    //     alert('Favor informar uma forma de pagamento!')
-    //     document.getElementById('inputIdeFpg').focus()
-    //   } else {
-    //     this.filtrarCondicoesPagto(this.ideCpg)
-    //     if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
-    //       this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
-    //     } else if (this.condicoesPagtoFiltrados.length === 0) {
-    //       alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
-    //     } else { // nao encontramos, abrir modal
-    //       this.openCondicoesPagtoModal()
-    //     }
-    //   }
-    // },
-
-    // async selectCondicaoPagto(row, atualizar) {
-    //   this.ideCpg = row.desCpg
-    //   this.codCpg = row.codCpg
-    //   this.condicaoSelected = row
-    //   this.pagamentos = []
-    //   this.pagamentos.push({forma: this.formaSelected, condicao: this.condicaoSelected})
-    //   document.getElementById('closeModalCondicoesPagto').click()
-    //   if (this.pedidoSelected && atualizar) {
-    //     this.fecharVenda = false
-    //     const itens = []
-    //     this.enviarPedido(itens, false)
-    //   }
-    // },
-
-    // filtrarCondicoesPagto(filter) {
-    //   this.condicoesPagtoFiltrados = this.condicoesPagto.filter(cpg => (cpg.codCpg === filter ||
-    //             cpg.desCpg.toUpperCase().includes(filter.toUpperCase()) ||
-    //             cpg.abrCpg.toUpperCase().includes(filter.toUpperCase())))
-    //   this.tableIndexCpg = 0
-
-    //   this.populateTabIndex(this.condicoesPagtoFiltrados)
-    // },
-
-    // openCondicoesPagtoModal() {
-    //   this.condicoesPagtoFiltro = this.ideCpg
-    //   document.getElementById('btnBuscaCondicoesPagto').click()
-    //   const modalElement = document.getElementById('condicoesPagtoModal')
-    //   modalElement.addEventListener('shown.bs.modal', () => {
-    //     document.getElementById('inputCondicoesPagtoFiltro').focus()
-    //   })
-    //   modalElement.addEventListener('hidden.bs.modal', () => {
-    //     this.focusCondicaoPagto()
-    //   })
-    // },
-
-    // focusCondicaoPagto() {
-    //   this.codCpg === '' ? document.getElementById('inputIdeCpg').focus() : document.getElementById('btnClearCpg').focus()
-    // },
-
-    // navegarModalCondicoesPagto(key) {
-    //   if (key.keyCode === 38) this.focusTableCpg(-1)
-    //   else if (key.keyCode === 40) this.focusTableCpg(1)
-    //   else if (key.keyCode === 13) this.cpgListHit()
-    // },
-
-    // filtrarModalCondicoesPagto(key) {
-    //   if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-    //     this.filtrarCondicoesPagto(this.condicoesPagtoFiltro)
-    // },
-
-    // focusTableCpg(value) {
-    //   this.tableIndexCpg += value
-    //   if (this.tableIndexCpg < 0) 
-    //     this.tableIndexCpg = 0
-    //   else if (this.tableIndexCpg >= this.condicoesPagtoFiltrados.length)
-    //     this.tableIndexCpg = (this.condicoesPagtoFiltrados.length - 1)
-
-    //   let elementToScroll
-    //   if (this.tableIndexCpg > 0)
-    //     elementToScroll = document.getElementById('tabCpg' + this.tableIndexCpg)
-    //   else 
-    //     elementToScroll = document.getElementById('inputCondicoesPagtoFiltro')
-      
-    //   this.scrollToElement(elementToScroll)
-    // },  
-
-    // cpgListHit() {
-    //   const cpg = this.condicoesPagtoFiltrados.find(cpgFil => cpgFil.tabIndex === this.tableIndexCpg)
-    //   this.selectCondicaoPagto(cpg, true)
-    // },
-
     /* Formas de Pagamento */
     async initFormasPagto() {
       if (!sessionStorage.getItem('formasPagto')) {
         await api.getFormasPagto()
         .then((response) => {
           this.formasPagto = response.data
-          // this.formasPagtoFiltrados = this.formasPagto
           sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
         })
         .catch((err) => {
@@ -2336,113 +2058,8 @@ export default {
         })
       } else {
         this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
-        // this.formasPagtoFiltrados = this.formasPagto
       }
     },
-
-    // async beginFormaPagto() {
-    //   this.ideFpg = ''
-    //   this.codFpg = ''
-    //   this.formasPagtoFiltro = ''
-    //   this.ideCpg = ''
-    //   this.codCpg = ''
-    //   this.condicoesPagtoFiltro = ''
-    //   this.prcDescontoForma = ''
-    //   this.atualizarValorTotalCompra()
-      
-    //   if(!this.formasPagto.length) await this.initFormasPagto()
-    // },
-
-    // async searchFormasPagto() {
-    //   this.filtrarFormasPagto(this.ideFpg)
-    //   if (this.formasPagtoFiltrados.length === 1) { // encontramos, selecionar
-    //     this.selectFormaPagto(this.formasPagtoFiltrados[0], true)
-    //   } else { // nao encontramos, abrir modal
-    //     this.openFormasPagtoModal()
-    //   }
-    // },
-
-    // async selectFormaPagto(row, atualizar) {
-    //   this.ideFpg = row.desFpg
-    //   this.codFpg = row.codFpg
-    //   this.formaSelected = row
-    //   this.condicoesPagto = this.formaSelected.condicoes
-    //   this.condicoesPagtoFiltrados = this.condicoesPagto
-    //   if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0], false)
-    //   this.aplicarDescontoFormaPagto()
-    //   document.getElementById('closeModalFormasPagto').click()
-    //   if (this.pedidoSelected && atualizar) {
-    //     this.fecharVenda = false
-    //     const itens = []
-    //     this.enviarPedido(itens, false)
-    //   }
-    // },
-
-    // aplicarDescontoFormaPagto() {
-    //   if(this.formaSelected.perDsc !== '0,00') {
-    //     this.prcDescontoForma = this.formaSelected.perDsc
-    //   } else {
-    //     this.prcDescontoForma = ''
-    //   }
-    //   this.atualizarValorTotalCompra()
-    // },
-
-    // filtrarFormasPagto(filter) {
-    //   this.formasPagtoFiltrados = this.formasPagto.filter(fpg => (fpg.codFpg === filter ||
-    //             fpg.desFpg.toUpperCase().includes(filter.toUpperCase()) ||
-    //             fpg.abrFpg.toUpperCase().includes(filter.toUpperCase())))
-    //   this.tableIndexFpg = 0
-
-    //   this.populateTabIndex(this.formasPagtoFiltrados)
-    // },
-
-    // openFormasPagtoModal() {
-    //   this.formasPagtoFiltro = this.ideFpg
-    //   document.getElementById('btnBuscaFormasPagto').click()
-    //   const modalElement = document.getElementById('formasPagtoModal')
-    //   modalElement.addEventListener('shown.bs.modal', () => {
-    //     document.getElementById('inputFormasPagtoFiltro').focus()
-    //   })
-    //   modalElement.addEventListener('hidden.bs.modal', () => {
-    //     this.focusFormaPagto()
-    //   })
-    // },
-
-    // focusFormaPagto() {
-    //   this.codFpg === '' ? document.getElementById('inputIdeFpg').focus() : document.getElementById('btnClearFpg').focus()
-    // },
-
-    // navegarModalFormasPagto(key) {
-    //   if (key.keyCode === 38) this.focusTableFpg(-1)
-    //   else if (key.keyCode === 40) this.focusTableFpg(1)
-    //   else if (key.keyCode === 13) this.fpgListHit()
-    // },
-
-    // filtrarModalFormasPagto(key) {
-    //   if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-    //     this.filtrarFormasPagto(this.formasPagtoFiltro)
-    // },
-
-    // focusTableFpg(value) {
-    //   this.tableIndexFpg += value
-    //   if (this.tableIndexFpg < 0) 
-    //     this.tableIndexFpg = 0
-    //   else if (this.tableIndexFpg >= this.formasPagtoFiltrados.length)
-    //     this.tableIndexFpg = (this.formasPagtoFiltrados.length - 1)
-
-    //   let elementToScroll
-    //   if (this.tableIndexFpg > 0)
-    //     elementToScroll = document.getElementById('tabFpg' + this.tableIndexFpg)
-    //   else 
-    //     elementToScroll = document.getElementById('inputFormasPagtoFiltro')
-      
-    //   this.scrollToElement(elementToScroll)
-    // },  
-
-    // fpgListHit() {
-    //   const fpg = this.formasPagtoFiltrados.find(fpgFil => fpgFil.tabIndex === this.tableIndexFpg)
-    //   this.selectFormaPagto(fpg, true)
-    // },
 
     /* Finalizar Venda */
     async initParams() {
@@ -2712,13 +2329,6 @@ export default {
       } else if (this.isTabelaPrecoEmpty()) {
         alert('Favor informar uma tabela de preço!')
         return false
-      // } else if (this.isCondicaoPagtoEmpty()) {
-      //   alert('Favor informar uma condição de pagamento!')
-      //   return false
-      // }
-      // } else if (this.isFormaPagtoEmpty()) {
-      //   alert('Favor informar uma forma de pagamento!')
-      //   return false
       } else if (this.isCarrinhoEmpty()) {
         alert('Favor adicionar ao menos um item ao carrinho!')
         return false
@@ -2733,14 +2343,6 @@ export default {
     isTabelaPrecoEmpty() {
       return this.codTpr === ''
     },
-
-    // isCondicaoPagtoEmpty() {
-    //   return this.codCpg === ''
-    // },
-
-    // isFormaPagtoEmpty() {
-    //   return this.codFpg === ''
-    // },
 
     isCarrinhoEmpty() {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
@@ -2768,12 +2370,6 @@ export default {
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
           this.vlrFinal = this.vlrComDesconto
         }
-      }
-      if (this.prcDescontoForma !== '') {
-        this.vlrFinalNbr = this.vlrFinalNbr - (this.vlrFinalNbr * (Number(this.prcDescontoForma.replace(',', '.')) / 100))
-        this.vlrFinal = shared.toMoneyString(this.vlrFinalNbr)
-        this.vlrFinalNbr = Number(shared.toMoneyString(this.vlrFinal)
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
       }
 
       if (this.pedidoSelected && atualizar) {
@@ -2835,14 +2431,6 @@ export default {
           const cli = this.clientes.find(cliRow => cliRow.codCli === ped.codCli)
           if(cli) ped.ideCli = ped.codCli + ' - ' + cli.nomCli
         }
-        // if (ped.codFpg) {
-        //   const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
-        //   if(fpg) ped.fpg = fpg
-        // }
-        // if (ped.codCpg && ped.fpg) {
-        //   const cpg = ped.fpg.condicoes.find(cpgRow => cpgRow.codCpg === ped.codCpg)
-        //   if(cpg) ped.cpg = cpg
-        // }
       })
     },
 
@@ -2886,8 +2474,6 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
-      // if (pedido.fpg) this.selectFormaPagto(pedido.fpg, false)
-      // if (pedido.cpg) this.selectCondicaoPagto(pedido.cpg, false)
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
