@@ -583,7 +583,7 @@
               </div>
               <div class="row my-2">
                 <div class="col">
-                  <button id="btnProcessarPagto" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar Pagamento</button>
+                  <button id="btnProcessarPagto" :disabled="!formaSelecionada || !condicaoSelecionada" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar Pagamento</button>
                 </div>
               </div>
             </div>
@@ -2104,6 +2104,7 @@ export default {
       if (this.fecharVenda) {
         this.valorPendente = this.vlrFinalNbr
         this.confirmaVendaTitle = 'Processar pagamento'
+        this.resetPagamento()
         document.getElementById('btnOpenFinalizarVendaModal').click()
       }
       else {
@@ -2120,6 +2121,7 @@ export default {
         this.calcValorPagto()
       } else {
         this.condicaoSelecionada = null
+        this.vlrPago = ''
       }
     },
 
@@ -2172,9 +2174,16 @@ export default {
             valorDesconto: this.valorDescontoParcial,
             valorTotalPago: (this.valorPagoNumber() + this.valorDescontoParcial)
           })
+          this.resetPagamento()
           this.updateValorPendente()
         }
       }
+    },
+
+    resetPagamento() {
+      this.formaSelecionada = null
+      this.condicaoSelecionada = null
+      this.vlrPago = ''
     },
 
     updateValorPendente() {
