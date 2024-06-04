@@ -2101,6 +2101,7 @@ export default {
     },
 
     openFinalizarVendaModal() {
+      this.pagamentos = []
       if (this.fecharVenda) {
         this.valorPendente = this.vlrFinalNbr
         this.confirmaVendaTitle = 'Processar pagamento'
@@ -2239,6 +2240,14 @@ export default {
       return true
     },
 
+    calcularVlrDar() {
+      let vlrDarParc = Number(((this.getVlrCarrinho()) - this.vlrFinalNbr))
+      this.pagamentos.forEach(pagto => {
+        if(pagto.valorDesconto > 0) vlrDarParc += pagto.valorDesconto
+      })
+      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').trim()
+    },
+
     async enviarVenda(limpar) {
       const itens = []
       this.itensCarrinho.forEach(item => {
@@ -2261,6 +2270,7 @@ export default {
 
     async enviarPedido(itens, limpar) {
       let pedido = null
+      const vlrDar = this.calcularVlrDar()
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
@@ -2273,12 +2283,10 @@ export default {
           catTef: this.cartao.catTef,
           nsuTef: this.cartao.nsuTef,
           tipInt: this.formaSelected.tipInt,
-          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim()
+          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
+          vlrDar: vlrDar
         }
       } else {
-        const vlrDar = shared.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)))
-                    .replace('R$', '').replace('.','').replace(',','.').trim()
-
         pedido = {
           codCli: this.codCli,
           codCpg: this.codCpg,
