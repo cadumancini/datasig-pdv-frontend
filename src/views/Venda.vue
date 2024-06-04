@@ -497,16 +497,24 @@
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Confirma venda</h5>
+          <h5 class="modal-title">{{ confirmaVendaTitle }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"></button>
         </div>
         <div class="modal-body">
-          <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda">
-            <div class="row mt-2">
-              <span>Pagamento:</span>
+          <div class="row mx-2" v-if="fecharVenda">
+            <span>Pagamento:</span>
+            <div class="row my-2">
+              <span>Valor Pendente: {{ toMoneyString(valorPendente) }}</span>
+            </div>
+            <div class="row my-2" v-if="pagamentos.length">
               <div class="row my-2">
-                <span>Valor a pagar: {{ toMoneyString(valorPendente) }}</span>
+                <span>Pagamentos Registrados:</span>
               </div>
+              <div class="row my-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
+                <span>{{ (pagto.tabIndex + 1) }} - {{ pagto.forma.desFpg }} - {{ pagto.condicao.desCpg }} - Pago: {{ toMoneyString(pagto.valorPago) }} - Desconto: {{ toMoneyString(pagto.valorDesconto) }}<button class="btn btn-secondary btn-sm" @click="removerPagto(pagto)">Excl</button></span>
+              </div>
+            </div>
+            <div v-if="valorPendente > 0">
               <div class="row my-2">
                 <div class="col-6">
                   <div class="input-group input-group-sm">
@@ -549,7 +557,7 @@
                   </div>
                 </div>
               </div>
-              <div class="row my-2" v-if="pagamentoCartao()">
+              <div class="row my-2" v-if="isPagamentoCartao()">
                 <span>Informações da Transação (cartão)</span>  
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
@@ -828,6 +836,7 @@ export default {
       formasPagto: [],
 
       //venda
+      confirmaVendaTitle: '',
       finalizandoVenda: false,
       paramsPDV: { codTpr: '', dscTot: '' },
       vlrTot: 'R$ 0,00',
@@ -999,8 +1008,8 @@ export default {
       this.limparDesconto(false)
     },
     clearInputsCadCli() {
-      document.getElementById('selectTipCli').selectedIndex = "0";
-      document.getElementById('selectSigUfs').selectedIndex = "0";
+      document.getElementById('selectTipCli').selectedIndex = "0"
+      document.getElementById('selectSigUfs').selectedIndex = "0"
       this.cadCliCodCli = ''
       this.cadCliTipCli = ''
       this.cadCliCgcCpf = ''
@@ -1016,7 +1025,8 @@ export default {
       this.cadCliEmaCli = ''
     },
     clearInputsCartao() {
-      document.getElementById('selectBanOpe').selectedIndex = "0";
+      const selecBanOpe = document.getElementById('selectBanOpe')
+      if (selecBanOpe) selecBanOpe.selectedIndex = "0"
       this.cartao.banOpe = ''
       this.cartao.catTef = ''
       this.cartao.nsuTef = ''
@@ -1029,45 +1039,45 @@ export default {
       let self = this
       window.addEventListener('keyup', function(ev) {
           self.handleOption(ev)
-      });
+      })
       window.addEventListener('keydown', function(ev) {
           self.handleNavigation(ev)
-      });
+      })
 
       const inputIdeRep = document.getElementById('inputIdeRep')
       inputIdeRep.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginRepresentante()
-      });
+      })
 
       const inputIdeCli = document.getElementById('inputIdeCli')
       inputIdeCli.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginCliente()
-      });
+      })
 
       const inputProdutos = document.getElementById('inputProduto')
       inputProdutos.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginProduto()
-      });
+      })
 
       const inputIdeTpr = document.getElementById('inputIdeTpr')
       inputIdeTpr.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginTabelasPreco()
-      });
+      })
 
       const inputPedPrv = document.getElementById('inputPedPrv')
       inputPedPrv.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginPedido()
-      });
+      })
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
         this.triggerFinalizandoVenda(false, this.fecharVenda)
-      });
+      })
     },
 
     async handleOption(event) {
@@ -2091,14 +2101,16 @@ export default {
     },
 
     openFinalizarVendaModal() {
-      this.msgConfirmacao = this.fecharVenda ? 'Tem certeza que deseja finalizar a venda?' 
-                                             : !this.pedidoSelected ? 'Tem certeza que deseja inserir o pedido?' 
-                                                                  : 'Tem certeza que deseja atualizar o pedido?'
       if (this.fecharVenda) {
-        document.getElementById('btnOpenFinalizarVendaModal').click()
         this.valorPendente = this.vlrFinalNbr
+        this.confirmaVendaTitle = 'Processar pagamento'
+        document.getElementById('btnOpenFinalizarVendaModal').click()
       }
-      else document.getElementById('btnOpenInserirPedidoModal').click()
+      else {
+        this.confirmaVendaTitle = 'Confirmar orçamento'
+        this.msgConfirmacao = 'Tem certeza que deseja inserir o pedido de orçamento?'
+        document.getElementById('btnOpenInserirPedidoModal').click()
+      }
     },
 
     attemptToFillCondicaoPagto() {
@@ -2146,13 +2158,13 @@ export default {
       }
     },
 
-    pagamentoCartao() {
+    isPagamentoCartao() {
       return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && this.formaSelecionada.tipFpg !== '30'
     },
 
     processarPagto() {
       if (!this.valorExcede()) {
-        if(!this.pagamentoCartao() || this.confirmarDadosCartao()) {
+        if(!this.isPagamentoCartao() || this.confirmarDadosCartao()) {
           this.pagamentos.push({
             forma: this.formaSelecionada,
             condicao: this.condicaoSelecionada,
@@ -2160,9 +2172,28 @@ export default {
             valorDesconto: this.valorDescontoParcial,
             valorTotalPago: (this.valorPagoNumber() + this.valorDescontoParcial)
           })
-          this.valorPendente = this.valorPendente - (this.valorPagoNumber() + this.valorDescontoParcial)
+          this.updateValorPendente()
         }
       }
+    },
+
+    updateValorPendente() {
+      this.populateTabIndex(this.pagamentos)
+      this.calcularValorPendente()
+    },
+
+    removerPagto(pagto) {
+      this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)
+      this.updateValorPendente()
+    },
+
+    calcularValorPendente() {
+      this.valorPendente = this.vlrFinalNbr
+      this.pagamentos.forEach(pagto => {
+        this.valorPendente -= pagto.valorTotalPago
+      })
+      this.valorPendente = Number(shared.toMoneyString(this.valorPendente)
+                    .replace('R$', '').replace('.','').replace(',','.').trim())
     },
 
     valorExcede() {
