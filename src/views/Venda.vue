@@ -542,7 +542,7 @@
                     <input class="form-control" disabled :value="prcDescontoForma + ' %'">
                   </div>  
                 </div>
-                <div class="col-6" v-if="formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO'">
+                <div class="col-6" v-if="formaSelecionada !== null && formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO'">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Troco</span>
                     <input class="form-control" disabled v-model="vlrTroco">
@@ -2173,7 +2173,8 @@ export default {
             condicao: this.condicaoSelecionada,
             valorPago: this.valorPagoNumber(),
             valorDesconto: this.valorDescontoParcial,
-            valorTotalPago: (this.valorPagoNumber() + this.valorDescontoParcial)
+            valorTotalPago: Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
+                    .replace('R$', '').replace('.','').replace(',','.').trim())
           })
           this.resetPagamento()
           this.updateValorPendente()
@@ -2207,7 +2208,9 @@ export default {
     },
 
     valorExcede() {
-      if ((this.valorPagoNumber() + this.valorDescontoParcial) > this.valorPendente) {
+      const valorPagoTotal = Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
+                    .replace('R$', '').replace('.','').replace(',','.').trim())
+      if (valorPagoTotal > this.valorPendente) {
         alert('O valor pago não deve exceder o valor pendente!')
         return true
       }
@@ -2248,6 +2251,10 @@ export default {
       return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').trim()
     },
 
+    definirCodCpg() {
+      return this.formasPagto.find(forma => forma.condicoes.length > 0).condicoes[0].codCpg
+    },
+
     async enviarVenda(limpar) {
       const itens = []
       this.itensCarrinho.forEach(item => {
@@ -2275,40 +2282,24 @@ export default {
         pedido = {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
-          qtdPar: this.condicaoSelected.qtdParCpg,
-          tipPar: this.condicaoSelected.tipPar,
-          parcelas: this.condicaoSelected.parcelas,
-          codOpe: this.formaSelected.codOpe,
-          banOpe: this.cartao.banOpe,
-          catTef: this.cartao.catTef,
-          nsuTef: this.cartao.nsuTef,
-          tipInt: this.formaSelected.tipInt,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
-          vlrDar: vlrDar
+          vlrDar: vlrDar,
+          pagamentos: this.pagamentos
         }
       } else {
         pedido = {
+          numPed: !this.pedidoSelected ? '0' : this.pedPrv,
           codCli: this.codCli,
-          codCpg: this.codCpg,
-          codFpg: this.codFpg,
-          desFpg: this.formaSelected.desFpg,
-          tipFpg: this.formaSelected.tipFpg,
-          tipInt: this.formaSelected.tipInt,
-          codOpe: this.formaSelected.codOpe,
-          banOpe: this.cartao.banOpe,
-          catTef: this.cartao.catTef,
-          nsuTef: this.cartao.nsuTef,
           codRep: this.codRep,
+          codCpg: this.definirCodCpg(),
           itens: itens,
           fechar: this.fecharVenda,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
-          qtdPar: this.condicaoSelected.qtdParCpg,
-          tipPar: this.condicaoSelected.tipPar,
-          parcelas: this.condicaoSelected.parcelas,
-          numPed: !this.pedidoSelected ? '0' : this.pedPrv,
-          vlrDar: vlrDar
+          vlrDar: vlrDar,
+          pagamentos: this.pagamentos
         }
       }
+      
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.setEverythingDisabled(true)
 
