@@ -502,19 +502,35 @@
         </div>
         <div class="modal-body">
           <div class="row mx-2" v-if="fecharVenda">
-            <span>Pagamento:</span>
-            <div class="row my-2">
-              <span>Valor Pendente: {{ toMoneyString(valorPendente) }}</span>
-            </div>
-            <div class="row my-2" v-if="pagamentos.length">
-              <div class="row my-2">
-                <span>Pagamentos Registrados:</span>
+            <div class="row">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Valor Pendente</span>
+                  <input class="form-control" disabled :value="toMoneyString(valorPendente)">
+                </div>
               </div>
-              <div class="row my-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
-                <span>{{ (pagto.tabIndex + 1) }} - {{ pagto.forma.desFpg }} - {{ pagto.condicao.desCpg }} - Pago: {{ toMoneyString(pagto.valorPago) }} - Desconto: {{ toMoneyString(pagto.valorDesconto) }}<button class="btn btn-secondary btn-sm" @click="removerPagto(pagto)">Excl</button></span>
+            </div>
+            <div class="row" v-if="pagamentos.length">
+              <hr/>
+              <div class="row" v-for="pagto in pagamentos" :key="pagto.tabIndex">
+                <div class="col-12">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">{{ (pagto.tabIndex + 1) }}</span>
+                    <span class="input-group-text">{{ pagto.forma.desFpg }}</span>
+                    <span class="input-group-text">{{ pagto.condicao.desCpg }}</span>
+                    <span class="input-group-text">Pago</span>
+                    <input class="form-control" disabled :value="toMoneyString(pagto.valorPago)">
+                    <span class="input-group-text">Desconto</span>
+                    <input class="form-control" disabled :value="toMoneyString(pagto.valorDesconto)">
+                    <span>
+                      <button class="btn btn-secondary btn-excl-pagto form-control" @click="removerPagto(pagto)"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
             <div v-if="valorPendente > 0">
+              <hr/>
               <div class="row my-2">
                 <div class="col-6">
                   <div class="input-group input-group-sm">

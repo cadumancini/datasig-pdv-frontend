@@ -101,6 +101,17 @@ html, body {
   margin-top: 0.7rem !important;
   margin-bottom: 0.7rem !important;
 }
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.664);
+}
+.btn-excl-pagto {
+  height: 100%;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
 
 @media only screen and (max-height: 768px) {
   .table-wrapper {
