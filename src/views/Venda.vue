@@ -797,7 +797,7 @@ export default {
       tableIndexCli: 0,
       numPagCli: 1,
       numPagCliMax: 0,
-      ipp: 3,
+      ipp: 15,
 
       //cadastro clientes
       erroCliente: true,
