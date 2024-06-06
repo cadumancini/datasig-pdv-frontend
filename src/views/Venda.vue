@@ -2139,8 +2139,15 @@ export default {
       this.vlrPago = shared.toMoneyString(this.valorParcial).replace('R$', '').trim()
       this.vlrTroco = 'R$ 0,00'
       this.clearInputsCartao()
-      document.getElementById('inputVlrPago').focus()
-      document.getElementById('inputVlrPago').select()
+      this.focusValorPago()
+    },
+
+    focusValorPago() {
+      const inputVlrPago = document.getElementById('inputVlrPago')
+      inputVlrPago.disabled = false
+      inputVlrPago.value = this.vlrPago
+      inputVlrPago.focus()
+      inputVlrPago.select()
     },
 
     calcularTroco() {
