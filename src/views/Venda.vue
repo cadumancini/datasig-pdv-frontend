@@ -256,8 +256,8 @@
             <div class="row mb-2">
               <div class="col text-center">
                 <button class="btn btn-secondary btn-sm" @click="changePageCli(-1)" :disabled="this.numPagCli === 1"> &lt; </button>
-                <span class="mx-2">{{ this.numPagCli }} de {{ this.numPagMax }}</span>
-                <button class="btn btn-secondary btn-sm"  @click="changePageCli(1)" :disabled="this.numPagCli === this.numPagMax"> &gt; </button>
+                <span class="mx-2">{{ this.numPagCli }} de {{ this.numPagCliMax }}</span>
+                <button class="btn btn-secondary btn-sm"  @click="changePageCli(1)" :disabled="this.numPagCli === this.numPagCliMax"> &gt; </button>
               </div>
             </div>
           </div>
@@ -405,22 +405,33 @@
         <div class="modal-body">
           <div class="mb-3" v-if="produtosTabelaPreco != null">
             <input type="text" autocomplete="off" class="form-control mb-3" id="inputProdutosFiltro" v-on:keydown="navegarModalProdutos" v-on:keyup="filtrarModalProdutos" v-model="produtosFiltro" placeholder="Digite para buscar o produto abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 10%;">Derivação</th>
-                  <th class="sm-header" scope="col" style="width: 70%;">Descrição</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in produtosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true)">
-                  <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
-                </tr>
-              </tbody>
-            </table>
+            <div class="row">
+              <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                <thead>
+                  <tr>
+                    <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                    <th class="sm-header" scope="col" style="width: 10%;">Derivação</th>
+                    <th class="sm-header" scope="col" style="width: 70%;">Descrição</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template v-for="row in produtosFiltrados" :key="row.tabIndex">
+                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true)">
+                      <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <div class="row mb-2">
+              <div class="col text-center">
+                <button class="btn btn-secondary btn-sm" @click="changePagePro(-1)" :disabled="this.numPagPro === 1"> &lt; </button>
+                <span class="mx-2">{{ this.numPagPro }} de {{ this.numPagProMax }}</span>
+                <button class="btn btn-secondary btn-sm"  @click="changePagePro(1)" :disabled="this.numPagPro === this.numPagProMax"> &gt; </button>
+              </div>
+            </div>
           </div>
           <div v-else>
             <label>Buscando Produtos ...</label>
@@ -785,8 +796,8 @@ export default {
       clientesFiltrados: [],
       tableIndexCli: 0,
       numPagCli: 1,
-      numPagMax: 0,
-      ipp: 15,
+      numPagCliMax: 0,
+      ipp: 3,
 
       //cadastro clientes
       erroCliente: true,
@@ -858,6 +869,8 @@ export default {
       tabelasPrecoFiltro: '',
       tabelasPrecoFiltrados: [],
       tableIndexTpr: 0,
+      numPagPro: 1,
+      numPagProMax: 0,
       
       //formas de pagamento
       formasPagto: [],
@@ -1327,7 +1340,7 @@ export default {
 
     paginarClientes() {
       this.numPagCli = 1
-      this.numPagMax = 0
+      this.numPagCliMax = 1
       let numPag = 1
       let index = 0
       this.clientesFiltrados.forEach(cli => {
@@ -1338,13 +1351,13 @@ export default {
         if (index === this.ipp) {
           numPag++
           index = 0
-          this.numPagMax = numPag
+          this.numPagCliMax = numPag
         }
       })
     },
 
     changePageCli(value) {
-      if ((this.numPagCli + value) >= 1 && (this.numPagCli + value) <= this.numPagMax) {
+      if ((this.numPagCli + value) >= 1 && (this.numPagCli + value) <= this.numPagCliMax) {
         this.numPagCli += value
       }
     },
@@ -1748,7 +1761,31 @@ export default {
       }
 
       this.tableIndexPro = 0
-      this.populateTabIndex(this.produtosFiltrados)
+      this.paginarProdutos()
+    },
+
+    paginarProdutos() {
+      this.numPagPro = 1
+      this.numPagProMax = 1
+      let numPag = 1
+      let index = 0
+      this.produtosFiltrados.forEach(pro => {
+        pro.numPag = numPag
+        pro.tabIndex = index
+        index++
+
+        if (index === this.ipp) {
+          numPag++
+          index = 0
+          this.numPagProMax = numPag
+        }
+      })
+    },
+
+    changePagePro(value) {
+      if ((this.numPagPro + value) >= 1 && (this.numPagPro + value) <= this.numPagProMax) {
+        this.numPagPro += value
+      }
     },
 
     openProdutosModal() {
@@ -1768,13 +1805,27 @@ export default {
     },
 
     navegarModalProdutos(key) {
-      if (key.keyCode === 38) this.focusTablePro(-1)
-      else if (key.keyCode === 40) this.focusTablePro(1)
+      if (key.keyCode === 37){
+        this.changePagePro(-1)
+        key.preventDefault()
+      } 
+      else if (key.keyCode === 38) {
+        this.focusTablePro(-1)
+        key.preventDefault()
+      }
+      else if (key.keyCode === 39) {
+        this.changePagePro(1)
+        key.preventDefault()
+      }
+      else if (key.keyCode === 40) {
+        this.focusTablePro(1)
+        key.preventDefault()
+      }
       else if (key.keyCode === 13) this.proListHit()
     },
 
     filtrarModalProdutos(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+      if(key.keyCode !== 37 && key.keyCode !== 38 && key.keyCode !== 39 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarProdutos(this.produtosFiltro)
     },
 
