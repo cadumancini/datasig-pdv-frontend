@@ -12,6 +12,10 @@ var functions = {
   },
   toMoneyString(value) {
     return value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+  },
+  toMoneyThenNumber(value) {
+    return Number(this.toMoneyString(value)
+      .replace('R$', '').replace('.','').replace(',','.').trim())
   }
 }
 

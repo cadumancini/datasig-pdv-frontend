@@ -56,24 +56,6 @@
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Forma de Pagamento</span>
-              <input autocomplete="off" id="inputIdeFpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchFormasPagto" v-model="ideFpg"
-                :disabled="!this.formasPagto.length || this.codFpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.formasPagto.length}">
-              <button id="btnClearFpg" :disabled="this.codFpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginFormaPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaFormasPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#formasPagtoModal">...</button>
-            </div>
-          </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Condição de Pagamento</span>
-              <input autocomplete="off" id="inputIdeCpg" class="form-control input-sale" type="text" v-on:keyup.enter="searchCondicoesPagto" v-model="ideCpg"
-                :disabled="!this.formasPagto.length || this.codCpg !== ''" :placeholder="!this.formasPagto.length ? 'Buscando formas de pagamento ...' : ''" :class="{searching: !this.condicoesPagto.length}">
-              <button id="btnClearCpg" :disabled="this.codCpg === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCondicaoPagto"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaCondicoesPagto" class="btn-busca" data-bs-toggle="modal" data-bs-target="#condicoesPagtoModal">...</button>
-            </div>
-          </div>
         </div>
         <div class="col-7">
           <span class="fw-bold subtitle">Carrinho</span>
@@ -152,14 +134,6 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Valor com desconto</span>
                 <input class="form-control" disabled v-model="vlrComDesconto">
-              </div>  
-            </div>
-          </div>
-          <div class="row margin-y-fields" v-if="prcDescontoForma !== ''">
-            <div class="col-6">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Desconto (forma de pagamento)</span>
-                <input class="form-control" disabled :value="prcDescontoForma + ' %'">
               </div>  
             </div>
           </div>
@@ -518,102 +492,134 @@
     </div>
   </div>
 
-  <!-- Modal Condicoes Pagto -->
-  <div class="modal fade" id="condicoesPagtoModal" tabindex="-1" aria-labelledby="condicoesPagtoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="condicoesPagtoModalLabel">Condições de Pagamento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCondicoesPagto"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3" v-if="condicoesPagto != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputCondicoesPagtoFiltro" v-on:keydown="navegarModalCondicoesPagto" v-on:keyup="filtrarModalCondicoesPagto" v-model="condicoesPagtoFiltro" placeholder="Digite para buscar a condição de pagamento abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 50%;">Abreviação</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Descrição</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in condicoesPagtoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectCondicaoPagto(row, true)">
-                  <th :id="'tabCpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm" scope="row">{{ row.codCpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.abrCpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCpg}" class="fw-normal sm">{{ row.desCpg }}</th>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else>
-            <label>Buscando Condições de Pagamento ...</label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Formas Pagto -->
-  <div class="modal fade" id="formasPagtoModal" tabindex="-1" aria-labelledby="formasPagtoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="formasPagtoModalLabel">Formas de Pagamento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalFormasPagto"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3" v-if="formasPagto != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputFormasPagtoFiltro" v-on:keydown="navegarModalFormasPagto" v-on:keyup="filtrarModalFormasPagto" v-model="formasPagtoFiltro" placeholder="Digite para buscar a forma de pagamento abaixo">
-            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
-                  <th class="sm-header" scope="col" style="width: 50%;">Abreviação</th>
-                  <th class="sm-header" scope="col" style="width: 30%;">Descrição</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in formasPagtoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectFormaPagto(row, true)">
-                  <th :id="'tabFpg' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm" scope="row">{{ row.codFpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.abrFpg }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexFpg}" class="fw-normal sm">{{ row.desFpg }}</th>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else>
-            <label>Buscando Formas de Pagamento ...</label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal Gerar Pedido -->
   <div class="modal fade" id="confirmaVendaModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Confirma venda</h5>
+          <h5 class="modal-title">{{ confirmaVendaTitle }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"></button>
         </div>
         <div class="modal-body">
-          <p>{{ this.msgConfirmacao }}</p>
-          <p v-if="this.codCli === ''"><i>Aviso: nenhum cliente foi selecionado. O pedido será gerado com o cliente padrão.</i></p>
-          <div class="row mx-2 mt-4 border rounded" v-if="this.fecharVenda && ideFpg.toUpperCase() === 'DINHEIRO'">
-            <CalculoTroco :vlrPagoDin="vlrPagoDin" :vlrFinal="vlrFinal" :vlrFinalNbr="vlrFinalNbr"/>  
+          <div class="row mx-2" v-if="fecharVenda">
+            <div class="row">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Valor Pendente</span>
+                  <input class="form-control" disabled :value="toMoneyString(valorPendente)">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Valor Pago</span>
+                  <input class="form-control" disabled :value="toMoneyString(valorPago)">
+                </div>
+              </div>
+            </div>
+            <div v-if="valorPendente > 0">
+              <hr/>
+              <h5>Adicionar pagamento</h5>
+              <div class="row my-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Forma</span>
+                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto()" id="selectFpg">
+                      <option selected disabled :value="null" >Selecione ...</option>
+                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.desFpg }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Condição</span>
+                    <select class="form-select" :disabled="formaSelecionada === null" v-model="condicaoSelecionada" @change="calcValorPagto()" id="selectCpg">
+                      <option selected disabled :value="null" >Selecione ...</option>
+                      <option v-if="formaSelecionada !== null" v-for="condicao in formaSelecionada.condicoes" :key="condicao.codCpg" :value="condicao">{{ condicao.desCpg }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row my-2" v-if="prcDescontoForma !== '' || !isPagamentoDifferentThanDinheiro()">
+                <div class="col-6" v-if="prcDescontoForma !== ''">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Desconto (forma de pagamento)</span>
+                    <input class="form-control" disabled :value="prcDescontoForma + ' %'">
+                  </div>  
+                </div>
+                <div class="col-6" v-if="!isPagamentoDifferentThanDinheiro()">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Troco</span>
+                    <input class="form-control" disabled v-model="vlrTroco">
+                  </div>  
+                </div>
+              </div>
+              <div class="row my-2">
+                <div class="col-6">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Valor pago (R$)</span>
+                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago" v-on:keyup="handleInputValorPago"></vue-mask>
+                  </div>
+                </div>
+              </div>
+              <div class="row my-2" v-if="isPagamentoCartao()">
+                <span>Informações da transação (cartão)</span>  
+                <div class="row mb-2">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Bandeira</span>
+                    <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
+                      <option selected disabled value="" >Selecione</option>
+                      <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{ row.desBan }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Número da Autorização de Transação</span>
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago">  
+                  </div>
+                </div>
+                <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1'">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Número da Transação (TEF)</span>
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago">  
+                  </div>
+                </div>
+              </div>
+              <div class="row my-2">
+                <div class="col">
+                  <button id="btnProcessarPagto" :disabled="!formaSelecionada || !condicaoSelecionada" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar Pagamento</button>
+                </div>
+              </div>
+            </div>
+            <div class="row" v-if="pagamentos.length">
+              <hr/>
+              <h5>Valores adicionados</h5>
+              <div class="row mb-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
+                <div class="col-12">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text" style="width: 3%;">{{ (pagto.tabIndex + 1) }}</span>
+                    <span class="input-group-text" style="width: 29%;">{{ pagto.forma.desFpg }}</span>
+                    <span class="input-group-text" style="width: 30%;">{{ pagto.condicao.desCpg }}</span>
+                    <span class="input-group-text" style="width: 5%;">Pago</span>
+                    <input class="form-control" style="width: 11%;" disabled :value="toMoneyString(pagto.valorPago)">
+                    <span class="input-group-text" style="width: 8%;">Desconto</span>
+                    <input class="form-control" style="width: 11%;" disabled :value="toMoneyString(pagto.valorDesconto)">
+                    <span>
+                      <button class="btn btn-secondary btn-excl-pagto form-control" @click="removerPagto(pagto)"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+          <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" v-if="fecharVenda">
+          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button> <!-- TODO: mudar texto se for fechar venda -->
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+        <div class="modal-footer" v-else>
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
-          <button type="button" id="btnCartao" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cartaoModal"></button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -647,45 +653,6 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Informações Cartão -->
-  <div class="modal fade" id="cartaoModal" tabindex="-1" aria-labelledby="cartaoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="cartaoModalLabel">Informações da Transação</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalCartao"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Bandeira</span>
-              <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
-                <option selected disabled value="" >Selecione</option>
-                <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{ row.desBan }}</option>
-              </select>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Número da Autorização de Transação</span>
-              <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
-            </div>
-          </div>
-          <div class="row mb-2" v-if="this.formaSelected && this.formaSelected.tipInt === '1'">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Número da Transação (TEF)</span>
-              <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" @click="confirmarDadosCartao">Confirmar</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -793,14 +760,13 @@
 
 <script>
 import Navbar from '../components/Navbar.vue'
-import CalculoTroco from '../components/CalculoTroco.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
 import vueMask from 'vue-jquery-mask'
 
 export default {
   name: 'Venda',
-  components: { Navbar, CalculoTroco, vueMask },
+  components: { Navbar, vueMask },
   data () {
     return {
       // representantes
@@ -893,25 +859,11 @@ export default {
       tabelasPrecoFiltrados: [],
       tableIndexTpr: 0,
       
-      //condicoes de pagamento
-      ideCpg: '',
-      codCpg: '',
-      condicaoSelected: null,
-      condicoesPagto: [],
-      condicoesPagtoFiltro: '',
-      condicoesPagtoFiltrados: [],
-      tableIndexCpg: 0,
-      
       //formas de pagamento
-      ideFpg: '',
-      codFpg: '',
-      formaSelected: null,
       formasPagto: [],
-      formasPagtoFiltro: '',
-      formasPagtoFiltrados: [],
-      tableIndexFpg: 0,
 
       //venda
+      confirmaVendaTitle: '',
       finalizandoVenda: false,
       paramsPDV: { codTpr: '', dscTot: '' },
       vlrTot: 'R$ 0,00',
@@ -961,7 +913,16 @@ export default {
       vlrFinal: 'R$ 0,00',
       vlrComDesconto: '',
       prcDescontoForma: '',
+      formaSelecionada: null,
+      condicaoSelecionada: null,
       pagamentos: [],
+      valorProcessado: 0,
+      valorDescontos: 0,
+      valorDescontoParcial: 0,
+      valorParcial: 0,
+      valorPendente: 0,
+      valorPago: 0,
+      vlrTroco: 'R$ 0,00',
 
       //geral
       status: '',
@@ -980,8 +941,6 @@ export default {
         { codAta: 1, tecAta: 'R', desAta: 'Representante' },
         { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
         { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
-        { codAta: 4, tecAta: 'F', desAta: 'Forma de Pagamento' },
-        { codAta: 5, tecAta: 'O', desAta: 'Condição de Pagamento' },
         { codAta: 6, tecAta: 'P', desAta: 'Produto' },
         { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
         { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
@@ -1045,7 +1004,6 @@ export default {
       this.representantes = []
       this.tabelasPreco = []
       this.clientes = []
-      this.condicoesPagto = []
       this.formasPagto = []
       this.produtosTabelaPreco = []
       this.itensCarrinho = []
@@ -1068,14 +1026,6 @@ export default {
       this.ideTpr = ''
       this.codTpr = ''
       this.tabelasPrecoFiltro = ''
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicaoSelected = null
-      this.condicoesPagtoFiltro = ''
-      this.ideFpg = ''
-      this.codFpg = ''
-      this.formaSelected = null
-      this.formasPagtoFiltro = ''
       this.vlrTot = 'R$ 0,00'
       this.status = ''
       this.vlrFinalNbr = 0
@@ -1086,8 +1036,8 @@ export default {
       this.limparDesconto(false)
     },
     clearInputsCadCli() {
-      document.getElementById('selectTipCli').selectedIndex = "0";
-      document.getElementById('selectSigUfs').selectedIndex = "0";
+      document.getElementById('selectTipCli').selectedIndex = "0"
+      document.getElementById('selectSigUfs').selectedIndex = "0"
       this.cadCliCodCli = ''
       this.cadCliTipCli = ''
       this.cadCliCgcCpf = ''
@@ -1103,7 +1053,8 @@ export default {
       this.cadCliEmaCli = ''
     },
     clearInputsCartao() {
-      document.getElementById('selectBanOpe').selectedIndex = "0";
+      const selecBanOpe = document.getElementById('selectBanOpe')
+      if (selecBanOpe) selecBanOpe.selectedIndex = "0"
       this.cartao.banOpe = ''
       this.cartao.catTef = ''
       this.cartao.nsuTef = ''
@@ -1116,57 +1067,45 @@ export default {
       let self = this
       window.addEventListener('keyup', function(ev) {
           self.handleOption(ev)
-      });
+      })
       window.addEventListener('keydown', function(ev) {
           self.handleNavigation(ev)
-      });
+      })
 
       const inputIdeRep = document.getElementById('inputIdeRep')
       inputIdeRep.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginRepresentante()
-      });
+      })
 
       const inputIdeCli = document.getElementById('inputIdeCli')
       inputIdeCli.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginCliente()
-      });
+      })
 
       const inputProdutos = document.getElementById('inputProduto')
       inputProdutos.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginProduto()
-      });
+      })
 
       const inputIdeTpr = document.getElementById('inputIdeTpr')
       inputIdeTpr.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginTabelasPreco()
-      });
-
-      const inputIdeCpg = document.getElementById('inputIdeCpg')
-      inputIdeCpg.addEventListener('focus', (event) => {
-        this.editandoCarrinho = false
-        this.beginCondicaoPagto()
-      });
-
-      const inputIdeFpg = document.getElementById('inputIdeFpg')
-      inputIdeFpg.addEventListener('focus', (event) => {
-        this.editandoCarrinho = false
-        this.beginFormaPagto()
-      });
+      })
 
       const inputPedPrv = document.getElementById('inputPedPrv')
       inputPedPrv.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
         this.beginPedido()
-      });
+      })
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
         this.triggerFinalizandoVenda(false, this.fecharVenda)
-      });
+      })
     },
 
     async handleOption(event) {
@@ -1176,8 +1115,6 @@ export default {
           else if (event.key.toUpperCase() === 'C') this.focusCliente()
           else if (event.key.toUpperCase() === 'P') this.focusProduto()
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
-          else if (event.key.toUpperCase() === 'O') this.focusCondicaoPagto()
-          else if (event.key.toUpperCase() === 'F') this.focusFormaPagto()
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
@@ -2145,107 +2082,12 @@ export default {
       if (tpr) this.selectTabelaPreco(tpr, true)
     },
 
-    /* Condições de Pagamento */
-    async beginCondicaoPagto() {
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicoesPagtoFiltro = ''
-    },
-
-    async searchCondicoesPagto() {
-      if(!this.codFpg.length) {
-        alert('Favor informar uma forma de pagamento!')
-        document.getElementById('inputIdeFpg').focus()
-      } else {
-        this.filtrarCondicoesPagto(this.ideCpg)
-        if (this.condicoesPagtoFiltrados.length === 1) { // encontramos, selecionar
-          this.selectCondicaoPagto(this.condicoesPagtoFiltrados[0], true)
-        } else if (this.condicoesPagtoFiltrados.length === 0) {
-          alert('Nenhuma condição ligada à forma de pagamento selecionada foi encontrada. Favor entrar em contato com o administrador do sistema!')
-        } else { // nao encontramos, abrir modal
-          this.openCondicoesPagtoModal()
-        }
-      }
-    },
-
-    async selectCondicaoPagto(row, atualizar) {
-      this.ideCpg = row.desCpg
-      this.codCpg = row.codCpg
-      this.condicaoSelected = row
-      this.pagamentos = []
-      this.pagamentos.push({forma: this.formaSelected, condicao: this.condicaoSelected})
-      document.getElementById('closeModalCondicoesPagto').click()
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        const itens = []
-        this.enviarPedido(itens, false)
-      }
-    },
-
-    filtrarCondicoesPagto(filter) {
-      this.condicoesPagtoFiltrados = this.condicoesPagto.filter(cpg => (cpg.codCpg === filter ||
-                cpg.desCpg.toUpperCase().includes(filter.toUpperCase()) ||
-                cpg.abrCpg.toUpperCase().includes(filter.toUpperCase())))
-      this.tableIndexCpg = 0
-
-      this.populateTabIndex(this.condicoesPagtoFiltrados)
-    },
-
-    openCondicoesPagtoModal() {
-      this.condicoesPagtoFiltro = this.ideCpg
-      document.getElementById('btnBuscaCondicoesPagto').click()
-      const modalElement = document.getElementById('condicoesPagtoModal')
-      modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('inputCondicoesPagtoFiltro').focus()
-      })
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.focusCondicaoPagto()
-      })
-    },
-
-    focusCondicaoPagto() {
-      this.codCpg === '' ? document.getElementById('inputIdeCpg').focus() : document.getElementById('btnClearCpg').focus()
-    },
-
-    navegarModalCondicoesPagto(key) {
-      if (key.keyCode === 38) this.focusTableCpg(-1)
-      else if (key.keyCode === 40) this.focusTableCpg(1)
-      else if (key.keyCode === 13) this.cpgListHit()
-    },
-
-    filtrarModalCondicoesPagto(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarCondicoesPagto(this.condicoesPagtoFiltro)
-    },
-
-    focusTableCpg(value) {
-      this.tableIndexCpg += value
-      if (this.tableIndexCpg < 0) 
-        this.tableIndexCpg = 0
-      else if (this.tableIndexCpg >= this.condicoesPagtoFiltrados.length)
-        this.tableIndexCpg = (this.condicoesPagtoFiltrados.length - 1)
-
-      let elementToScroll
-      if (this.tableIndexCpg > 0)
-        elementToScroll = document.getElementById('tabCpg' + this.tableIndexCpg)
-      else 
-        elementToScroll = document.getElementById('inputCondicoesPagtoFiltro')
-      
-      this.scrollToElement(elementToScroll)
-    },  
-
-    cpgListHit() {
-      const cpg = this.condicoesPagtoFiltrados.find(cpgFil => cpgFil.tabIndex === this.tableIndexCpg)
-      this.selectCondicaoPagto(cpg, true)
-    },
-
     /* Formas de Pagamento */
     async initFormasPagto() {
       if (!sessionStorage.getItem('formasPagto')) {
         await api.getFormasPagto()
         .then((response) => {
           this.formasPagto = response.data
-          this.formasPagtoFiltrados = this.formasPagto
           sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
         })
         .catch((err) => {
@@ -2254,112 +2096,7 @@ export default {
         })
       } else {
         this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
-        this.formasPagtoFiltrados = this.formasPagto
       }
-    },
-
-    async beginFormaPagto() {
-      this.ideFpg = ''
-      this.codFpg = ''
-      this.formasPagtoFiltro = ''
-      this.ideCpg = ''
-      this.codCpg = ''
-      this.condicoesPagtoFiltro = ''
-      this.prcDescontoForma = ''
-      this.atualizarValorTotalCompra()
-      
-      if(!this.formasPagto.length) await this.initFormasPagto()
-    },
-
-    async searchFormasPagto() {
-      this.filtrarFormasPagto(this.ideFpg)
-      if (this.formasPagtoFiltrados.length === 1) { // encontramos, selecionar
-        this.selectFormaPagto(this.formasPagtoFiltrados[0], true)
-      } else { // nao encontramos, abrir modal
-        this.openFormasPagtoModal()
-      }
-    },
-
-    async selectFormaPagto(row, atualizar) {
-      this.ideFpg = row.desFpg
-      this.codFpg = row.codFpg
-      this.formaSelected = row
-      this.condicoesPagto = this.formaSelected.condicoes
-      this.condicoesPagtoFiltrados = this.condicoesPagto
-      if(this.condicoesPagto.length === 1) this.selectCondicaoPagto(this.condicoesPagto[0], false)
-      this.aplicarDescontoFormaPagto()
-      document.getElementById('closeModalFormasPagto').click()
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        const itens = []
-        this.enviarPedido(itens, false)
-      }
-    },
-
-    aplicarDescontoFormaPagto() {
-      if(this.formaSelected.perDsc !== '0,00') {
-        this.prcDescontoForma = this.formaSelected.perDsc
-      } else {
-        this.prcDescontoForma = ''
-      }
-      this.atualizarValorTotalCompra()
-    },
-
-    filtrarFormasPagto(filter) {
-      this.formasPagtoFiltrados = this.formasPagto.filter(fpg => (fpg.codFpg === filter ||
-                fpg.desFpg.toUpperCase().includes(filter.toUpperCase()) ||
-                fpg.abrFpg.toUpperCase().includes(filter.toUpperCase())))
-      this.tableIndexFpg = 0
-
-      this.populateTabIndex(this.formasPagtoFiltrados)
-    },
-
-    openFormasPagtoModal() {
-      this.formasPagtoFiltro = this.ideFpg
-      document.getElementById('btnBuscaFormasPagto').click()
-      const modalElement = document.getElementById('formasPagtoModal')
-      modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('inputFormasPagtoFiltro').focus()
-      })
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.focusFormaPagto()
-      })
-    },
-
-    focusFormaPagto() {
-      this.codFpg === '' ? document.getElementById('inputIdeFpg').focus() : document.getElementById('btnClearFpg').focus()
-    },
-
-    navegarModalFormasPagto(key) {
-      if (key.keyCode === 38) this.focusTableFpg(-1)
-      else if (key.keyCode === 40) this.focusTableFpg(1)
-      else if (key.keyCode === 13) this.fpgListHit()
-    },
-
-    filtrarModalFormasPagto(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarFormasPagto(this.formasPagtoFiltro)
-    },
-
-    focusTableFpg(value) {
-      this.tableIndexFpg += value
-      if (this.tableIndexFpg < 0) 
-        this.tableIndexFpg = 0
-      else if (this.tableIndexFpg >= this.formasPagtoFiltrados.length)
-        this.tableIndexFpg = (this.formasPagtoFiltrados.length - 1)
-
-      let elementToScroll
-      if (this.tableIndexFpg > 0)
-        elementToScroll = document.getElementById('tabFpg' + this.tableIndexFpg)
-      else 
-        elementToScroll = document.getElementById('inputFormasPagtoFiltro')
-      
-      this.scrollToElement(elementToScroll)
-    },  
-
-    fpgListHit() {
-      const fpg = this.formasPagtoFiltrados.find(fpgFil => fpgFil.tabIndex === this.tableIndexFpg)
-      this.selectFormaPagto(fpg, true)
     },
 
     /* Finalizar Venda */
@@ -2392,42 +2129,193 @@ export default {
     },
 
     openFinalizarVendaModal() {
-      this.msgConfirmacao = this.fecharVenda ? 'Tem certeza que deseja finalizar a venda?' 
-                                             : !this.pedidoSelected ? 'Tem certeza que deseja inserir o pedido?' 
-                                                                  : 'Tem certeza que deseja atualizar o pedido?'
+      this.pagamentos = []
       if (this.fecharVenda) {
-        if (this.fecharVenda && this.ideFpg.toUpperCase() === 'DINHEIRO') this.prepararTroco()
+        this.valorPendente = this.vlrFinalNbr
+        this.valorPago = 0
+        this.confirmaVendaTitle = 'Processar pagamento'
         document.getElementById('btnOpenFinalizarVendaModal').click()
+        this.resetPagamento()
       }
-      else document.getElementById('btnOpenInserirPedidoModal').click()
+      else {
+        this.confirmaVendaTitle = 'Confirmar orçamento'
+        this.msgConfirmacao = 'Tem certeza que deseja inserir o pedido de orçamento?'
+        document.getElementById('btnOpenInserirPedidoModal').click()
+      }
     },
 
-    prepararTroco() {
-      this.vlrPagoDin = this.vlrFinal.replace('R$', '').trim()
+    attemptToFillCondicaoPagto() {
+      this.aplicarDescontoFormaPagto() 
+      if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length === 1) {
+        this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
+        this.calcValorPagto()
+      } else {
+        this.condicaoSelecionada = null
+        this.vlrPago = ''
+      }
+    },
+
+    calcValorPagto() { 
+      this.valorParcial = this.valorPendente
+      if (this.prcDescontoForma !== '') {
+        this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100)
+        this.valorDescontoParcial = shared.toMoneyThenNumber(this.valorDescontoParcial)
+        this.valorParcial = this.valorParcial - this.valorDescontoParcial
+      } else {
+        this.valorDescontoParcial = 0
+      }
+      this.vlrPago = shared.toMoneyString(this.valorParcial).replace('R$', '').trim()
+      this.vlrTroco = 'R$ 0,00'
+      this.clearInputsCartao()
+      this.focusValorPago()
+    },
+
+    focusValorPago() {
+      const inputVlrPago = document.getElementById('inputVlrPago')
+      inputVlrPago.disabled = false
+      inputVlrPago.value = this.vlrPago
+      inputVlrPago.focus()
+      inputVlrPago.select()
+    },
+
+    handleInputValorPago (event) {
+      console.log(event)
+      if (event.key === 'Enter') {
+        this.processarPagto()
+      } else if(!this.isPagamentoDifferentThanDinheiro()) {
+        console.log('aaaa')
+        this.calcularTroco()
+      }
+    },
+
+    calcularTroco() {
+      try {
+        const vlrPago = document.getElementById('inputVlrPago').value
+        const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
+        const troco = (vlrPagoNbr - this.valorParcial)
+        if (troco <= 0) this.vlrTroco = 'R$ 0,00' 
+        else this.vlrTroco = shared.toMoneyString(troco)
+      } catch (ex) {
+        this.vlrTroco = 'R$ 0,00'  
+      }
+    },
+
+    aplicarDescontoFormaPagto() {
+      if(this.formaSelecionada.perDsc !== '0,00') {
+        this.prcDescontoForma = this.formaSelecionada.perDsc
+      } else {
+        this.prcDescontoForma = ''
+      }
+    },
+
+    isPagamentoCartao() {
+      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && this.formaSelecionada.tipFpg !== '30'
+    },
+
+    isPagamentoDifferentThanDinheiro() {
+      return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO'
+    },
+
+    processarPagto() {
+      if (!this.valorExcede()) {
+        if(!this.isPagamentoCartao() || this.confirmarDadosCartao()) {
+          this.pagamentos.push({
+            forma: this.formaSelecionada,
+            condicao: this.condicaoSelecionada,
+            valorPago: this.valorPagoNumber(),
+            valorDesconto: this.valorDescontoParcial,
+            valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial),
+            banOpe: this.cartao.banOpe,
+            catTef: this.cartao.catTef,
+            nsuTef: this.cartao.nsuTef,
+          })
+          this.resetPagamento()
+          this.updateValorPendente()
+          document.getElementById('selectFpg').focus()
+        }
+      }
+    },
+
+    resetPagamento() {
+      this.formaSelecionada = null
+      this.condicaoSelecionada = null
+      this.vlrPago = ''
+      this.prcDescontoForma = ''
+    },
+
+    updateValorPendente() {
+      this.populateTabIndex(this.pagamentos)
+      this.calcularValorPendente()
+    },
+
+    removerPagto(pagto) {
+      this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)
+      this.updateValorPendente()
+      document.getElementById('selectFpg').focus()
+    },
+
+    calcularValorPendente() {
+      this.valorPendente = this.vlrFinalNbr
+      this.valorPago = 0
+      this.pagamentos.forEach(pagto => {
+        this.valorPendente -= pagto.valorTotalPago
+        this.valorPago += pagto.valorTotalPago
+        this.valorPendente = shared.toMoneyThenNumber(this.valorPendente)
+        this.valorPago = shared.toMoneyThenNumber(this.valorPago)
+      })
+      this.valorPendente = shared.toMoneyThenNumber(this.valorPendente)
+      this.valorPago = shared.toMoneyThenNumber(this.valorPago)
+    },
+
+    valorExcede() {
+      if(this.isPagamentoDifferentThanDinheiro()) {
+        const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial)
+        if (valorPagoTotal > this.valorPendente) {
+          alert('O valor pago não deve exceder o valor pendente!')
+          return true
+        }
+      }
+      return false
+    },
+
+    valorPagoNumber() {
+      const vlrPago = document.getElementById('inputVlrPago').value
+      const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
+      if (!this.isPagamentoDifferentThanDinheiro() && vlrPagoNbr > this.valorPendente) return this.valorPendente
+      return vlrPagoNbr
     },
 
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
-      if (['1','2'].includes(this.formaSelected.tipInt) && this.fecharVenda && this.formaSelected.tipFpg !== '30') {
-        this.clearInputsCartao()
-        document.getElementById('btnCartao').click()
-        const modalElement = document.getElementById('cartaoModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('selectBanOpe').focus()
-        })
-      } else {
         await this.enviarVenda(true)
-      }
     },  
 
-    async confirmarDadosCartao() {
-      if (this.cartao.banOpe === '') alert('Selecione a bandeira do cartão!')
-      else if (this.cartao.catTef === '') alert('Preencha o número da autorização!') 
-      else if (this.cartao.nsuTef === '' && this.formaSelected.tipInt === '1') alert('Preencha o número da transação (TEF)!') 
-      else {
-        document.getElementById('closeModalCartao').click()
-        await this.enviarVenda(true)
+    confirmarDadosCartao() {
+      if (this.cartao.banOpe === '') {
+        alert('Selecione a bandeira do cartão!')
+        return false
       }
+      else if (this.cartao.catTef === '') {
+        alert('Preencha o número da autorização!') 
+        return false
+      }
+      else if (this.cartao.nsuTef === '' && this.formaSelecionada.tipInt === '1') {
+        alert('Preencha o número da transação (TEF)!') 
+        return false
+      }
+      return true
+    },
+
+    calcularVlrDar() {
+      let vlrDarParc = Number(((this.getVlrCarrinho()) - this.vlrFinalNbr))
+      this.pagamentos.forEach(pagto => {
+        if(pagto.valorDesconto > 0) vlrDarParc += pagto.valorDesconto
+      })
+      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').trim()
+    },
+
+    definirCodCpg() {
+      return this.formasPagto.find(forma => forma.condicoes.length > 0).condicoes[0].codCpg
     },
 
     async enviarVenda(limpar) {
@@ -2452,46 +2340,29 @@ export default {
 
     async enviarPedido(itens, limpar) {
       let pedido = null
+      const vlrDar = this.calcularVlrDar()
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
-          qtdPar: this.condicaoSelected.qtdParCpg,
-          tipPar: this.condicaoSelected.tipPar,
-          parcelas: this.condicaoSelected.parcelas,
-          codOpe: this.formaSelected.codOpe,
-          banOpe: this.cartao.banOpe,
-          catTef: this.cartao.catTef,
-          nsuTef: this.cartao.nsuTef,
-          tipInt: this.formaSelected.tipInt,
-          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim()
+          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
+          vlrDar: vlrDar,
+          pagamentos: this.pagamentos
         }
       } else {
-        const vlrDar = shared.toMoneyString(Number(((this.getVlrCarrinho()) - this.vlrFinalNbr)))
-                    .replace('R$', '').replace('.','').replace(',','.').trim()
-
         pedido = {
+          numPed: !this.pedidoSelected ? '0' : this.pedPrv,
           codCli: this.codCli,
-          codCpg: this.codCpg,
-          codFpg: this.codFpg,
-          desFpg: this.formaSelected.desFpg,
-          tipFpg: this.formaSelected.tipFpg,
-          tipInt: this.formaSelected.tipInt,
-          codOpe: this.formaSelected.codOpe,
-          banOpe: this.cartao.banOpe,
-          catTef: this.cartao.catTef,
-          nsuTef: this.cartao.nsuTef,
           codRep: this.codRep,
+          codCpg: this.definirCodCpg(),
           itens: itens,
           fechar: this.fecharVenda,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
-          qtdPar: this.condicaoSelected.qtdParCpg,
-          tipPar: this.condicaoSelected.tipPar,
-          parcelas: this.condicaoSelected.parcelas,
-          numPed: !this.pedidoSelected ? '0' : this.pedPrv,
-          vlrDar: vlrDar
+          vlrDar: vlrDar,
+          pagamentos: this.pagamentos
         }
       }
+      
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.setEverythingDisabled(true)
 
@@ -2560,12 +2431,6 @@ export default {
       } else if (this.isTabelaPrecoEmpty()) {
         alert('Favor informar uma tabela de preço!')
         return false
-      } else if (this.isCondicaoPagtoEmpty()) {
-        alert('Favor informar uma condição de pagamento!')
-        return false
-      } else if (this.isFormaPagtoEmpty()) {
-        alert('Favor informar uma forma de pagamento!')
-        return false
       } else if (this.isCarrinhoEmpty()) {
         alert('Favor adicionar ao menos um item ao carrinho!')
         return false
@@ -2579,14 +2444,6 @@ export default {
 
     isTabelaPrecoEmpty() {
       return this.codTpr === ''
-    },
-
-    isCondicaoPagtoEmpty() {
-      return this.codCpg === ''
-    },
-
-    isFormaPagtoEmpty() {
-      return this.codFpg === ''
     },
 
     isCarrinhoEmpty() {
@@ -2615,12 +2472,6 @@ export default {
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
           this.vlrFinal = this.vlrComDesconto
         }
-      }
-      if (this.prcDescontoForma !== '') {
-        this.vlrFinalNbr = this.vlrFinalNbr - (this.vlrFinalNbr * (Number(this.prcDescontoForma.replace(',', '.')) / 100))
-        this.vlrFinal = shared.toMoneyString(this.vlrFinalNbr)
-        this.vlrFinalNbr = Number(shared.toMoneyString(this.vlrFinal)
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
       }
 
       if (this.pedidoSelected && atualizar) {
@@ -2682,14 +2533,6 @@ export default {
           const cli = this.clientes.find(cliRow => cliRow.codCli === ped.codCli)
           if(cli) ped.ideCli = ped.codCli + ' - ' + cli.nomCli
         }
-        if (ped.codFpg) {
-          const fpg = this.formasPagto.find(fpgRow => fpgRow.codFpg === ped.codFpg)
-          if(fpg) ped.fpg = fpg
-        }
-        if (ped.codCpg && ped.fpg) {
-          const cpg = ped.fpg.condicoes.find(cpgRow => cpgRow.codCpg === ped.codCpg)
-          if(cpg) ped.cpg = cpg
-        }
       })
     },
 
@@ -2733,8 +2576,6 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
-      if (pedido.fpg) this.selectFormaPagto(pedido.fpg, false)
-      if (pedido.cpg) this.selectCondicaoPagto(pedido.cpg, false)
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
