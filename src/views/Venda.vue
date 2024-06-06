@@ -2145,7 +2145,9 @@ export default {
 
     calcularTroco() {
       try {
-        const troco = (this.valorPagoNumber() - this.valorParcial)
+        const vlrPago = document.getElementById('inputVlrPago').value
+        const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
+        const troco = (vlrPagoNbr - this.valorParcial)
         if (troco <= 0) this.vlrTroco = 'R$ 0,00' 
         else this.vlrTroco = shared.toMoneyString(troco)
       } catch (ex) {
@@ -2211,18 +2213,22 @@ export default {
     },
 
     valorExcede() {
-      const valorPagoTotal = Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
-      if (valorPagoTotal > this.valorPendente) {
-        alert('O valor pago não deve exceder o valor pendente!')
-        return true
+      if(this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO') {
+        const valorPagoTotal = Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
+                      .replace('R$', '').replace('.','').replace(',','.').trim())
+        if (valorPagoTotal > this.valorPendente) {
+          alert('O valor pago não deve exceder o valor pendente!')
+          return true
+        }
       }
       return false
     },
 
     valorPagoNumber() {
       const vlrPago = document.getElementById('inputVlrPago').value
-      return Number(vlrPago.replace('.', '').replace(',', '.'))
+      const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
+      if (this.formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO' && vlrPagoNbr > this.valorPendente) return this.valorPendente
+      return vlrPagoNbr
     },
 
     async finalizarVenda() {
