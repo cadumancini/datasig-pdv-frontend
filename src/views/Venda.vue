@@ -539,14 +539,14 @@
                   </div>
                 </div>
               </div>
-              <div class="row my-2" v-if="prcDescontoForma !== '' || (formaSelecionada !== null && formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO')">
+              <div class="row my-2" v-if="prcDescontoForma !== '' || !isPagamentoDifferentThanDinheiro()">
                 <div class="col-6" v-if="prcDescontoForma !== ''">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Desconto (forma de pagamento)</span>
                     <input class="form-control" disabled :value="prcDescontoForma + ' %'">
                   </div>  
                 </div>
-                <div class="col-6" v-if="formaSelecionada !== null && formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO'">
+                <div class="col-6" v-if="!isPagamentoDifferentThanDinheiro()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Troco</span>
                     <input class="form-control" disabled v-model="vlrTroco">
@@ -557,7 +557,7 @@
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Valor pago (R$)</span>
-                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago" v-on:keyup="calcularTroco"></vue-mask>
+                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago" v-on:keyup="handleInputValorPago"></vue-mask>
                   </div>
                 </div>
               </div>
@@ -575,13 +575,13 @@
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Autorização de Transação</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago">  
                   </div>
                 </div>
                 <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1'">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago">  
                   </div>
                 </div>
               </div>
@@ -2134,8 +2134,8 @@ export default {
         this.valorPendente = this.vlrFinalNbr
         this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
-        this.resetPagamento()
         document.getElementById('btnOpenFinalizarVendaModal').click()
+        this.resetPagamento()
       }
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
@@ -2178,6 +2178,16 @@ export default {
       inputVlrPago.select()
     },
 
+    handleInputValorPago (event) {
+      console.log(event)
+      if (event.key === 'Enter') {
+        this.processarPagto()
+      } else if(!this.isPagamentoDifferentThanDinheiro()) {
+        console.log('aaaa')
+        this.calcularTroco()
+      }
+    },
+
     calcularTroco() {
       try {
         const vlrPago = document.getElementById('inputVlrPago').value
@@ -2202,6 +2212,10 @@ export default {
       return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && this.formaSelecionada.tipFpg !== '30'
     },
 
+    isPagamentoDifferentThanDinheiro() {
+      return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO'
+    },
+
     processarPagto() {
       if (!this.valorExcede()) {
         if(!this.isPagamentoCartao() || this.confirmarDadosCartao()) {
@@ -2217,6 +2231,7 @@ export default {
           })
           this.resetPagamento()
           this.updateValorPendente()
+          document.getElementById('selectFpg').focus()
         }
       }
     },
@@ -2236,6 +2251,7 @@ export default {
     removerPagto(pagto) {
       this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)
       this.updateValorPendente()
+      document.getElementById('selectFpg').focus()
     },
 
     calcularValorPendente() {
@@ -2252,7 +2268,7 @@ export default {
     },
 
     valorExcede() {
-      if(this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO') {
+      if(this.isPagamentoDifferentThanDinheiro()) {
         const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial)
         if (valorPagoTotal > this.valorPendente) {
           alert('O valor pago não deve exceder o valor pendente!')
@@ -2265,7 +2281,7 @@ export default {
     valorPagoNumber() {
       const vlrPago = document.getElementById('inputVlrPago').value
       const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
-      if (this.formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO' && vlrPagoNbr > this.valorPendente) return this.valorPendente
+      if (!this.isPagamentoDifferentThanDinheiro() && vlrPagoNbr > this.valorPendente) return this.valorPendente
       return vlrPagoNbr
     },
 
