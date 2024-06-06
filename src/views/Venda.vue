@@ -509,28 +509,16 @@
                   <input class="form-control" disabled :value="toMoneyString(valorPendente)">
                 </div>
               </div>
-            </div>
-            <div class="row" v-if="pagamentos.length">
-              <hr/>
-              <div class="row" v-for="pagto in pagamentos" :key="pagto.tabIndex">
-                <div class="col-12">
-                  <div class="input-group input-group-sm">
-                    <span class="input-group-text">{{ (pagto.tabIndex + 1) }}</span>
-                    <span class="input-group-text">{{ pagto.forma.desFpg }}</span>
-                    <span class="input-group-text">{{ pagto.condicao.desCpg }}</span>
-                    <span class="input-group-text">Pago</span>
-                    <input class="form-control" disabled :value="toMoneyString(pagto.valorPago)">
-                    <span class="input-group-text">Desconto</span>
-                    <input class="form-control" disabled :value="toMoneyString(pagto.valorDesconto)">
-                    <span>
-                      <button class="btn btn-secondary btn-excl-pagto form-control" @click="removerPagto(pagto)"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button>
-                    </span>
-                  </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Valor Pago</span>
+                  <input class="form-control" disabled :value="toMoneyString(valorPago)">
                 </div>
               </div>
             </div>
             <div v-if="valorPendente > 0">
               <hr/>
+              <h5>Adicionar pagamento</h5>
               <div class="row my-2">
                 <div class="col-6">
                   <div class="input-group input-group-sm">
@@ -574,7 +562,7 @@
                 </div>
               </div>
               <div class="row my-2" v-if="isPagamentoCartao()">
-                <span>Informações da Transação (cartão)</span>  
+                <span>Informações da transação (cartão)</span>  
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Bandeira</span>
@@ -603,12 +591,35 @@
                 </div>
               </div>
             </div>
+            <div class="row" v-if="pagamentos.length">
+              <hr/>
+              <h5>Valores adicionados</h5>
+              <div class="row mb-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
+                <div class="col-12">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text" style="width: 3%;">{{ (pagto.tabIndex + 1) }}</span>
+                    <span class="input-group-text" style="width: 29%;">{{ pagto.forma.desFpg }}</span>
+                    <span class="input-group-text" style="width: 30%;">{{ pagto.condicao.desCpg }}</span>
+                    <span class="input-group-text" style="width: 5%;">Pago</span>
+                    <input class="form-control" style="width: 11%;" disabled :value="toMoneyString(pagto.valorPago)">
+                    <span class="input-group-text" style="width: 8%;">Desconto</span>
+                    <input class="form-control" style="width: 11%;" disabled :value="toMoneyString(pagto.valorDesconto)">
+                    <span>
+                      <button class="btn btn-secondary btn-excl-pagto form-control" @click="removerPagto(pagto)"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button> <!-- TODO: mudar texto se for fechar venda -->
-          <button type="button" id="btnCartao" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cartaoModal"></button>
+        <div class="modal-footer" v-if="fecharVenda">
+          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button> <!-- TODO: mudar texto se for fechar venda -->
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+        <div class="modal-footer" v-else>
+          <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -910,6 +921,7 @@ export default {
       valorDescontoParcial: 0,
       valorParcial: 0,
       valorPendente: 0,
+      valorPago: 0,
       vlrTroco: 'R$ 0,00',
 
       //geral
@@ -2120,6 +2132,7 @@ export default {
       this.pagamentos = []
       if (this.fecharVenda) {
         this.valorPendente = this.vlrFinalNbr
+        this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
         this.resetPagamento()
         document.getElementById('btnOpenFinalizarVendaModal').click()
@@ -2212,6 +2225,7 @@ export default {
       this.formaSelecionada = null
       this.condicaoSelecionada = null
       this.vlrPago = ''
+      this.prcDescontoForma = ''
     },
 
     updateValorPendente() {
@@ -2226,11 +2240,15 @@ export default {
 
     calcularValorPendente() {
       this.valorPendente = this.vlrFinalNbr
+      this.valorPago = 0
       this.pagamentos.forEach(pagto => {
         this.valorPendente -= pagto.valorTotalPago
+        this.valorPago += pagto.valorTotalPago
         this.valorPendente = shared.toMoneyThenNumber(this.valorPendente)
+        this.valorPago = shared.toMoneyThenNumber(this.valorPago)
       })
       this.valorPendente = shared.toMoneyThenNumber(this.valorPendente)
+      this.valorPago = shared.toMoneyThenNumber(this.valorPago)
     },
 
     valorExcede() {
