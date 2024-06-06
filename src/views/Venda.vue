@@ -2251,7 +2251,6 @@ export default {
     removerPagto(pagto) {
       this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)
       this.updateValorPendente()
-      document.getElementById('selectFpg').focus()
     },
 
     calcularValorPendente() {
