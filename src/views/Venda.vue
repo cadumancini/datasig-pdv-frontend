@@ -2130,8 +2130,7 @@ export default {
       this.valorParcial = this.valorPendente
       if (this.prcDescontoForma !== '') {
         this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100)
-        this.valorDescontoParcial = Number(shared.toMoneyString(this.valorDescontoParcial)
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
+        this.valorDescontoParcial = shared.toMoneyThenNumber(this.valorDescontoParcial)
         this.valorParcial = this.valorParcial - this.valorDescontoParcial
       } else {
         this.valorDescontoParcial = 0
@@ -2182,8 +2181,7 @@ export default {
             condicao: this.condicaoSelecionada,
             valorPago: this.valorPagoNumber(),
             valorDesconto: this.valorDescontoParcial,
-            valorTotalPago: Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
-                    .replace('R$', '').replace('.','').replace(',','.').trim()),
+            valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial),
             banOpe: this.cartao.banOpe,
             catTef: this.cartao.catTef,
             nsuTef: this.cartao.nsuTef,
@@ -2214,15 +2212,14 @@ export default {
       this.valorPendente = this.vlrFinalNbr
       this.pagamentos.forEach(pagto => {
         this.valorPendente -= pagto.valorTotalPago
+        this.valorPendente = shared.toMoneyThenNumber(this.valorPendente)
       })
-      this.valorPendente = Number(shared.toMoneyString(this.valorPendente)
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
+      this.valorPendente = shared.toMoneyThenNumber(this.valorPendente)
     },
 
     valorExcede() {
       if(this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO') {
-        const valorPagoTotal = Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
-                      .replace('R$', '').replace('.','').replace(',','.').trim())
+        const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial)
         if (valorPagoTotal > this.valorPendente) {
           alert('O valor pago não deve exceder o valor pendente!')
           return true
