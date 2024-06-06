@@ -2174,7 +2174,10 @@ export default {
             valorPago: this.valorPagoNumber(),
             valorDesconto: this.valorDescontoParcial,
             valorTotalPago: Number(shared.toMoneyString(this.valorPagoNumber() + this.valorDescontoParcial)
-                    .replace('R$', '').replace('.','').replace(',','.').trim())
+                    .replace('R$', '').replace('.','').replace(',','.').trim()),
+            banOpe: this.cartao.banOpe,
+            catTef: this.cartao.catTef,
+            nsuTef: this.cartao.nsuTef,
           })
           this.resetPagamento()
           this.updateValorPendente()
