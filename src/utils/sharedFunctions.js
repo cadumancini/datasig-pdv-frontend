@@ -1,8 +1,11 @@
+import { default as api } from './api'
+
 var functions = {
   handleRequestError(err) {
     if (err.response) {
       if (err.response.status === 401 && sessionStorage.getItem('token')) {
         alert('Seu token de acesso não é mais válido. Por favor, faça login novamente.')
+        api.logout()
         sessionStorage.clear()
         location.reload()
       } else {

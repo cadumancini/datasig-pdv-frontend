@@ -13,10 +13,13 @@
 </template>
 
 <script>
+import api from '../utils/api'
+
 export default {
   name: 'Navbar',
   methods: {
     logout () {
+      api.logout()
       sessionStorage.setItem('form', 'login')
       this.removeAll()
       this.$router.push({ name: 'Login' })
