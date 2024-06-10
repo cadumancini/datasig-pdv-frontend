@@ -97,19 +97,19 @@
         </div>
         <div class="col-2">
           <div class="input-group input-group-sm">
-            <span class="input-group-text">Total Autorizado</span>
+            <span class="input-group-text">Autorizado</span>
             <input disabled class="form-control" :value="toMoneyString(totalAutorizado)">
           </div>
         </div>
         <div class="col-2">
           <div class="input-group input-group-sm">
-            <span class="input-group-text">Total Canc./Inu.</span>
+            <span class="input-group-text">Canc./Inu.</span>
             <input disabled class="form-control" :value="toMoneyString(totalCanInu)">
           </div>
         </div>
         <div class="col-2">
           <div class="input-group input-group-sm">
-            <span class="input-group-text">Total Outros</span>
+            <span class="input-group-text">Outros</span>
             <input disabled class="form-control" :value="toMoneyString(totalOutros)">
           </div>
         </div>
