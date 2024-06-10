@@ -107,6 +107,12 @@
             <input disabled class="form-control" :value="toMoneyString(totalCanInu)">
           </div>
         </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Total Outros</span>
+            <input disabled class="form-control" :value="toMoneyString(totalOutros)">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -230,6 +236,7 @@ export default {
       itensVendidos: 0,
       totalAutorizado: 0,
       totalCanInu: 0,
+      totalOutros: 0,
 
       // geral
       options: {
@@ -288,6 +295,7 @@ export default {
       this.itensVendidos = 0
       this.totalAutorizado = 0
       this.totalCanInu = 0
+      this.totalOutros = 0
     },
 
     toMoneyString(value) {
@@ -331,7 +339,8 @@ export default {
       this.totalVendas = this.notas.length
       this.itensVendidos = Number(this.notas.map(item => item.qtdFat).reduce((prev, curr) => prev + curr, 0))
       this.totalAutorizado = Number(this.notas.filter(item => Number(item.sitDoe) === 3).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
-      this.totalCanInu = Number(this.notas.filter(item => Number(item.sitDoe) !== 3).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+      this.totalCanInu = Number(this.notas.filter(item => [5,8,9].includes(Number(item.sitDoe))).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+      this.totalOutros = Number(this.notas.filter(item => ![3,5,8,9].includes(Number(item.sitDoe))).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
     },
 
     confirmCancelarNota(row) {
