@@ -82,6 +82,32 @@
           </tbody>
         </table>
       </div>
+      <div class="row mt-2" v-if="notas && notas.length > 0">
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Total Vendas</span>
+            <input disabled class="form-control" v-model="totalVendas">
+          </div>
+        </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Itens Vendidos</span>
+            <input disabled class="form-control" v-model="itensVendidos">
+          </div>
+        </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Total Autorizado</span>
+            <input disabled class="form-control" :value="toMoneyString(totalAutorizado)">
+          </div>
+        </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Total Canc./Inu.</span>
+            <input disabled class="form-control" :value="toMoneyString(totalCanInu)">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <button id="btnConfirmCancelarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
@@ -200,6 +226,10 @@ export default {
       notaSelected: null,
       jusCan: '',
       jusInu: '',
+      totalVendas: 0,
+      itensVendidos: 0,
+      totalAutorizado: 0,
+      totalCanInu: 0,
 
       // geral
       options: {
@@ -254,6 +284,14 @@ export default {
       this.datFim = ''
       this.jusCan = ''
       this.jusInu = ''
+      this.totalVendas = 0
+      this.itensVendidos = 0
+      this.totalAutorizado = 0
+      this.totalCanInu = 0
+    },
+
+    toMoneyString(value) {
+      return shared.toMoneyString(value)
     },
 
     setEverythingDisabled(value) {
@@ -279,6 +317,7 @@ export default {
       await api.getNotas(filterNumNfv, filterSituacao, filterDatIni, filterDatFim)
       .then((response) => {
         this.notas = response.data
+        this.calcResumo()
       })
       .catch((err) => {
         console.log(err)
@@ -286,6 +325,13 @@ export default {
       })
       this.setEverythingDisabled(false)
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
+    },
+
+    calcResumo() {
+      this.totalVendas = this.notas.length
+      this.itensVendidos = Number(this.notas.map(item => item.qtdFat).reduce((prev, curr) => prev + curr, 0))
+      this.totalAutorizado = Number(this.notas.filter(item => Number(item.sitDoe) === 3).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+      this.totalCanInu = Number(this.notas.filter(item => Number(item.sitDoe) !== 3).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
     },
 
     confirmCancelarNota(row) {
