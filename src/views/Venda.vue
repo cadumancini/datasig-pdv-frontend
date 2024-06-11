@@ -298,8 +298,8 @@
             <div class="col-8">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CPF/CNPJ</span>
-                <vue-mask v-if="cadCliTipCli !== 'J'" class="form-control" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"></vue-mask>
-                <vue-mask v-else class="form-control" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" v-if="cadCliTipCli !== 'J'" class="form-control" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" v-else class="form-control" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -387,7 +387,8 @@
           <span class="mandatory">Os campos marcados com * são obrigatórios.</span>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" @click="cadastrarCliente">Cadastrar</button>
+          <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
+          <button type="button" class="btn btn-secondary btn-sm" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -801,6 +802,7 @@ export default {
 
       //cadastro clientes
       erroCliente: true,
+      clienteExistente: false,
       cadCliCodCli: '',
       cadCliTipCli: '',
       cadCliCgcCpf: '',
@@ -1509,12 +1511,21 @@ export default {
         alert('Para cadastrar um novo cliente, é necessário informar o representante!')
         document.getElementById('inputIdeRep').focus()
       } else {
+        this.clienteExistente = false
         document.getElementById('btnCadastrarNovoCliente').click()
         const modalElement = document.getElementById('cadastroClientesModal')
         modalElement.addEventListener('shown.bs.modal', () => {
           document.getElementById('selectTipCli').focus()
         })
       }
+    },
+
+    validarCgcCpf() {
+      let cgcCpf = document.getElementById('inputCgcCpf').value
+      cgcCpf = cgcCpf.replace('/','').replace('-','').replace('.','').replace('.','')
+      const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
+      this.clienteExistente = false
+      if (cliente) this.clienteExistente = true
     },
 
     async cadastrarCliente() {
