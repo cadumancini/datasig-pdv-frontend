@@ -50,16 +50,17 @@
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead>
             <tr>
-              <th class="sm-header" style="width: 6%;"><small>Empresa</small></th>
-              <th class="sm-header" style="width: 6%;"><small>Filial</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Filial</small></th>
               <th class="sm-header" style="width: 5%;"><small>Nota</small></th>
               <th class="sm-header" style="width: 5%;"><small>Série</small></th>
-              <th class="sm-header" style="width: 6%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 15%;"><small>Emissão</small></th>
-              <th class="sm-header" style="width: 12%;"><small>Sit. Nota</small></th>
-              <th class="sm-header" style="width: 12%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 26%;"><small>Ação</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 14%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 10%;"><small>Valor</small></th>
+              <th class="sm-header" style="width: 10%;"><small>Sit. Nota</small></th>
+              <th class="sm-header" style="width: 10%;"><small>Sit. Doc. Eletr.</small></th>
+              <th class="sm-header" style="width: 25%;"><small>Ação</small></th>
             </tr>
           </thead>
           <tbody>
@@ -71,6 +72,7 @@
               <th class="fw-normal sm">{{ row.codCli }}</th>
               <th class="fw-normal sm">{{ row.codRep }}</th>
               <th class="fw-normal sm">{{ row.datEmi }} - {{ row.horEmi }}</th>
+              <th class="fw-normal sm">{{ toMoneyString(row.vlrLiq) }}</th>
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
               <th class="fw-normal sm">{{ row.desSitDoe }}</th>
               <th class="fw-normal sm">
