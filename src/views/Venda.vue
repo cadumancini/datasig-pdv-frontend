@@ -2230,11 +2230,9 @@ export default {
     },
 
     handleInputValorPago (event) {
-      console.log(event)
       if (event.key === 'Enter') {
         this.processarPagto()
       } else if(!this.isPagamentoDifferentThanDinheiro()) {
-        console.log('aaaa')
         this.calcularTroco()
       }
     },
@@ -2274,6 +2272,7 @@ export default {
             forma: this.formaSelecionada,
             condicao: this.condicaoSelecionada,
             valorPago: this.valorPagoNumber(),
+            valorTroco: this.valorTrocoNumber(),
             valorDesconto: this.valorDescontoParcial,
             valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial),
             banOpe: this.cartao.banOpe,
@@ -2335,6 +2334,10 @@ export default {
       return vlrPagoNbr
     },
 
+    valorTrocoNumber() {
+      return Number(this.vlrTroco.replace('R$', '').replace('.','').replace(',','.').trim())
+    },
+
     async finalizarVenda() {
         document.getElementById('closeModalConfirmaVenda').click()
         await this.enviarVenda(true)
@@ -2364,6 +2367,14 @@ export default {
       return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').trim()
     },
 
+    calcularVlrTro() {
+      let vlrTroParc = 0
+      this.pagamentos.forEach(pagto => {
+        if(pagto.valorTroco > 0) vlrTroParc += pagto.valorTroco
+      })
+      return shared.toMoneyString(vlrTroParc).replace('R$', '').replace('.','').replace(',','.').trim()
+    },
+
     definirCodCpg() {
       return this.formasPagto.find(forma => forma.condicoes.length > 0).condicoes[0].codCpg
     },
@@ -2391,12 +2402,14 @@ export default {
     async enviarPedido(itens, limpar) {
       let pedido = null
       const vlrDar = this.calcularVlrDar()
+      const vlrTro = this.calcularVlrTro()
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
+          vlrTro: vlrTro,
           pagamentos: this.pagamentos
         }
       } else {
@@ -2409,6 +2422,7 @@ export default {
           fechar: this.fecharVenda,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
+          vlrTro: vlrTro,
           pagamentos: this.pagamentos
         }
       }
