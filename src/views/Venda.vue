@@ -577,6 +577,15 @@
                 <span>Informações da transação (cartão)</span>  
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
+                    <span class="input-group-text">Operadora</span>
+                    <select class="form-select" v-model="cartao.cgcCpf" id="selectDesOpe" :disabled="!condicaoSelecionada">
+                      <option selected disabled value="" >Selecione</option>
+                      <option v-if="condicaoSelecionada" v-for="row in condicaoSelecionada.operadoras" :key="row.codOpe" :value="row.cgcCpf">{{ row.desOpe }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="input-group input-group-sm">
                     <span class="input-group-text">Bandeira</span>
                     <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
                       <option selected disabled value="" >Selecione</option>
@@ -915,6 +924,7 @@ export default {
         { codBan: '99', desBan: 'Outros' }
       ],
       cartao: {
+        cgcCpf: '',
         banOpe: '',
         catTef: '',
         nsuTef: '',
@@ -1068,9 +1078,12 @@ export default {
       this.cadCliEmaCli = ''
     },
     clearInputsCartao() {
-      const selecBanOpe = document.getElementById('selectBanOpe')
-      if (selecBanOpe) selecBanOpe.selectedIndex = "0"
+      const selectBanOpe = document.getElementById('selectBanOpe')
+      if (selectBanOpe) selectBanOpe.selectedIndex = "0"
+      const selectDesOpe = document.getElementById('selectDesOpe')
+      if (selectDesOpe) selectDesOpe.selectedIndex = "0"
       this.cartao.banOpe = ''
+      this.cartao.cgcCpf = ''
       this.cartao.catTef = ''
       this.cartao.nsuTef = ''
     },
@@ -2230,6 +2243,10 @@ export default {
       this.vlrTroco = 'R$ 0,00'
       this.clearInputsCartao()
       this.focusValorPago()
+
+      if (this.condicaoSelecionada.operadoras.length === 1) {
+          this.cartao.cgcCpf = this.condicaoSelecionada.operadoras[0].cgcCpf
+        }
     },
 
     focusValorPago() {
@@ -2287,6 +2304,7 @@ export default {
             valorDesconto: this.valorDescontoParcial,
             valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial),
             banOpe: this.cartao.banOpe,
+            cgcCre: this.cartao.cgcCpf,
             catTef: this.cartao.catTef,
             nsuTef: this.cartao.nsuTef,
           })
@@ -2365,6 +2383,10 @@ export default {
       }
       else if (this.cartao.nsuTef === '' && this.formaSelecionada.tipInt === '1') {
         alert('Preencha o número da transação (TEF)!') 
+        return false
+      }
+      else if (this.condicaoSelecionada && this.condicaoSelecionada.operadoras.length > 0 && this.cartao.cgcCpf === '') {
+        alert('Selecione a operadora do cartão!') 
         return false
       }
       return true
