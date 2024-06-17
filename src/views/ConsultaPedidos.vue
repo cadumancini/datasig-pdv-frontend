@@ -29,9 +29,11 @@
             <span class="input-group-text">Data de Emissão</span>
             <input class="form-control" type="text" disabled :value="datIni ? datIni.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('ini')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
+            <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('ini')"><font-awesome-icon icon="fa-circle-xmark"/></button>
             <span class="input-group-text">até</span>
             <input class="form-control" type="text" disabled :value="datFim ? datFim.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
+            <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
         <div class="col-2">
@@ -75,13 +77,13 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Pedido</span>
-                <input disabled class="form-control" type="text">
+                <input disabled class="form-control" type="text" v-model="pedidoSelectedNumPed">
               </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Emissão</span>
-                <input disabled class="form-control" type="text">
+                <input disabled class="form-control" type="text" v-model="pedidoSelectedDatEmi">
               </div>
             </div>
           </div>
@@ -89,7 +91,7 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Representante</span>
-                <input disabled class="form-control" type="text">
+                <input disabled class="form-control" type="text" v-model="pedidoSelectedNomRep">
               </div>
             </div>
           </div>
@@ -97,7 +99,7 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cliente</span>
-                <input disabled class="form-control" type="text">
+                <input disabled class="form-control" type="text" v-model="pedidoSelectedNomCli">
               </div>
             </div>
           </div>
@@ -105,13 +107,13 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Status</span>
-                <input disabled class="form-control" type="text">
+                <input disabled class="form-control" type="text" v-model="pedidoSelectedStaPed">
               </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Qtde. Itens</span>
-                <input disabled class="form-control" type="text">
+                <input disabled class="form-control" type="text" v-model="pedidoSelectedQtdIte">
               </div>
             </div>
           </div>
@@ -214,6 +216,13 @@ export default {
       // registros
       pedidos: null,
       pedidoSelected: null,
+      pedidoSelectedItens: null,
+      pedidoSelectedNumPed: '',
+      pedidoSelectedDatEmi: '',
+      pedidoSelectedNomRep: '',
+      pedidoSelectedNomCli: '',
+      pedidoSelectedStaPed: '',
+      pedidoSelectedQtdIte: '',
 
       // geral
       options: {
@@ -240,6 +249,11 @@ export default {
       this.datClick = model
     },
 
+    clearDate(date) {
+      if(date === 'ini') this.datIni = ''
+      else this.datFim = ''
+    },
+
     selectToday() {
       if (this.datClick === 'ini') this.datIniPicked = new Date()
       else this.datFimPicked = new Date()
@@ -262,6 +276,14 @@ export default {
       this.situacao = 'TODOS'
       this.datIni = ''
       this.datFim = ''
+      this.pedidoSelected = null
+      this.pedidoSelectedItens = null
+      this.pedidoSelectedNumPed = ''
+      this.pedidoSelectedDatEmi = ''
+      this.pedidoSelectedStaPed = ''
+      this.pedidoSelectedQtdIte = ''
+      this.pedidoSelectedNomRep = ''
+      this.pedidoSelectedNomCli = ''
     },
 
     setEverythingDisabled(value) {
@@ -294,10 +316,55 @@ export default {
       document.getElementById('btnConfirmCancelarPedido').click()
     },
 
-    selectPedido(row) {
+    async selectPedido(row) {
       this.pedidoSelected = row
+      this.pedidoSelectedNumPed = row.numPed
+      this.pedidoSelectedDatEmi = row.datEmi
+      this.pedidoSelectedStaPed = row.staPed
+      this.pedidoSelectedQtdIte = row.itens.length
 
-      //TODO: carregar detalhes
+      const representante = await this.loadRepresentante(row.codRep)
+      this.pedidoSelectedNomRep = representante.nomRep
+      const cliente = await this.loadCliente(row.codCli)
+      this.pedidoSelectedNomCli = cliente.nomCli
+      this.pedidoSelectedItens = row.itens
+    },
+
+    async loadRepresentante(codRep) {      
+      await api.getRepresentantes()
+        if (!sessionStorage.getItem('representantes')) {
+          await api.getRepresentantes()
+            .then((response) => {
+              const representantes = response.data
+              sessionStorage.setItem('representantes', JSON.stringify(representantes))
+              return representantes.find(rep => rep.codRep === codRep)
+            })
+            .catch((err) => {
+              console.log(err)
+              shared.handleRequestError(err)
+            })
+        } else {
+          const representantes = JSON.parse(sessionStorage.getItem('representantes'))
+          return representantes.find(rep => rep.codRep === codRep)
+        }
+    },
+
+    async loadCliente(codCli) {
+      if (!sessionStorage.getItem('clientes')) {
+        await api.getClientes()
+          .then((response) => {
+            const clientes = response.data
+            sessionStorage.setItem('clientes', JSON.stringify(clientes))
+            return clientes.find(cli => cli.codCli === codCli)
+          })
+          .catch((err) => {
+            console.log(err)
+            shared.handleRequestError(err)
+          })
+      } else {
+        const clientes = JSON.parse(sessionStorage.getItem('clientes'))
+        return clientes.find(cli => cli.codCli === codCli)
+      }
     },
 
     async cancelarPedido(pedido) {
