@@ -1734,7 +1734,7 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          item.vlrLiq = item.vlrTot - (item.vlrTot * (perDsc / 100))
+          item.vlrLiq = item.vlrTot - (item.vlrTot * (perDsc / 100)).toFixed(2)
         } else {
           item.vlrLiq = item.vlrTot
         }
@@ -2233,7 +2233,7 @@ export default {
     calcValorPagto() { 
       this.valorParcial = this.valorPendente
       if (this.prcDescontoForma !== '') {
-        this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100)
+        this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100).toFixed(2)
         this.valorDescontoParcial = shared.toMoneyThenNumber(this.valorDescontoParcial)
         this.valorParcial = this.valorParcial - this.valorDescontoParcial
       } else {
@@ -2550,8 +2550,8 @@ export default {
     aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
-        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)
-
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : (valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2)
+                
         if (valorTmp < this.vlrDescPedido) {
           alert('O desconto não pode ser maior que o valor total do pedido!')
           this.vlrDesc = ''
@@ -2565,7 +2565,7 @@ export default {
           this.vlrFinalNbr = valorTmp
           atualizar = false
         } else {
-          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido))
+          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido).toFixed(2))
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
           this.vlrFinal = this.vlrComDesconto
         }
@@ -2691,7 +2691,7 @@ export default {
           const vlrCarrinho = this.getVlrCarrinho() 
           const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
           const vlrDscFinal = vlrCarrinho - vlrDarNbr
-          const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100))
+          const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100).toFixed(2))
           const vlrComDescontoManualStr = shared.toMoneyString(vlrComDescontoManual).replace('R$', '').trim()
           const vlrDescNbr = vlrCarrinho - Number(vlrComDescontoManualStr.replace(',', '.'))
           
