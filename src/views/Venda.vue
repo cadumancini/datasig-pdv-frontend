@@ -2234,7 +2234,7 @@ export default {
       this.valorParcial = this.valorPendente
       if (this.prcDescontoForma !== '') {
         this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100).toFixed(2)
-        this.valorDescontoParcial = shared.toMoneyThenNumber(this.valorDescontoParcial)
+        this.valorDescontoParcial = shared.toMoneyString(this.valorDescontoParcial)
         this.valorParcial = this.valorParcial - this.valorDescontoParcial
       } else {
         this.valorDescontoParcial = 0
@@ -2302,7 +2302,7 @@ export default {
             valorPago: this.valorPagoNumber(),
             valorTroco: this.valorTrocoNumber(),
             valorDesconto: this.valorDescontoParcial,
-            valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial),
+            valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial)),
             banOpe: this.cartao.banOpe,
             cgcCre: this.cartao.cgcCpf,
             catTef: this.cartao.catTef,
@@ -2347,7 +2347,7 @@ export default {
 
     valorExcede() {
       if(this.isPagamentoDifferentThanDinheiro()) {
-        const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + this.valorDescontoParcial)
+        const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial))
         if (valorPagoTotal > this.valorPendente) {
           alert('O valor pago não deve exceder o valor pendente!')
           return true
@@ -2368,8 +2368,12 @@ export default {
     },
 
     async finalizarVenda() {
+      if (this.fecharVenda && this.valorPendente > 0) {
+        alert('Favor informar o pagamento!')
+      } else {
         document.getElementById('closeModalConfirmaVenda').click()
         await this.enviarVenda(true)
+      }
     },  
 
     confirmarDadosCartao() {
