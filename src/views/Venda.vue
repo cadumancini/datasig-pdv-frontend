@@ -2565,7 +2565,7 @@ export default {
           this.vlrFinalNbr = valorTmp
           atualizar = false
         } else {
-          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido).toFixed(2))
+          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido))
           this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
           this.vlrFinal = this.vlrComDesconto
         }
