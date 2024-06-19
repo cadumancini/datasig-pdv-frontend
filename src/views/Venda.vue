@@ -2301,7 +2301,7 @@ export default {
             condicao: this.condicaoSelecionada,
             valorPago: this.valorPagoNumber(),
             valorTroco: this.valorTrocoNumber(),
-            valorDesconto: this.valorDescontoParcial,
+            valorDesconto: Number(this.valorDescontoParcial),
             valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial)),
             banOpe: this.cartao.banOpe,
             cgcCre: this.cartao.cgcCpf,
