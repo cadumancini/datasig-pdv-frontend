@@ -119,31 +119,39 @@
           </div>
           <div class="row margin-y-fields">
             <span class="fw-bold">Itens</span>
-            <div class="col table-consulta-itens border mx-2">
-              <table class="table table-striped table-hover table-sm table-responsive table-items">
-                <thead>
-                  <tr>
-                    <th class="sm-header" style="width: 5%;"><small>Seq</small></th>
-                    <th class="sm-header" style="width: 10%;"><small>Produto</small></th>
-                    <th class="sm-header" style="width: 5%;"><small>Der.</small></th>
-                    <th class="sm-header" style="width: 50%;"><small>Descrição</small></th>
-                    <th class="sm-header" style="width: 10%;"><small>Qtde.</small></th>
-                    <th class="sm-header" style="width: 10%;"><small>Valor Uni</small></th>
-                    <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
-                  </tr>
-                </thead>
-                <tbody v-if="pedidoSelected">
-                  <tr v-for="row in pedidoSelected.itens">
-                    <th class="fw-normal sm">{{ row.seqIpd }}</th>
-                    <th class="fw-normal sm">{{ row.codPro }}</th>
-                    <th class="fw-normal sm">{{ row.codDer }}</th>
-                    <th class="fw-normal sm">{{ row.cplIpd }}</th>
-                    <th class="fw-normal sm">{{ convertToNumber(row.qtdPed) }}</th>
-                    <th class="fw-normal sm">{{ convertPreUni(row.preUni) }}</th>
-                    <th class="fw-normal sm">{{ calcValorTotal(row) }}</th>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="row">
+              <div class="col table-consulta-itens border mx-2">
+                <table class="table table-striped table-hover table-sm table-responsive table-items">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" style="width: 5%;"><small>Seq</small></th>
+                      <th class="sm-header" style="width: 10%;"><small>Produto</small></th>
+                      <th class="sm-header" style="width: 5%;"><small>Der.</small></th>
+                      <th class="sm-header" style="width: 50%;"><small>Descrição</small></th>
+                      <th class="sm-header" style="width: 10%;"><small>Qtde.</small></th>
+                      <th class="sm-header" style="width: 10%;"><small>Valor Uni</small></th>
+                      <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
+                    </tr>
+                  </thead>
+                  <tbody v-if="pedidoSelected">
+                    <tr v-for="row in pedidoSelected.itens">
+                      <th class="fw-normal sm">{{ row.seqIpd }}</th>
+                      <th class="fw-normal sm">{{ row.codPro }}</th>
+                      <th class="fw-normal sm">{{ row.codDer }}</th>
+                      <th class="fw-normal sm">{{ row.cplIpd }}</th>
+                      <th class="fw-normal sm">{{ convertToNumber(row.qtdPed) }}</th>
+                      <th class="fw-normal sm">{{ convertPreUni(row.preUni) }}</th>
+                      <th class="fw-normal sm">{{ calcValorTotal(row) }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row" v-if="pedidoSelected">
+              <div class="col">
+                <div class="float-end"><small class="fw-bold mx-2">Valor total: {{ calcValorPedido() }}</small></div>
+                <div class="float-end"><small class="fw-bold mx-4">Qtd. total: {{ pedidoSelected.itens.length }}</small></div>
+              </div>
             </div>
           </div>
         </div>
@@ -407,8 +415,8 @@ export default {
       await api.cancelarPedido(numPed)
         .then((response) => {
           const respostaPedido = response.data
-          alert('Pedido ' + respostaPedido.numPed + ' cancelado com sucesso. Favor recarregar a busca para atualizar os valores.') 
-          this.limpar()
+          alert('Pedido ' + respostaPedido.numPed + ' cancelado com sucesso.')
+          this.updatePedidoCancelado(numPed)
         })
         .catch((err) => {
           shared.handleRequestError(err)
@@ -419,6 +427,14 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
+    updatePedidoCancelado(numPed) {
+      const pedido = this.pedidos.find(ped => ped.numPed === numPed)
+      if (pedido) {
+        pedido.staPed = 'CANCELADO'
+        pedido.sitPed = '5'
+      }
+    },
+
     convertToNumber(value) {
       return Number(value.replace('.','').replace(',','.'))
     },
@@ -427,6 +443,16 @@ export default {
       const preUni = this.convertToNumber(row.preUni)
       const qtdPed = this.convertToNumber(row.qtdPed)
       return shared.toMoneyString(preUni * qtdPed)
+    },
+
+    calcValorPedido() {
+      let vlrTotal = 0
+      this.pedidoSelected.itens.forEach(item => {
+        const preUni = this.convertToNumber(item.preUni)
+        const qtdPed = this.convertToNumber(item.qtdPed)
+        vlrTotal += (preUni * qtdPed)
+      })
+      return shared.toMoneyString(vlrTotal)
     },
 
     convertPreUni(value) {
