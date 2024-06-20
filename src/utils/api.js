@@ -78,6 +78,9 @@ var functions = {
   consultarEDocs(codSnf, numNfv) {
     return axios.get(urlBase + '/nfce/edocs?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv)
   },
+  cancelarPedido(numPed) {
+    return axios.post(urlBase + '/pedidos/cancelar?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+  }
 }
 
 export default functions

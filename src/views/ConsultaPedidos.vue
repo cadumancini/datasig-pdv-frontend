@@ -42,16 +42,16 @@
         </div>
       </div>
       <div class="row margin-y-fields">
-        <div class="col table-registros border">
+        <div class="col table-consulta-pedidos border">
           <table class="table table-striped table-hover table-sm table-responsive table-items">
             <thead>
               <tr>
-                <th class="sm-header"><small>Empresa</small></th>
-                <th class="sm-header"><small>Filial</small></th>
-                <th class="sm-header"><small>Pedido</small></th>
-                <th class="sm-header"><small>Emissão</small></th>
-                <th class="sm-header"><small>Status</small></th>
-                <th class="sm-header"><small>Ação</small></th>
+                <th class="sm-header" style="width: 10%;"><small>Empresa</small></th>
+                <th class="sm-header" style="width: 10%;"><small>Filial</small></th>
+                <th class="sm-header" style="width: 20%;"><small>Pedido</small></th>
+                <th class="sm-header" style="width: 20%;"><small>Emissão</small></th>
+                <th class="sm-header" style="width: 20%;"><small>Status</small></th>
+                <th class="sm-header" style="width: 20%;"><small>Ação</small></th>
               </tr>
             </thead>
             <tbody>
@@ -62,8 +62,8 @@
                 <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.datEmi }}</th>
                 <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">{{ row.staPed }}</th>
                 <th :class="{active:this.pedidoSelected && row.numPed === this.pedidoSelected.numPed}" class="fw-normal sm">
-                  <button :id="'btnCancelarPedido' + row.codSnf + row.numNfv" :disabled="row.staPed === 'FECHADO'"
-                      @click="confirmCancelarPedido(row)" class="btn btn-secondary btn-sm sm edit-nota">Cancelar</button>
+                  <button :id="'btnCancelarPedido' + row.numPed" :disabled="row.staPed !== 'ABERTO'"
+                      @click="confirmCancelarPedido(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Cancelar</button>
                 </th>
               </tr>
             </tbody>
@@ -119,6 +119,32 @@
           </div>
           <div class="row margin-y-fields">
             <span class="fw-bold">Itens</span>
+            <div class="col table-consulta-itens border mx-2">
+              <table class="table table-striped table-hover table-sm table-responsive table-items">
+                <thead>
+                  <tr>
+                    <th class="sm-header" style="width: 5%;"><small>Seq</small></th>
+                    <th class="sm-header" style="width: 10%;"><small>Produto</small></th>
+                    <th class="sm-header" style="width: 5%;"><small>Der.</small></th>
+                    <th class="sm-header" style="width: 50%;"><small>Descrição</small></th>
+                    <th class="sm-header" style="width: 10%;"><small>Qtde.</small></th>
+                    <th class="sm-header" style="width: 10%;"><small>Valor Uni</small></th>
+                    <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
+                  </tr>
+                </thead>
+                <tbody v-if="pedidoSelected">
+                  <tr v-for="row in pedidoSelected.itens">
+                    <th class="fw-normal sm">{{ row.seqIpd }}</th>
+                    <th class="fw-normal sm">{{ row.codPro }}</th>
+                    <th class="fw-normal sm">{{ row.codDer }}</th>
+                    <th class="fw-normal sm">{{ row.cplIpd }}</th>
+                    <th class="fw-normal sm">{{ convertToNumber(row.qtdPed) }}</th>
+                    <th class="fw-normal sm">{{ convertPreUni(row.preUni) }}</th>
+                    <th class="fw-normal sm">{{ calcValorTotal(row) }}</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -138,7 +164,7 @@
           <p>Tem certeza que deseja cancelar o pedido {{ this.pedidoSelected ? this.pedidoSelected.numPed : '' }}?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="cancelarPedido(this.pedidoSelected)">Sim</button>
+          <button type="button" class="btn btn-secondary" @click="cancelarPedido(this.pedidoSelected.numPed)">Sim</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -289,6 +315,12 @@ export default {
     setEverythingDisabled(value) {
       const elements = document.getElementsByClassName('disable-on-search')
       for (var i = 0; i < elements.length; i++) elements[i].disabled = value
+
+      if (value === false) {
+        this.pedidos.forEach(pedido => {
+          if(pedido.staPed !== 'ABERTO') document.getElementById('btnCancelarPedido' + pedido.numPed).disabled = true
+        });
+      }
     },
 
     async buscarPedidos() {
@@ -367,34 +399,40 @@ export default {
       }
     },
 
-    async cancelarPedido(pedido) {
+    async cancelarPedido(numPed) {
       document.getElementById('closeModalConfirmaCancelar').click()
       this.setEverythingDisabled(true)
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
 
-      await api.cancelarNFCe(nota.codSnf, nota.numNfv, this.jusCan)
-      .then((response) => {
-        const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
-        } else {
-          alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso. Favor recarregar a busca para atualizar os valores.')
+      await api.cancelarPedido(numPed)
+        .then((response) => {
+          const respostaPedido = response.data
+          alert('Pedido ' + respostaPedido.numPed + ' cancelado com sucesso. Favor recarregar a busca para atualizar os valores.') 
           this.limpar()
-        } 
-      })
-      .catch((err) => {
-        console.log(err)
-        if (err.response.status === 404) {
-          alert('Nenhum registro encontrado.')
-          this.clearFocus()
-        } else {
+        })
+        .catch((err) => {
           shared.handleRequestError(err)
-        }
-      })
+          console.log(err)
+        })
 
       this.setEverythingDisabled(false)
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
+
+    convertToNumber(value) {
+      return Number(value.replace('.','').replace(',','.'))
+    },
+
+    calcValorTotal(row) {
+      const preUni = this.convertToNumber(row.preUni)
+      const qtdPed = this.convertToNumber(row.qtdPed)
+      return shared.toMoneyString(preUni * qtdPed)
+    },
+
+    convertPreUni(value) {
+      const preUni = this.convertToNumber(value)
+      return shared.toMoneyString(preUni)
+    }
   }
   
 }
