@@ -1217,6 +1217,10 @@ export default {
       return shared.toMoneyString(value)
     },
 
+    toMoneyThenNumber(value) {
+      return shared.toMoneyThenNumber(value)
+    },
+
     /* Representantes */
     async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
@@ -2333,7 +2337,7 @@ export default {
     },
 
     calcularValorPendente() {
-      this.valorPendente = this.vlrFinalNbr
+      this.valorPendente = shared.toMoneyThenNumber(this.vlrFinalNbr)
       this.valorPago = 0
       this.pagamentos.forEach(pagto => {
         this.valorPendente -= pagto.valorTotalPago
@@ -2348,7 +2352,7 @@ export default {
     valorExcede() {
       if(this.isPagamentoDifferentThanDinheiro()) {
         const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial))
-        if (valorPagoTotal > this.valorPendente) {
+        if (valorPagoTotal > shared.toMoneyThenNumber(this.valorPendente)) {
           alert('O valor pago não deve exceder o valor pendente!')
           return true
         }
