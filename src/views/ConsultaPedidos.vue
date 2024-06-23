@@ -150,7 +150,7 @@
             <div class="row" v-if="pedidoSelected">
               <div class="col">
                 <div class="float-end"><small class="fw-bold mx-2">Valor total: {{ calcValorPedido() }}</small></div>
-                <div class="float-end"><small class="fw-bold mx-4">Qtd. total: {{ pedidoSelected.itens.length }}</small></div>
+                <div class="float-end"><small class="fw-bold mx-4">Qtd. total: {{ calcQtdTotal() }}</small></div>
               </div>
             </div>
           </div>
@@ -453,6 +453,10 @@ export default {
         vlrTotal += (preUni * qtdPed)
       })
       return shared.toMoneyString(vlrTotal)
+    },
+
+    calcQtdTotal() {
+      return Number(this.pedidoSelected.map(item => this.convertToNumber(item.qtdPed)).reduce((prev, curr) => prev + curr, 0))
     },
 
     convertPreUni(value) {
