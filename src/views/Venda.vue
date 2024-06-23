@@ -2608,6 +2608,7 @@ export default {
           perDsc: item.perDsc,
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
+          codDep: this.codDep,
           excluir: false
         }
         itens.push(itemPedido)
@@ -2856,6 +2857,7 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
+      this.ideDep = pedido.itens[0].codDep
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
