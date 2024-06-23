@@ -56,6 +56,16 @@
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Depósito</span>
+              <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
+                :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
+                :class="{searching: (!this.depositos.length && this.codDep === '')}">
+              <button id="btnClearDep" :disabled="this.codDep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#depositosModal">...</button>
+            </div>
+          </div>
         </div>
         <div class="col-7">
           <span class="fw-bold subtitle">Carrinho</span>
@@ -164,6 +174,7 @@
                 <span class="status" v-else-if="status === 'nfce'">Gerando NFC-e. Aguarde ...</span>
                 <span class="status" v-else-if="status === 'b_representantes'">Buscando representantes ...</span>
                 <span class="status" v-else-if="status === 'b_clientes'">Buscando clientes ...</span>
+                <span class="status" v-else-if="status === 'b_depositos'">Buscando depósitos ...</span>
                 <span class="status" v-else-if="status === 'b_formas'">Buscando formas de pagamento ...</span>
                 <span class="status" v-else-if="status === 'b_pedidos'">Buscando pedidos abertos ...</span>
                 <span class="status" v-else-if="status === 'b_produtos'">Buscando produtos ...</span>
@@ -389,6 +400,43 @@
         <div class="modal-footer">
           <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
           <button type="button" class="btn btn-secondary btn-sm" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Depositos -->
+  <div class="modal fade" id="depositosModal" tabindex="-1" aria-labelledby="depositosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="depositosModalLabel">Depósitos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDepositos"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="depositos != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputDepositosFiltro" v-on:keydown="navegarModalDepositos" v-on:keyup="filtrarModalDepositos" v-model="depositosFiltro" placeholder="Digite para buscar o depósito abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 80%;">Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in depositosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectDeposito(row)">
+                  <th :id="'tabDep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm" scope="row">{{ row.codDep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm">{{ row.desDep }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando depósitos ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -808,6 +856,14 @@ export default {
       numPagCli: 1,
       numPagCliMax: 0,
       ipp: 15,
+      
+      //depositos
+      ideDep: '',
+      codDep: '',
+      depositos: [],
+      depositosFiltro: '',
+      depositosFiltrados: [],
+      tableIndexDep: 0,
 
       //cadastro clientes
       erroCliente: true,
@@ -966,15 +1022,16 @@ export default {
         { codAta: 1, tecAta: 'R', desAta: 'Representante' },
         { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
         { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
-        { codAta: 6, tecAta: 'P', desAta: 'Produto' },
-        { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
-        { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
-        { codAta: 9, tecAta: 'B', desAta: 'Observação do Item' },
-        { codAta: 10, tecAta: 'S', desAta: 'Desconto do Item' },
-        { codAta: 12, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 13, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 14, tecAta: 'I', desAta: 'Inserir Pedido' },
-        { codAta: 15, tecAta: 'X', desAta: 'Finalizar Venda' }
+        { codAta: 4, tecAta: 'O', desAta: 'Depósito' },
+        { codAta: 5, tecAta: 'P', desAta: 'Produto' },
+        { codAta: 6, tecAta: 'E', desAta: 'Editar carrinho' },
+        { codAta: 7, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
+        { codAta: 8, tecAta: 'B', desAta: 'Observação do Item' },
+        { codAta: 9, tecAta: 'S', desAta: 'Desconto do Item' },
+        { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
+        { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
+        { codAta: 12, tecAta: 'I', desAta: 'Inserir Pedido' },
+        { codAta: 13, tecAta: 'X', desAta: 'Finalizar Venda' }
       ],
 
       //Pedidos
@@ -1001,6 +1058,8 @@ export default {
       await this.initRepresentantes()    
       this.status = 'b_clientes'
       await this.initClientes()    
+      this.status = 'b_depositos'
+      await this.initDepositos()    
       this.status = 'b_formas'
       await this.initFormasPagto()    
       this.initParams()  
@@ -1021,6 +1080,7 @@ export default {
     emptyStorage() {
       sessionStorage.removeItem('representantes')
       sessionStorage.removeItem('clientes')
+      sessionStorage.removeItem('depositos')
       sessionStorage.removeItem('formasPagto')
       sessionStorage.removeItem('pedidos')
       sessionStorage.removeItem('paramsPDV')
@@ -1029,6 +1089,7 @@ export default {
       this.representantes = []
       this.tabelasPreco = []
       this.clientes = []
+      this.depositos = []
       this.formasPagto = []
       this.produtosTabelaPreco = []
       this.itensCarrinho = []
@@ -1045,6 +1106,9 @@ export default {
       this.ideCli = ''
       this.codCli = ''
       this.clientesFiltro = ''
+      this.ideDep = ''
+      this.codDep = ''
+      this.depositosFiltro = ''
       this.codBar = ''
       this.produtosFiltro = ''
       this.itensCarrinho = []
@@ -1112,6 +1176,12 @@ export default {
         this.beginCliente()
       })
 
+      const inputIdeDep = document.getElementById('inputIdeDep')
+      inputIdeDep.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
+        this.beginDeposito()
+      })
+
       const inputProdutos = document.getElementById('inputProduto')
       inputProdutos.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
@@ -1141,6 +1211,7 @@ export default {
         if(this.noInputIsFocused() && !this.editandoCarrinho) {
           if (event.key.toUpperCase() === 'R') this.focusRepresentante()
           else if (event.key.toUpperCase() === 'C') this.focusCliente()
+          else if (event.key.toUpperCase() === 'O') this.focusDeposito()
           else if (event.key.toUpperCase() === 'P') this.focusProduto()
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
@@ -1334,6 +1405,110 @@ export default {
     repListHit() {
       const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
       this.selectRepresentante(rep)
+    },
+
+    /* Depositos */
+    async initDepositos() {
+      if (!sessionStorage.getItem('depositos')) {
+        await api.getDepositos()
+        .then((response) => {
+          this.depositos = response.data
+          this.depositosFiltrados = this.depositos
+          if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+          sessionStorage.setItem('depositos', JSON.stringify(this.depositos))
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
+      } else {
+        this.depositos = JSON.parse(sessionStorage.getItem('depositos'))
+        this.depositosFiltrados = this.depositos
+        if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+      }
+    },
+
+    async beginDeposito() {
+      this.ideDep = ''
+      this.codDep = ''
+      this.depositosFiltro = ''
+
+      if(!this.depositos.length) await this.initDepositos()
+    },
+
+    searchDepositos() {  
+      this.filtrarDepositos(this.ideDep)
+      if (this.depositosFiltrados.length === 1) { // encontramos, selecionar
+        this.selectDeposito(this.depositosFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openDepositosModal()
+      }
+    },
+
+    async selectDeposito(row) {
+      this.ideDep = row.desDep
+      this.codDep = row.codDep
+      document.getElementById('closeModalDepositos').click()
+      if (this.pedidoSelected) {
+        this.fecharVenda = false
+        await this.enviarVenda(false)
+      }
+    },
+
+    filtrarDepositos(filter) {
+      this.depositosFiltrados = this.depositos.filter(dep => (dep.codDep === filter ||
+                  dep.desDep.toUpperCase().includes(filter.toUpperCase())))
+      this.tableIndexDep = 0
+
+      this.populateTabIndex(this.depositosFiltrados)
+    },
+
+    openDepositosModal() {
+      this.depositosFiltro = this.ideDep
+      document.getElementById('btnBuscaDepositos').click()
+      const modalElement = document.getElementById('depositosModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputDepositosFiltro').focus()
+      })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusDeposito()
+      })
+    },
+
+    focusDeposito() {
+      this.codDep === '' ? document.getElementById('inputIdeDep').focus() : document.getElementById('btnClearDep').focus()
+    },
+
+    navegarModalDepositos(key) {
+      if (key.keyCode === 38) this.focusTableDep(-1)
+      else if (key.keyCode === 40) this.focusTableDep(1)
+      else if (key.keyCode === 13) this.depListHit()
+    },
+
+    filtrarModalDepositos(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarDepositos(this.depositosFiltro)
+    },
+
+    focusTableDep(value) {
+      this.tableIndexDep += value
+      if (this.tableIndexDep < 0) 
+        this.tableIndexDep = 0
+      else if (this.tableIndexDep >= this.depositosFiltrados.length)
+        this.tableIndexDep = (this.depositosFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexDep > 0)
+        elementToScroll = document.getElementById('tabDep' + this.tableIndexDep)
+      else 
+        elementToScroll = document.getElementById('inputDepositosFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    depListHit() {
+      const dep = this.depositosFiltrados.find(depFil => depFil.tabIndex === this.tableIndexDep)
+      this.selectDeposito(rep)
     },
 
     /* Clientes */

@@ -36,6 +36,7 @@ export default {
     if(sessionStorage.getItem('form') === 'menu') {
       this.populateRepresentantes()
       this.populateClientes()
+      this.populateDepositos()
       this.populateFormasPagto()
       this.populateParams()
 
@@ -77,6 +78,16 @@ export default {
       api.getClientes()
       .then((response) => {
         sessionStorage.setItem('clientes', JSON.stringify(response.data))
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+
+    populateDepositos () {
+      api.getDepositos()
+      .then((response) => {
+        sessionStorage.setItem('depositos', JSON.stringify(response.data))
       })
       .catch((err) => {
         console.log(err)

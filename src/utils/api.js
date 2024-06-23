@@ -80,6 +80,9 @@ var functions = {
   },
   cancelarPedido(numPed) {
     return axios.post(urlBase + '/pedidos/cancelar?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+  },
+  getDepositos() {
+    return axios.get(urlBase + '/depositos?token=' + sessionStorage.getItem('token'))
   }
 }
 
