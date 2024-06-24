@@ -36,7 +36,6 @@ export default {
     if(sessionStorage.getItem('form') === 'menu') {
       this.populateRepresentantes()
       this.populateClientes()
-      this.populateDepositos()
       this.populateFormasPagto()
       this.populateParams()
 
@@ -84,16 +83,6 @@ export default {
       })
     },
 
-    populateDepositos () {
-      api.getDepositos()
-      .then((response) => {
-        sessionStorage.setItem('depositos', JSON.stringify(response.data))
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    },
-
     populateFormasPagto () {
       api.getFormasPagto()
       .then((response) => {
@@ -109,7 +98,8 @@ export default {
       .then((response) => {
         const paramsPDV = {
           codTpr: response.data.parametrosPDV.codTpr,
-          dscTot: response.data.parametrosPDV.dscTot
+          dscTot: response.data.parametrosPDV.dscTot,
+          depositos: response.data.parametrosPDV.depositos
         }
         sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
       })

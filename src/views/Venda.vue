@@ -48,22 +48,22 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Cliente</span>
-              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
-                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
-                :class="{searching: (!this.clientes.length && this.codCli === '')}">
-              <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
-            </div>
-          </div>
-          <div class="row margin-y-fields">
-            <div class="input-group input-group-sm">
               <span class="input-group-text">Depósito</span>
               <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
                 :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
                 :class="{searching: (!this.depositos.length && this.codDep === '')}">
               <button id="btnClearDep" :disabled="this.codDep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#depositosModal">...</button>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Cliente</span>
+              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
+                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
+                :class="{searching: (!this.clientes.length && this.codCli === '')}">
+              <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
         </div>
@@ -73,9 +73,10 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
-                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtosTabelaPreco.length}" 
+                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === ''" :class="{searching: !this.produtosTabelaPreco.length}" 
                 :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
-                              !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : ''">
+                              !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : 
+                              this.codDep === '' ? 'Selecione um depósito' : ''">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
           </div>
@@ -174,9 +175,9 @@
                 <span class="status" v-else-if="status === 'nfce'">Gerando NFC-e. Aguarde ...</span>
                 <span class="status" v-else-if="status === 'b_representantes'">Buscando representantes ...</span>
                 <span class="status" v-else-if="status === 'b_clientes'">Buscando clientes ...</span>
-                <span class="status" v-else-if="status === 'b_depositos'">Buscando depósitos ...</span>
                 <span class="status" v-else-if="status === 'b_formas'">Buscando formas de pagamento ...</span>
                 <span class="status" v-else-if="status === 'b_pedidos'">Buscando pedidos abertos ...</span>
+                <span class="status" v-else-if="status === 'b_params'">Buscando parâmetros de integração ...</span>
                 <span class="status" v-else-if="status === 'b_produtos'">Buscando produtos ...</span>
                 <span class="status" v-else-if="status === 'd_item'">Removendo item do pedido ...</span>
                 <span class="status" v-else-if="status === 'a_precos'">Atualizando preços dos produtos ...</span>
@@ -945,7 +946,7 @@ export default {
       //venda
       confirmaVendaTitle: '',
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '', dscTot: '' },
+      paramsPDV: { codTpr: '', dscTot: '', depositos: [] },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
@@ -1058,11 +1059,10 @@ export default {
       await this.initRepresentantes()    
       this.status = 'b_clientes'
       await this.initClientes()    
-      this.status = 'b_depositos'
-      await this.initDepositos()    
       this.status = 'b_formas'
-      await this.initFormasPagto()    
-      this.initParams()  
+      await this.initFormasPagto()  
+      this.status = 'b_params'   
+      await this.initParams()  
       this.status = '' 
     },
     restartRecords() {
@@ -1080,7 +1080,6 @@ export default {
     emptyStorage() {
       sessionStorage.removeItem('representantes')
       sessionStorage.removeItem('clientes')
-      sessionStorage.removeItem('depositos')
       sessionStorage.removeItem('formasPagto')
       sessionStorage.removeItem('pedidos')
       sessionStorage.removeItem('paramsPDV')
@@ -1409,20 +1408,13 @@ export default {
 
     /* Depositos */
     async initDepositos() {
-      if (!sessionStorage.getItem('depositos')) {
-        await api.getDepositos()
-        .then((response) => {
-          this.depositos = response.data
-          this.depositosFiltrados = this.depositos
-          if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
-          sessionStorage.setItem('depositos', JSON.stringify(this.depositos))
-        })
-        .catch((err) => {
-          console.log(err)
-          shared.handleRequestError(err)
-        })
+      if (!this.paramsPDV.depositos.length) {
+        await this.initParams()
+        this.depositos = this.paramsPDV.depositos
+        this.depositosFiltrados = this.paramsPDV.depositos
+        if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
       } else {
-        this.depositos = JSON.parse(sessionStorage.getItem('depositos'))
+        this.depositos = this.paramsPDV.depositos
         this.depositosFiltrados = this.depositos
         if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
       }
@@ -1508,7 +1500,7 @@ export default {
 
     depListHit() {
       const dep = this.depositosFiltrados.find(depFil => depFil.tabIndex === this.tableIndexDep)
-      this.selectDeposito(rep)
+      this.selectDeposito(dep)
     },
 
     /* Clientes */
@@ -2360,9 +2352,12 @@ export default {
         .then((response) => {
           this.paramsPDV = {
             codTpr: response.data.parametrosPDV.codTpr,
-            dscTot: response.data.parametrosPDV.dscTot
+            dscTot: response.data.parametrosPDV.dscTot,
+            depositos: response.data.parametrosPDV.depositos
           }
+          this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
+
         })
         .catch((err) => {
           shared.handleRequestError(err)
@@ -2370,6 +2365,7 @@ export default {
         })
       } else {
         this.paramsPDV = JSON.parse(sessionStorage.getItem('paramsPDV'))
+        this.initDepositos()
       }
     },
 
