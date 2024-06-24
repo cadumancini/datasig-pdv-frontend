@@ -124,6 +124,14 @@ hr {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
+.dep-active, .dep-active:hover {
+  background-color: #6c757d;
+  color: white;
+}
+.dep-item:active {
+  background-color: rgb(166, 166, 166);
+  color: white;
+}
 
 @media only screen and (max-height: 768px) {
   .table-wrapper {

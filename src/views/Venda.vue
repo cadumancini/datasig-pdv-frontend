@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-5">
+        <div class="col-4">
           <span class="fw-bold subtitle">Pedido</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
@@ -67,7 +67,7 @@
             </div>
           </div>
         </div>
-        <div class="col-7">
+        <div class="col-8">
           <span class="fw-bold subtitle">Carrinho</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
@@ -88,9 +88,10 @@
                   <th class="sm-header" style="width: 8%;"><small>Qtde.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Obs.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Desc.</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Líq.</small></th>
+                  <th class="sm-header" style="width: 6%;"><small>Dep.</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Valor Unit.</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Valor Total</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Valor Líq.</small></th>
                 </tr>
               </thead>
               <tbody>
@@ -99,6 +100,16 @@
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDep' + row.tabIndex" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><font-awesome-icon class="icon-cart" icon="fa-warehouse"/></button>
+                    <div class="dropdown-menu">
+                      <a v-for="dep in this.depositos" class="dropdown-item dep-item" :class="{'dep-active':row.codDep == dep.codDep}" @click="editDepItem(row, dep.codDep)">
+                        <div class="custom-control custom-checkbox sm">
+                          <small>{{ dep.codDep }} - {{ dep.desDep }}</small>
+                        </div>
+                      </a>
+                    </div>
+                  </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.preBas)) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.vlrTot)) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.vlrLiq)) }}</th>
@@ -466,7 +477,7 @@
                 </thead>
                 <tbody>
                   <template v-for="row in produtosFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true)">
+                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true, this.codDep)">
                       <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -1816,13 +1827,13 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true, this.codDep)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar) {
+    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
@@ -1832,6 +1843,7 @@ export default {
         itemDoCarrinho.tipDsc = tipDsc
         itemDoCarrinho.vlrDsc = vlrDsc
         itemDoCarrinho.perDsc = perDsc
+        itemDoCarrinho.codDep = codDep
         this.definirPreco(itemDoCarrinho)
       }
       else {
@@ -1841,6 +1853,7 @@ export default {
         newItem.tipDsc = tipDsc
         newItem.vlrDsc = vlrDsc
         newItem.perDsc = perDsc
+        newItem.codDep = codDep
         this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
@@ -2042,7 +2055,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0, '', '', '', '', true)
+      this.selectProduto(pro, 1, 0, '', '', '', '', true, this.codDep)
     },
 
     focusTableCar(value) {
@@ -2149,6 +2162,12 @@ export default {
       this.limparDescontoItem(this.itemEditando)
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
+      this.finalizarEdicaoItem()
+    },
+
+    editDepItem(row, codDep) {
+      this.itemEditando = row
+      row.codDep = codDep
       this.finalizarEdicaoItem()
     },
 
@@ -2862,7 +2881,7 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false, item.codDep)
       })
     },
 
