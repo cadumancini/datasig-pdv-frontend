@@ -2623,7 +2623,7 @@ export default {
           perDsc: item.perDsc,
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
-          codDep: this.codDep,
+          codDep: item.codDep,
           excluir: false
         }
         itens.push(itemPedido)
