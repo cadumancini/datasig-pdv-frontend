@@ -98,7 +98,8 @@ export default {
       .then((response) => {
         const paramsPDV = {
           codTpr: response.data.parametrosPDV.codTpr,
-          dscTot: response.data.parametrosPDV.dscTot
+          dscTot: response.data.parametrosPDV.dscTot,
+          depositos: response.data.parametrosPDV.depositos
         }
         sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
       })

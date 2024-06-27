@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-5">
+        <div class="col-4">
           <span class="fw-bold subtitle">Pedido</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
@@ -48,6 +48,16 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
+              <span class="input-group-text">Depósito</span>
+              <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
+                :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
+                :class="{searching: (!this.depositos.length && this.codDep === '')}">
+              <button id="btnClearDep" :disabled="this.codDep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#depositosModal">...</button>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
@@ -57,15 +67,16 @@
             </div>
           </div>
         </div>
-        <div class="col-7">
+        <div class="col-8">
           <span class="fw-bold subtitle">Carrinho</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
-                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length" :class="{searching: !this.produtosTabelaPreco.length}" 
+                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === ''" :class="{searching: !this.produtosTabelaPreco.length}" 
                 :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
-                              !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : ''">
+                              !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : 
+                              this.codDep === '' ? 'Selecione um depósito' : ''">
               <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
             </div>
           </div>
@@ -77,9 +88,10 @@
                   <th class="sm-header" style="width: 8%;"><small>Qtde.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Obs.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Desc.</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Unit.</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Total</small></th>
-                  <th class="sm-header" style="width: 10%;"><small>Valor Líq.</small></th>
+                  <th class="sm-header" style="width: 6%;"><small>Dep.</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Valor Unit.</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Valor Total</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Valor Líq.</small></th>
                 </tr>
               </thead>
               <tbody>
@@ -88,6 +100,16 @@
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDep' + row.tabIndex" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><font-awesome-icon class="icon-cart" icon="fa-warehouse"/></button>
+                    <div class="dropdown-menu">
+                      <a v-for="dep in this.depositos" class="dropdown-item dep-item" :class="{'dep-active':row.codDep == dep.codDep}" @click="editDepItem(row, dep.codDep)">
+                        <div class="custom-control custom-checkbox sm">
+                          <small>{{ dep.codDep }} - {{ dep.desDep }}</small>
+                        </div>
+                      </a>
+                    </div>
+                  </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.preBas)) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.vlrTot)) }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">{{ toMoneyString(Number(row.vlrLiq)) }}</th>
@@ -152,7 +174,7 @@
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Inserir Pedido</button>
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Inserir Orçamento</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -166,6 +188,7 @@
                 <span class="status" v-else-if="status === 'b_clientes'">Buscando clientes ...</span>
                 <span class="status" v-else-if="status === 'b_formas'">Buscando formas de pagamento ...</span>
                 <span class="status" v-else-if="status === 'b_pedidos'">Buscando pedidos abertos ...</span>
+                <span class="status" v-else-if="status === 'b_params'">Buscando parâmetros de integração ...</span>
                 <span class="status" v-else-if="status === 'b_produtos'">Buscando produtos ...</span>
                 <span class="status" v-else-if="status === 'd_item'">Removendo item do pedido ...</span>
                 <span class="status" v-else-if="status === 'a_precos'">Atualizando preços dos produtos ...</span>
@@ -395,6 +418,43 @@
     </div>
   </div>
 
+  <!-- Modal Depositos -->
+  <div class="modal fade" id="depositosModal" tabindex="-1" aria-labelledby="depositosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="depositosModalLabel">Depósitos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDepositos"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" v-if="depositos != null">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputDepositosFiltro" v-on:keydown="navegarModalDepositos" v-on:keyup="filtrarModalDepositos" v-model="depositosFiltro" placeholder="Digite para buscar o depósito abaixo">
+            <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th class="sm-header" scope="col" style="width: 20%;">Código</th>
+                  <th class="sm-header" scope="col" style="width: 80%;">Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in depositosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectDeposito(row)">
+                  <th :id="'tabDep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm" scope="row">{{ row.codDep }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm">{{ row.desDep }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else>
+            <label>Buscando depósitos ...</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Produtos -->
   <div class="modal fade" id="produtosModal" tabindex="-1" aria-labelledby="produtosModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -417,7 +477,7 @@
                 </thead>
                 <tbody>
                   <template v-for="row in produtosFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true)">
+                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true, this.codDep)">
                       <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -808,6 +868,14 @@ export default {
       numPagCli: 1,
       numPagCliMax: 0,
       ipp: 15,
+      
+      //depositos
+      ideDep: '',
+      codDep: '',
+      depositos: [],
+      depositosFiltro: '',
+      depositosFiltrados: [],
+      tableIndexDep: 0,
 
       //cadastro clientes
       erroCliente: true,
@@ -889,7 +957,7 @@ export default {
       //venda
       confirmaVendaTitle: '',
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '', dscTot: '' },
+      paramsPDV: { codTpr: '', dscTot: '', depositos: [] },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
@@ -966,15 +1034,16 @@ export default {
         { codAta: 1, tecAta: 'R', desAta: 'Representante' },
         { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
         { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
-        { codAta: 6, tecAta: 'P', desAta: 'Produto' },
-        { codAta: 7, tecAta: 'E', desAta: 'Editar carrinho' },
-        { codAta: 8, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
-        { codAta: 9, tecAta: 'B', desAta: 'Observação do Item' },
-        { codAta: 10, tecAta: 'S', desAta: 'Desconto do Item' },
-        { codAta: 12, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 13, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 14, tecAta: 'I', desAta: 'Inserir Pedido' },
-        { codAta: 15, tecAta: 'X', desAta: 'Finalizar Venda' }
+        { codAta: 4, tecAta: 'O', desAta: 'Depósito' },
+        { codAta: 5, tecAta: 'P', desAta: 'Produto' },
+        { codAta: 6, tecAta: 'E', desAta: 'Editar carrinho' },
+        { codAta: 7, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
+        { codAta: 8, tecAta: 'B', desAta: 'Observação do Item' },
+        { codAta: 9, tecAta: 'S', desAta: 'Desconto do Item' },
+        { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
+        { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
+        { codAta: 12, tecAta: 'I', desAta: 'Inserir Pedido' },
+        { codAta: 13, tecAta: 'X', desAta: 'Finalizar Venda' }
       ],
 
       //Pedidos
@@ -1002,8 +1071,9 @@ export default {
       this.status = 'b_clientes'
       await this.initClientes()    
       this.status = 'b_formas'
-      await this.initFormasPagto()    
-      this.initParams()  
+      await this.initFormasPagto()  
+      this.status = 'b_params'   
+      await this.initParams()  
       this.status = '' 
     },
     restartRecords() {
@@ -1029,6 +1099,7 @@ export default {
       this.representantes = []
       this.tabelasPreco = []
       this.clientes = []
+      this.depositos = []
       this.formasPagto = []
       this.produtosTabelaPreco = []
       this.itensCarrinho = []
@@ -1045,6 +1116,9 @@ export default {
       this.ideCli = ''
       this.codCli = ''
       this.clientesFiltro = ''
+      this.ideDep = ''
+      this.codDep = ''
+      this.depositosFiltro = ''
       this.codBar = ''
       this.produtosFiltro = ''
       this.itensCarrinho = []
@@ -1112,6 +1186,12 @@ export default {
         this.beginCliente()
       })
 
+      const inputIdeDep = document.getElementById('inputIdeDep')
+      inputIdeDep.addEventListener('focus', (event) => {
+        this.editandoCarrinho = false
+        this.beginDeposito()
+      })
+
       const inputProdutos = document.getElementById('inputProduto')
       inputProdutos.addEventListener('focus', (event) => {
         this.editandoCarrinho = false
@@ -1141,6 +1221,7 @@ export default {
         if(this.noInputIsFocused() && !this.editandoCarrinho) {
           if (event.key.toUpperCase() === 'R') this.focusRepresentante()
           else if (event.key.toUpperCase() === 'C') this.focusCliente()
+          else if (event.key.toUpperCase() === 'O') this.focusDeposito()
           else if (event.key.toUpperCase() === 'P') this.focusProduto()
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
@@ -1334,6 +1415,103 @@ export default {
     repListHit() {
       const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
       this.selectRepresentante(rep)
+    },
+
+    /* Depositos */
+    async initDepositos() {
+      if (!this.paramsPDV.depositos.length) {
+        await this.initParams()
+        this.depositos = this.paramsPDV.depositos
+        this.depositosFiltrados = this.paramsPDV.depositos
+        if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+      } else {
+        this.depositos = this.paramsPDV.depositos
+        this.depositosFiltrados = this.depositos
+        if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+      }
+    },
+
+    async beginDeposito() {
+      this.ideDep = ''
+      this.codDep = ''
+      this.depositosFiltro = ''
+
+      if(!this.depositos.length) await this.initDepositos()
+    },
+
+    searchDepositos() {  
+      this.filtrarDepositos(this.ideDep)
+      if (this.depositosFiltrados.length === 1) { // encontramos, selecionar
+        this.selectDeposito(this.depositosFiltrados[0])
+      } else { // nao encontramos, abrir modal
+        this.openDepositosModal()
+      }
+    },
+
+    async selectDeposito(row) {
+      this.ideDep = row.desDep
+      this.codDep = row.codDep
+      document.getElementById('closeModalDepositos').click()
+      if (this.pedidoSelected) {
+        this.fecharVenda = false
+        await this.enviarVenda(false)
+      }
+    },
+
+    filtrarDepositos(filter) {
+      this.depositosFiltrados = this.depositos.filter(dep => (dep.codDep === filter ||
+                  dep.desDep.toUpperCase().includes(filter.toUpperCase())))
+      this.tableIndexDep = 0
+
+      this.populateTabIndex(this.depositosFiltrados)
+    },
+
+    openDepositosModal() {
+      this.depositosFiltro = this.ideDep
+      document.getElementById('btnBuscaDepositos').click()
+      const modalElement = document.getElementById('depositosModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputDepositosFiltro').focus()
+      })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.focusDeposito()
+      })
+    },
+
+    focusDeposito() {
+      this.codDep === '' ? document.getElementById('inputIdeDep').focus() : document.getElementById('btnClearDep').focus()
+    },
+
+    navegarModalDepositos(key) {
+      if (key.keyCode === 38) this.focusTableDep(-1)
+      else if (key.keyCode === 40) this.focusTableDep(1)
+      else if (key.keyCode === 13) this.depListHit()
+    },
+
+    filtrarModalDepositos(key) {
+      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+        this.filtrarDepositos(this.depositosFiltro)
+    },
+
+    focusTableDep(value) {
+      this.tableIndexDep += value
+      if (this.tableIndexDep < 0) 
+        this.tableIndexDep = 0
+      else if (this.tableIndexDep >= this.depositosFiltrados.length)
+        this.tableIndexDep = (this.depositosFiltrados.length - 1)
+
+      let elementToScroll
+      if (this.tableIndexDep > 0)
+        elementToScroll = document.getElementById('tabDep' + this.tableIndexDep)
+      else 
+        elementToScroll = document.getElementById('inputDepositosFiltro')
+      
+      this.scrollToElement(elementToScroll)
+    },  
+
+    depListHit() {
+      const dep = this.depositosFiltrados.find(depFil => depFil.tabIndex === this.tableIndexDep)
+      this.selectDeposito(dep)
     },
 
     /* Clientes */
@@ -1649,13 +1827,13 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true, this.codDep)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar) {
+    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
@@ -1665,6 +1843,7 @@ export default {
         itemDoCarrinho.tipDsc = tipDsc
         itemDoCarrinho.vlrDsc = vlrDsc
         itemDoCarrinho.perDsc = perDsc
+        itemDoCarrinho.codDep = codDep
         this.definirPreco(itemDoCarrinho)
       }
       else {
@@ -1674,6 +1853,7 @@ export default {
         newItem.tipDsc = tipDsc
         newItem.vlrDsc = vlrDsc
         newItem.perDsc = perDsc
+        newItem.codDep = codDep
         this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
@@ -1875,7 +2055,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0, '', '', '', '', true)
+      this.selectProduto(pro, 1, 0, '', '', '', '', true, this.codDep)
     },
 
     focusTableCar(value) {
@@ -1982,6 +2162,12 @@ export default {
       this.limparDescontoItem(this.itemEditando)
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
+      this.finalizarEdicaoItem()
+    },
+
+    editDepItem(row, codDep) {
+      this.itemEditando = row
+      row.codDep = codDep
       this.finalizarEdicaoItem()
     },
 
@@ -2185,9 +2371,12 @@ export default {
         .then((response) => {
           this.paramsPDV = {
             codTpr: response.data.parametrosPDV.codTpr,
-            dscTot: response.data.parametrosPDV.dscTot
+            dscTot: response.data.parametrosPDV.dscTot,
+            depositos: response.data.parametrosPDV.depositos
           }
+          this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
+
         })
         .catch((err) => {
           shared.handleRequestError(err)
@@ -2195,6 +2384,7 @@ export default {
         })
       } else {
         this.paramsPDV = JSON.parse(sessionStorage.getItem('paramsPDV'))
+        this.initDepositos()
       }
     },
 
@@ -2433,6 +2623,7 @@ export default {
           perDsc: item.perDsc,
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
+          codDep: item.codDep,
           excluir: false
         }
         itens.push(itemPedido)
@@ -2615,7 +2806,7 @@ export default {
 
     /* Pedidos */
     async initPedidos() {
-      await api.getPedidos('ABERTOS', null, null, null, 'ASC')
+      await api.getPedidos('ORÇAMENTO', 'TODOS', null, null, null, 'ASC')
       .then((response) => {
         this.pedidos = response.data
         this.preencherRepresentanteCliente()
@@ -2681,6 +2872,7 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
+      this.ideDep = pedido.itens[0].codDep
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
@@ -2689,7 +2881,7 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false)
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false, item.codDep)
       })
     },
 

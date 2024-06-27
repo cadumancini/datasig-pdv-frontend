@@ -46,9 +46,6 @@ var functions = {
   putNFCe(numPed) {
     return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
-  getPedidos(status, order) {
-    return axios.get(urlBase + '/pedidos?token=' + sessionStorage.getItem('token') + '&statusPedido=' + status + '&order=' + order)
-  },
   deleteItem(pedido, item) {
     return axios.delete(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)
   },
@@ -60,9 +57,10 @@ var functions = {
     url += datFim !== null ? '&datFim=' + datFim : ''
     return axios.get(url)
   },
-  getPedidos(status, numPed, datIni, datFim, order) {
+  getPedidos(tipo, situacao, numPed, datIni, datFim, order) {
     let url = urlBase + '/pedidos?token=' + sessionStorage.getItem('token')
-    url += '&statusPedido=' + status
+    url += '&tipo=' + tipo
+    url += '&situacao=' + situacao
     url += '&order=' + order
     url += numPed !== null ? '&numPed=' + numPed : ''
     url += datIni !== null ? '&datIni=' + datIni : ''
@@ -78,8 +76,8 @@ var functions = {
   consultarEDocs(codSnf, numNfv) {
     return axios.get(urlBase + '/nfce/edocs?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv)
   },
-  cancelarPedido(numPed) {
-    return axios.post(urlBase + '/pedidos/cancelar?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+  cancelarPedido(numPed, sitPed) {
+    return axios.post(urlBase + '/pedidos/cancelar?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed + '&sitPed=' + sitPed)
   }
 }
 
