@@ -611,14 +611,14 @@
                   </div>
                 </div>
               </div>
-              <div class="row my-2" v-if="prcDescontoForma !== '' || !isPagamentoDifferentThanDinheiro()">
+              <div class="row my-2" v-if="prcDescontoForma !== '' || isPagamentoDinheiro()">
                 <div class="col-6" v-if="prcDescontoForma !== ''">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Desconto (forma de pagamento)</span>
                     <input class="form-control" disabled :value="prcDescontoForma + ' %'">
                   </div>  
                 </div>
-                <div class="col-6" v-if="!isPagamentoDifferentThanDinheiro()">
+                <div class="col-6" v-if="isPagamentoDinheiro()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Troco</span>
                     <input class="form-control" disabled v-model="vlrTroco">
@@ -2403,8 +2403,8 @@ export default {
         this.valorPendente = this.vlrFinalNbr
         this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
-        document.getElementById('btnOpenFinalizarVendaModal').click()
         this.resetPagamento()
+        document.getElementById('btnOpenFinalizarVendaModal').click()
       }
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
@@ -2487,6 +2487,10 @@ export default {
       return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO'
     },
 
+    isPagamentoDinheiro() {
+      return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO'
+    },
+
     processarPagto() {
       if (!this.valorExcede()) {
         if(!this.isPagamentoCartao() || this.confirmarDadosCartao()) {
@@ -2514,6 +2518,7 @@ export default {
       this.condicaoSelecionada = null
       this.vlrPago = ''
       this.prcDescontoForma = ''
+      this.vlrTroco = 'R$ 0,00'
     },
 
     updateValorPendente() {
@@ -2699,12 +2704,16 @@ export default {
         .then((response) => {
           const resposta = response.data.toString()
           alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta)
+          const codDep = this.codDep
+          const ideDep = this.ideDep
           this.clearAllInputs()
           this.clearInputsCadCli()
           this.clearInputsCartao()
           this.limparDesconto(false)
           this.clearFocus()
           this.initRepresentantes()
+          this.codDep = codDep
+          this.ideDep = ideDep
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
