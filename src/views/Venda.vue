@@ -633,8 +633,8 @@
                   </div>
                 </div>
               </div>
-              <div class="row my-2" v-if="isPagamentoCartao()">
-                <span>Informações da transação (cartão)</span>  
+              <div class="row my-2" v-if="isPagamentoCartao() || isPagamentoPIXQrCode()">
+                <span>Informações da transação</span>  
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Operadora</span>
@@ -644,7 +644,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="row mb-2">
+                <div class="row mb-2" v-if="isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Bandeira</span>
                     <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
@@ -653,13 +653,13 @@
                     </select>
                   </div>
                 </div>
-                <div class="row mb-2">
+                <div class="row mb-2" v-if="isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Autorização de Transação</span>
                     <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago">  
                   </div>
                 </div>
-                <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1'">
+                <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1' && isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
                     <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago">  
@@ -2483,6 +2483,10 @@ export default {
       return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && this.formaSelecionada.tipFpg !== '30'
     },
 
+    isPagamentoPIXQrCode() {
+      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && ['30','31'].includes(this.formaSelecionada.tipFpg)
+    },
+
     isPagamentoDifferentThanDinheiro() {
       return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO'
     },
@@ -2493,7 +2497,9 @@ export default {
 
     processarPagto() {
       if (!this.valorExcede()) {
-        if(!this.isPagamentoCartao() || this.confirmarDadosCartao()) {
+        if((this.isPagamentoCartao() && this.confirmarDadosCartao()) || 
+           (this.isPagamentoPIXQrCode() && this.confirmarDadosPIXQrCode()) ||
+           (this.isPagamentoCartao() === false && this.isPagamentoPIXQrCode() === false)) {
           this.pagamentos.push({
             forma: this.formaSelecionada,
             condicao: this.condicaoSelecionada,
@@ -2588,11 +2594,23 @@ export default {
         alert('Preencha o número da transação (TEF)!') 
         return false
       }
-      else if (this.condicaoSelecionada && this.condicaoSelecionada.operadoras.length > 0 && this.cartao.cgcCpf === '') {
-        alert('Selecione a operadora do cartão!') 
+      else if (this.isOperadoraMissing()) {
+        alert('Selecione a operadora!') 
         return false
       }
       return true
+    },
+
+    confirmarDadosPIXQrCode() {
+      if (this.isOperadoraMissing()) {
+        alert('Selecione a operadora!') 
+        return false
+      }
+      return true
+    },
+
+    isOperadoraMissing() {
+      return this.condicaoSelecionada && this.cartao.cgcCpf === ''
     },
 
     calcularVlrDar() {
