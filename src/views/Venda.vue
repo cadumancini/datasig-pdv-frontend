@@ -957,7 +957,7 @@ export default {
       //venda
       confirmaVendaTitle: '',
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '', dscTot: '', depositos: [] },
+      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '' },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
@@ -1423,11 +1423,19 @@ export default {
         await this.initParams()
         this.depositos = this.paramsPDV.depositos
         this.depositosFiltrados = this.paramsPDV.depositos
-        if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+        this.tryDefinirDeposito()
       } else {
         this.depositos = this.paramsPDV.depositos
         this.depositosFiltrados = this.depositos
-        if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+        this.tryDefinirDeposito()
+      }
+    },
+
+    tryDefinirDeposito() {
+      if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+      else if(this.paramsPDV.depPad !== '') {
+        const depPad = this.depositos.find(dep => dep.codDep === this.paramsPDV.depPad)  
+        if (depPad) this.selectDeposito(depPad)
       }
     },
 
@@ -2372,7 +2380,8 @@ export default {
           this.paramsPDV = {
             codTpr: response.data.parametrosPDV.codTpr,
             dscTot: response.data.parametrosPDV.dscTot,
-            depositos: response.data.parametrosPDV.depositos
+            depositos: response.data.parametrosPDV.depositos,
+            depPad: response.data.parametrosPDV.codDep
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
