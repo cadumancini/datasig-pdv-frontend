@@ -2564,7 +2564,9 @@ export default {
     valorPagoNumber() {
       const vlrPago = document.getElementById('inputVlrPago').value
       const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
-      if (!this.isPagamentoDifferentThanDinheiro() && vlrPagoNbr > this.valorPendente) return this.valorPendente
+      // const vlrPagoNbr = shared.toMoneyThenNumber(vlrPago)
+      // if (this.isPagamentoDinheiro() && vlrPagoNbr > this.valorPendente) return this.valorPendente
+      if (this.isPagamentoDinheiro() && vlrPagoNbr > this.valorPendente) return shared.toMoneyThenNumber(this.valorPendente)
       return vlrPagoNbr
     },
 
