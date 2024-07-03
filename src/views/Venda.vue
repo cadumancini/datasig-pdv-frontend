@@ -2489,11 +2489,11 @@ export default {
     },
 
     isPagamentoCartao() {
-      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && this.formaSelecionada.tipFpg !== '30'
+      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && !['30','31'].includes(this.formaSelecionada.tipFpg)
     },
 
     isPagamentoPIXQrCode() {
-      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && ['30','31'].includes(this.formaSelecionada.tipFpg)
+      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && ['31'].includes(this.formaSelecionada.tipFpg)
     },
 
     isPagamentoDifferentThanDinheiro() {
