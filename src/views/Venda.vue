@@ -437,7 +437,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in depositosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectDeposito(row)">
+                <tr v-for="row in depositosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectDeposito(row, true)">
                   <th :id="'tabDep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm" scope="row">{{ row.codDep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm">{{ row.desDep }}</th>
                 </tr>
@@ -1094,6 +1094,7 @@ export default {
       sessionStorage.removeItem('formasPagto')
       sessionStorage.removeItem('pedidos')
       sessionStorage.removeItem('paramsPDV')
+      sessionStorage.removeItem('depositoSelected')
     },
     clearAllLists() {
       this.representantes = []
@@ -1432,11 +1433,15 @@ export default {
     },
 
     tryDefinirDeposito() {
-      if(this.depositos.length === 1) this.selectDeposito(this.depositos[0])
+      if(sessionStorage.getItem('depositoSelected')) {
+        const dep = JSON.parse(sessionStorage.getItem('depositoSelected'))
+        this.selectDeposito(dep, true)
+      }
       else if(this.paramsPDV.depPad !== '') {
         const depPad = this.depositos.find(dep => dep.codDep === this.paramsPDV.depPad)  
-        if (depPad) this.selectDeposito(depPad)
+        if (depPad) this.selectDeposito(depPad, true)
       }
+      else if(this.depositos.length === 1) this.selectDeposito(this.depositos[0], true)
     },
 
     async beginDeposito() {
@@ -1450,17 +1455,18 @@ export default {
     searchDepositos() {  
       this.filtrarDepositos(this.ideDep)
       if (this.depositosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectDeposito(this.depositosFiltrados[0])
+        this.selectDeposito(this.depositosFiltrados[0], true)
       } else { // nao encontramos, abrir modal
         this.openDepositosModal()
       }
     },
 
-    async selectDeposito(row) {
+    async selectDeposito(row, atualizar) {
       this.ideDep = row.desDep
       this.codDep = row.codDep
+      sessionStorage.setItem('depositoSelected', JSON.stringify(row))
       document.getElementById('closeModalDepositos').click()
-      if (this.pedidoSelected) {
+      if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
         await this.enviarVenda(false)
       }
@@ -1519,7 +1525,7 @@ export default {
 
     depListHit() {
       const dep = this.depositosFiltrados.find(depFil => depFil.tabIndex === this.tableIndexDep)
-      this.selectDeposito(dep)
+      this.selectDeposito(dep, true)
     },
 
     /* Clientes */
@@ -2713,6 +2719,7 @@ export default {
               this.clearInputsCadCli()
               this.clearInputsCartao()
               this.limparDesconto(false)
+              this.initEverything()
               this.clearFocus()
             }
           }
@@ -2871,11 +2878,13 @@ export default {
     },
 
     async beginPedido() {
+      this.pedidoSelected = null
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidosFiltro = ''
 
       this.clearAllInputs()
+      this.initEverything()
       this.clearInputsCadCli()
       this.clearInputsCartao()
     },
@@ -2910,7 +2919,10 @@ export default {
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
-      this.ideDep = pedido.itens[0].codDep
+
+      const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)  
+      if (depPad) this.selectDeposito(depPad, false)
+
       await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
