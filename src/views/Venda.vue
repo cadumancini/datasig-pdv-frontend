@@ -957,7 +957,7 @@ export default {
       //venda
       confirmaVendaTitle: '',
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '' },
+      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '', codEmp: '', codFil: '', nomUsu: '' },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
@@ -2387,7 +2387,10 @@ export default {
             codTpr: response.data.parametrosPDV.codTpr,
             dscTot: response.data.parametrosPDV.dscTot,
             depositos: response.data.parametrosPDV.depositos,
-            depPad: response.data.parametrosPDV.codDep
+            depPad: response.data.parametrosPDV.codDep,
+            codEmp: response.data.parametrosPDV.codEmp,
+            codFil: response.data.parametrosPDV.codFil,
+            nomUsu: response.data.parametrosPDV.nomUsu
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))

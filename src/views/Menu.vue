@@ -94,19 +94,24 @@ export default {
     },
     
     populateParams () {
-      api.getUserParams()
-      .then((response) => {
-        const paramsPDV = {
-          codTpr: response.data.parametrosPDV.codTpr,
-          dscTot: response.data.parametrosPDV.dscTot,
-          depositos: response.data.parametrosPDV.depositos,
-          depPad: response.data.parametrosPDV.codDep,
-        }
-        sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+      if (!sessionStorage.getItem('paramsPDV')) {
+        api.getUserParams()
+        .then((response) => {
+          const paramsPDV = {
+            codTpr: response.data.parametrosPDV.codTpr,
+            dscTot: response.data.parametrosPDV.dscTot,
+            depositos: response.data.parametrosPDV.depositos,
+            depPad: response.data.parametrosPDV.codDep,
+            codEmp: response.data.parametrosPDV.codEmp,
+            codFil: response.data.parametrosPDV.codFil,
+            nomUsu: response.data.parametrosPDV.nomUsu
+          }
+          sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      }
     },
   }
 }
