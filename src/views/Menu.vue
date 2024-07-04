@@ -19,14 +19,16 @@
       </div>
     </div>
   </div>
+  <Footer/>
 </template>
 
 <script>
 import Navbar from '../components/Navbar.vue'
+import Footer from '../components/Footer.vue'
 import api from '../utils/api'
 export default {
   name: 'Menu',
-  components: { Navbar },
+  components: { Navbar, Footer },
   created () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
@@ -104,6 +106,8 @@ export default {
             depPad: response.data.parametrosPDV.codDep,
             codEmp: response.data.parametrosPDV.codEmp,
             codFil: response.data.parametrosPDV.codFil,
+            nomEmp: response.data.parametrosPDV.nomEmp,
+            nomFil: response.data.parametrosPDV.nomFil,
             nomUsu: response.data.parametrosPDV.nomUsu
           }
           sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))

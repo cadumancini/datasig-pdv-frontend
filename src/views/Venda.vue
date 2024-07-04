@@ -802,52 +802,54 @@
 
   <!-- Modal Desconto item -->
   <div class="modal fade" id="descItemModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Desconto do item</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDescItem"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Desconto</span>
-              <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
-                <option selected value="">Nenhum</option>
-                <option value="valor">Valor</option>
-                <option value="porcentagem">Porcentagem</option>
-              </select>
-              <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
-              <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
-              <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
-              <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
-            </div>
-          </div>
-          <div class="col-2">
-            <button class="btn btn-secondary btn-sm" @click="limparDescontoItemFromModal">Limpar</button>
-          </div>  
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Desconto do item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDescItem"></button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" @click="gravarDescItem">Gravar</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Desconto</span>
+                <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
+                  <option selected value="">Nenhum</option>
+                  <option value="valor">Valor</option>
+                  <option value="porcentagem">Porcentagem</option>
+                </select>
+                <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
+                <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
+                <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
+                <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
+              </div>
+            </div>
+            <div class="col-2">
+              <button class="btn btn-secondary btn-sm" @click="limparDescontoItemFromModal">Limpar</button>
+            </div>  
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="gravarDescItem">Gravar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
-  </div>
+  <Footer/>
 
 </template>
 
 <script>
 import Navbar from '../components/Navbar.vue'
+import Footer from '../components/Footer.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
 import vueMask from 'vue-jquery-mask'
 
 export default {
   name: 'Venda',
-  components: { Navbar, vueMask },
+  components: { Navbar, Footer, vueMask },
   data () {
     return {
       // representantes
@@ -2390,6 +2392,8 @@ export default {
             depPad: response.data.parametrosPDV.codDep,
             codEmp: response.data.parametrosPDV.codEmp,
             codFil: response.data.parametrosPDV.codFil,
+            nomEmp: response.data.parametrosPDV.nomEmp,
+            nomFil: response.data.parametrosPDV.nomFil,
             nomUsu: response.data.parametrosPDV.nomUsu
           }
           this.initDepositos()

@@ -188,10 +188,12 @@
       </div>
     </div>
   </div>
+  <Footer/>
 </template>
 
 <script>
 import Navbar from '../components/Navbar.vue'
+import Footer from '../components/Footer.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
 import { DatePicker } from 'v-calendar'
@@ -199,7 +201,7 @@ import 'v-calendar/style.css'
 
 export default {
   name: 'ConsultaNotas',
-  components: { Navbar, DatePicker },
+  components: { Navbar, Footer, DatePicker },
   computed: {
     datIniPicked: {
       get() {
