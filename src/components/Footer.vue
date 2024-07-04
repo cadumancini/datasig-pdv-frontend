@@ -12,8 +12,10 @@
       </div>
     </div>
     <div class="col align-self-center" v-if="paramsPDV">
-      <div class="row">
-        <small class="col">Usuário: {{ paramsPDV.nomUsu }}</small>
+      <div class="float-end">
+        <div class="row">
+          <small class="col">Usuário: {{ paramsPDV.nomUsu }}</small>
+        </div>
       </div>
     </div>
   </div>
