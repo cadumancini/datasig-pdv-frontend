@@ -1,9 +1,9 @@
 <template>
   <div class="row footer mx-auto">
-    <div class="col-7 align-self-center" v-if="paramsPDV">
+    <div class="col-8 align-self-center" v-if="paramsPDV">
       <div class="row">
-        <small class="col-auto">Empresa: {{ paramsPDV.codEmp }} - {{ paramsPDV.nomEmp }}</small>
-        <small class="col-auto">Filial: {{ paramsPDV.codFil }} - {{ paramsPDV.nomFil }}</small>
+        <small class="col-auto ssm">Empresa: {{ paramsPDV.codEmp }} - {{ paramsPDV.nomEmp }}</small>
+        <small class="col-auto ssm">Filial: {{ paramsPDV.codFil }} - {{ paramsPDV.nomFil }}</small>
       </div>
     </div>
     <div class="col align-self-center" v-if="paramsPDV">
