@@ -89,15 +89,15 @@
                   <th class="sm-header" style="width: 6%;"><small>Obs.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Desc.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Dep.</small></th>
-                  <th class="sm-header" style="width: 8%;"><small>Valor Unit.</small></th>
-                  <th class="sm-header" style="width: 8%;"><small>Valor Total</small></th>
-                  <th class="sm-header" style="width: 8%;"><small>Valor Líq.</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Vlr. Unit.</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Vlr. Total</small></th>
+                  <th class="sm-header" style="width: 8%;"><small>Vlr. Líq.</small></th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
-                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> <span>{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</span></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><span>{{ row.qtdPed }}</span><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
+                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> <small>{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ row.qtdPed }}</small><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><button :id="'btnDep' + row.tabIndex" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"
@@ -110,9 +110,9 @@
                       </a>
                     </div>
                   </th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">{{ toMoneyString(Number(row.preBas)) }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">{{ toMoneyString(Number(row.vlrTot)) }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">{{ toMoneyString(Number(row.vlrLiq)) }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.preBas)) }}</small></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.vlrTot)) }}</small></th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.vlrLiq)) }}</small></th>
                 </tr>
               </tbody>
             </table>
