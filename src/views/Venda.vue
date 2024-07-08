@@ -100,7 +100,7 @@
                     <button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
                       <font-awesome-icon class="icon-cart" icon="fa-trash"/>
                     </button>
-                    <small>{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small>
+                    <small>&nbsp;{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small>
                   </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
                     <small>{{ row.qtdPed }}</small>
@@ -154,7 +154,10 @@
           <div class="row margin-y-fields">
             <div class="col-6">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Desconto</span>
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlr" id="selectTipOpeVlr">
+                  <option selected value="desconto">Desconto</option>
+                  <option value="acrescimo">Acréscimo</option>
+                </select>
                 <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
@@ -832,7 +835,10 @@
           <div class="row">
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Desconto</span>
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlrIpd" id="selectTipOpeVlr">
+                  <option selected value="desconto">Desconto</option>
+                  <option value="acrescimo">Acréscimo</option>
+                </select>
                 <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
@@ -957,6 +963,7 @@ export default {
       editandoCarrinho: false,
       newValue: '',
       obsIpd: '',
+      tipOpeVlrIpd: 'desconto',
       tipDescIpd: '',
       vlrDscIpd: '',
       perDscIpd: '',
@@ -1021,6 +1028,7 @@ export default {
       },
       fecharVenda: false,
       msgConfirmacao: '',
+      tipOpeVlr: 'desconto',
       tipDesc: '',
       vlrDesc: '',
       vlrDescPedido: 0,
@@ -1250,7 +1258,7 @@ export default {
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
-          else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipDesc').focus()
+          else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipOpeVlr').focus()
           else if (event.key.toUpperCase() === 'E') {
             if (this.itensCarrinho.length > 0) { 
               this.editarCarrinho()
