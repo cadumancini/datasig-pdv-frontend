@@ -158,7 +158,7 @@
                   <option selected value="desconto">Desconto</option>
                   <option value="acrescimo">Acréscimo</option>
                 </select>
-                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
@@ -177,7 +177,7 @@
           <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
             <div class="col-6">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Valor com desconto</span>
+                <span class="input-group-text">Valor com {{ tipOpeVlr }}</span>
                 <input class="form-control" disabled v-model="vlrComDesconto">
               </div>  
             </div>
@@ -2666,11 +2666,11 @@ export default {
     },
 
     calcularVlrDar() {
-      let vlrDarParc = Number(((this.getVlrCarrinho()) - this.vlrFinalNbr))
+      let vlrDarParc = Number(((this.vlrFinalNbr - this.getVlrCarrinho())))
       this.pagamentos.forEach(pagto => {
-        if(pagto.valorDesconto > 0) vlrDarParc += pagto.valorDesconto
+        if(pagto.valorDesconto > 0) vlrDarParc -= pagto.valorDesconto
       })
-      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').trim()
+      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
     },
 
     calcularVlrTro() {
@@ -2710,6 +2710,7 @@ export default {
       let pedido = null
       const vlrDar = this.calcularVlrDar()
       const vlrTro = this.calcularVlrTro()
+
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
@@ -2767,7 +2768,7 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.setEverythingDisabled(false)
           this.status = ''
-        })
+        }) 
     },
 
     async gerarNFCe(numPed) {
@@ -2829,23 +2830,24 @@ export default {
     aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
-        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : (valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2)
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : Number((valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2))
                 
-        if (valorTmp < this.vlrDescPedido) {
+        if (valorTmp < this.vlrDescPedido && this.tipOpeVlr === 'desconto') {
           alert('O desconto não pode ser maior que o valor total do pedido!')
           this.vlrDesc = ''
           this.vlrDescPedido = ''
           this.vlrFinalNbr = valorTmp
           atualizar = false
-        } else if (this.descontoExcedeLimite(valorTmp)) {
+        } else if (this.tipOpeVlr === 'desconto' && this.descontoExcedeLimite(valorTmp)) {
           alert('O desconto não pode ser maior que o estipulado nos parâmetros, que é de ' + this.paramsPDV.dscTot + '% do valor da compra!')
           this.vlrDesc = ''
           this.vlrDescPedido = ''
           this.vlrFinalNbr = valorTmp
           atualizar = false
         } else {
-          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido))
-          this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
+          const vlrCalc = this.tipOpeVlr === 'desconto' ? valorTmp - this.vlrDescPedido : valorTmp + this.vlrDescPedido
+          this.vlrComDesconto = shared.toMoneyString(vlrCalc)
+          this.vlrFinalNbr = vlrCalc
           this.vlrFinal = this.vlrComDesconto
         }
       }
@@ -2871,6 +2873,7 @@ export default {
     },
 
     limparDesconto(atualizar) {
+      this.tipOpeVlr = 'desconto'
       this.vlrDesc = ''
       this.vlrComDesconto = ''
       this.vlrDescPedido = 0
@@ -2972,25 +2975,11 @@ export default {
 
     preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
-        if (pedido.fpg && pedido.fpg.perDsc !== '0,00') {
-          const vlrCarrinho = this.getVlrCarrinho() 
-          const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
-          const vlrDscFinal = vlrCarrinho - vlrDarNbr
-          const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100).toFixed(2))
-          const vlrComDescontoManualStr = shared.toMoneyString(vlrComDescontoManual).replace('R$', '').trim()
-          const vlrDescNbr = vlrCarrinho - Number(vlrComDescontoManualStr.replace(',', '.'))
-          
-          if (vlrDescNbr > 0) {
-            this.tipDesc = 'valor'
-            this.vlrDesc = shared.toMoneyString(vlrDescNbr).replace('R$', '').trim()
-          } else {
-            this.tipDesc = ''
-            this.vlrDesc = ''
-          }
-        } else {
-          this.tipDesc = 'valor'
-          this.vlrDesc = pedido.vlrDar
-        }
+        this.tipOpeVlr = pedido.vlrDar.endsWith('-') ? 'desconto' : 'acrescimo'
+        const vlrDarTmp = pedido.vlrDar.replace('-', '')
+        this.tipDesc = 'valor'
+        this.vlrDesc = vlrDarTmp
+     
         this.atualizarValorTotalCompra()
       }
     },
