@@ -500,7 +500,7 @@
                 </thead>
                 <tbody>
                   <template v-for="row in produtosFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true, this.codDep)">
+                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', 'desconto', '', '', '', true, this.codDep)">
                       <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -825,7 +825,7 @@
 
   <!-- Modal Desconto item -->
   <div class="modal fade" id="descItemModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Desconto do item</h5>
@@ -841,7 +841,7 @@
                 </select>
                 <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
                   <option selected value="">Nenhum</option>
-                  <option value="valor">Valor</option>
+                  <option value="valor" v-if="tipOpeVlrIpd === 'desconto'">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
                 </select>
                 <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
@@ -963,7 +963,7 @@ export default {
       editandoCarrinho: false,
       newValue: '',
       obsIpd: '',
-      tipOpeVlrIpd: 'desconto',
+      tipOpeVlrIpd: '',
       tipDescIpd: '',
       vlrDscIpd: '',
       perDscIpd: '',
@@ -1871,19 +1871,20 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true, this.codDep)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', 'desconto', '', '', '', true, this.codDep)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
+    async selectProduto(row, qtde, seqIpd, obsIpd, tipOpeVlrIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
         itemDoCarrinho.qtdPed += qtde
         itemDoCarrinho.obsIpd = obsIpd
+        itemDoCarrinho.tipOpeVlrIpd = tipOpeVlrIpd
         itemDoCarrinho.tipDsc = tipDsc
         itemDoCarrinho.vlrDsc = vlrDsc
         itemDoCarrinho.perDsc = perDsc
@@ -1894,6 +1895,7 @@ export default {
         newItem.qtdPed = qtde
         newItem.seqIpd = seqIpd
         newItem.obsIpd = obsIpd
+        newItem.tipOpeVlrIpd = tipOpeVlrIpd
         newItem.tipDsc = tipDsc
         newItem.vlrDsc = vlrDsc
         newItem.perDsc = perDsc
@@ -1962,7 +1964,10 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          item.vlrLiq = item.vlrTot - (item.vlrTot * (perDsc / 100)).toFixed(2)
+          const vlrPerc = Number((item.vlrTot * (perDsc / 100)).toFixed(2))
+          item.vlrLiq = item.tipOpeVlrIpd === 'desconto' ? 
+                          (item.vlrTot - vlrPerc) :
+                          (item.vlrTot + vlrPerc)
         } else {
           item.vlrLiq = item.vlrTot
         }
@@ -1979,6 +1984,7 @@ export default {
     },
 
     limparDescontoItem(item) {
+      item.tipOpeVlrIpd = 'desconto'
       item.tipDsc = ''
       item.vlrDsc = ''
       item.perDsc = ''
@@ -2099,7 +2105,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0, '', '', '', '', true, this.codDep)
+      this.selectProduto(pro, 1, 0, '', 'desconto', '', '', '', true, this.codDep)
     },
 
     focusTableCar(value) {
@@ -2178,6 +2184,7 @@ export default {
     },
 
     editarDescItem(item) {
+      this.tipOpeVlrIpd = item.tipOpeVlrIpd
       this.tipDescIpd = item.tipDsc
       this.vlrDescIpd = item.tipDsc === 'valor' ? item.vlrDsc : item.perDsc
       this.itemEditando = item
@@ -2194,12 +2201,14 @@ export default {
     },
 
     async gravarDescItem() {
+      this.itemEditando.tipOpeVlrIpd = this.tipOpeVlrIpd
       this.itemEditando.tipDsc = this.tipDescIpd
       this.itemEditando.vlrDsc = this.vlrDscIpd
       this.itemEditando.perDsc = this.perDscIpd
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
+      console.log(this.itensCarrinho)
     },
 
     limparDescontoItemFromModal() {
@@ -2694,15 +2703,23 @@ export default {
           codTpr: item.codTpr,
           qtdPed: item.qtdPed,
           vlrTot: item.vlrTot,
-          vlrDsc: item.vlrDsc,
-          perDsc: item.perDsc,
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
           codDep: item.codDep,
           excluir: false
         }
+        if (item.tipOpeVlrIpd === 'acrescimo') {
+          itemPedido.vlrDsc = ''
+          itemPedido.perDsc = ''
+          itemPedido.perAcr = item.perDsc
+        } else {
+          itemPedido.vlrDsc = item.vlrDsc
+          itemPedido.perDsc = item.perDsc
+          itemPedido.perAcr = ''
+        }
         itens.push(itemPedido)
       })
+      // console.log(itens)
       this.enviarPedido(itens, limpar)
     },
 
@@ -2969,7 +2986,16 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false, item.codDep)
+        let tipOpeVlrIpd = ''
+        let perDsc = ''
+        if (Number(item.perAcr.replace(',','.')) > 0) {
+          tipOpeVlrIpd = 'acrescimo'
+          perDsc = item.perAcr
+        } else {
+          tipOpeVlrIpd = 'desconto'
+          perDsc = item.perDsc
+        }
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, tipOpeVlrIpd, item.tipDsc, item.vlrDsc, perDsc, false, item.codDep)
       })
     },
 
