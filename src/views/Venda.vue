@@ -2186,7 +2186,8 @@ export default {
     editarDescItem(item) {
       this.tipOpeVlrIpd = item.tipOpeVlrIpd
       this.tipDescIpd = item.tipDsc
-      this.vlrDescIpd = item.tipDsc === 'valor' ? item.vlrDsc : item.perDsc
+      if (item.tipDsc === 'valor') this.vlrDscIpd = item.vlrDsc
+      else this.perDscIpd = item.perDsc
       this.itemEditando = item
       const modalElement = document.getElementById('descItemModal')
       modalElement.addEventListener('shown.bs.modal', () => {
