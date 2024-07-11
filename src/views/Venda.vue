@@ -96,12 +96,32 @@
               </thead>
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
-                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm"><button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button> <small>{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ row.qtdPed }}</small><button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-refresh"/></button></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-circle-info"/></button></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"><font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/></button></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><button :id="'btnDep' + row.tabIndex" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale"
-                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ><font-awesome-icon class="icon-cart" icon="fa-warehouse"/></button>
+                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">
+                    <button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-trash"/>
+                    </button>
+                    <small>&nbsp;{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small>
+                  </th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
+                    <small>{{ row.qtdPed }}</small>
+                    <button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-refresh"/>
+                    </button>
+                  </th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
+                    <button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-circle-info"/>
+                    </button>
+                  </th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
+                    <button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/>
+                    </button>
+                  </th>
+                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
+                    <button :id="'btnDep' + row.tabIndex" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <font-awesome-icon class="icon-cart" icon="fa-warehouse"/>
+                    </button>
                     <div class="dropdown-menu">
                       <a v-for="dep in this.depositos" class="dropdown-item dep-item" :class="{'dep-active':row.codDep == dep.codDep}" @click="editDepItem(row, dep.codDep)">
                         <div class="custom-control custom-checkbox sm">
@@ -134,8 +154,11 @@
           <div class="row margin-y-fields">
             <div class="col-6">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Desconto</span>
-                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlr" id="selectTipOpeVlr">
+                  <option selected value="desconto">Desconto</option>
+                  <option value="acrescimo">Acréscimo</option>
+                </select>
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
@@ -154,7 +177,7 @@
           <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
             <div class="col-6">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Valor com desconto</span>
+                <span class="input-group-text">Valor com {{ tipOpeVlr }}</span>
                 <input class="form-control" disabled v-model="vlrComDesconto">
               </div>  
             </div>
@@ -477,7 +500,7 @@
                 </thead>
                 <tbody>
                   <template v-for="row in produtosFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', '', '', '', true, this.codDep)">
+                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', 'desconto', '', '', '', true, this.codDep)">
                       <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
@@ -802,7 +825,7 @@
 
   <!-- Modal Desconto item -->
   <div class="modal fade" id="descItemModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Desconto do item</h5>
@@ -812,10 +835,13 @@
           <div class="row">
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Desconto</span>
+                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlrIpd" id="selectTipOpeVlr">
+                  <option selected value="desconto">Desconto</option>
+                  <option value="acrescimo">Acréscimo</option>
+                </select>
                 <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
                   <option selected value="">Nenhum</option>
-                  <option value="valor">Valor</option>
+                  <option value="valor" v-if="tipOpeVlrIpd === 'desconto'">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
                 </select>
                 <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
@@ -937,6 +963,7 @@ export default {
       editandoCarrinho: false,
       newValue: '',
       obsIpd: '',
+      tipOpeVlrIpd: '',
       tipDescIpd: '',
       vlrDscIpd: '',
       perDscIpd: '',
@@ -1001,6 +1028,7 @@ export default {
       },
       fecharVenda: false,
       msgConfirmacao: '',
+      tipOpeVlr: 'desconto',
       tipDesc: '',
       vlrDesc: '',
       vlrDescPedido: 0,
@@ -1230,7 +1258,7 @@ export default {
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
           else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
-          else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipDesc').focus()
+          else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipOpeVlr').focus()
           else if (event.key.toUpperCase() === 'E') {
             if (this.itensCarrinho.length > 0) { 
               this.editarCarrinho()
@@ -1843,19 +1871,20 @@ export default {
     searchProdutos() {
       this.filtrarProdutos(this.codBar)
       if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', '', '', '', true, this.codDep)
+        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', 'desconto', '', '', '', true, this.codDep)
       } else { // nao encontramos, abrir modal
         this.openProdutosModal()
       }
     },
 
-    async selectProduto(row, qtde, seqIpd, obsIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
+    async selectProduto(row, qtde, seqIpd, obsIpd, tipOpeVlrIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
       document.getElementById('closeModalProdutos').click()
       const newItem = Object.create(row)
       const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
       if (itemDoCarrinho)  {
         itemDoCarrinho.qtdPed += qtde
         itemDoCarrinho.obsIpd = obsIpd
+        itemDoCarrinho.tipOpeVlrIpd = tipOpeVlrIpd
         itemDoCarrinho.tipDsc = tipDsc
         itemDoCarrinho.vlrDsc = vlrDsc
         itemDoCarrinho.perDsc = perDsc
@@ -1866,6 +1895,7 @@ export default {
         newItem.qtdPed = qtde
         newItem.seqIpd = seqIpd
         newItem.obsIpd = obsIpd
+        newItem.tipOpeVlrIpd = tipOpeVlrIpd
         newItem.tipDsc = tipDsc
         newItem.vlrDsc = vlrDsc
         newItem.perDsc = perDsc
@@ -1934,7 +1964,10 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          item.vlrLiq = item.vlrTot - (item.vlrTot * (perDsc / 100)).toFixed(2)
+          const vlrPerc = Number((item.vlrTot * (perDsc / 100)).toFixed(2))
+          item.vlrLiq = item.tipOpeVlrIpd === 'desconto' ? 
+                          (item.vlrTot - vlrPerc) :
+                          (item.vlrTot + vlrPerc)
         } else {
           item.vlrLiq = item.vlrTot
         }
@@ -1951,6 +1984,7 @@ export default {
     },
 
     limparDescontoItem(item) {
+      item.tipOpeVlrIpd = 'desconto'
       item.tipDsc = ''
       item.vlrDsc = ''
       item.perDsc = ''
@@ -2071,7 +2105,7 @@ export default {
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
-      this.selectProduto(pro, 1, 0, '', '', '', '', true, this.codDep)
+      this.selectProduto(pro, 1, 0, '', 'desconto', '', '', '', true, this.codDep)
     },
 
     focusTableCar(value) {
@@ -2150,8 +2184,10 @@ export default {
     },
 
     editarDescItem(item) {
+      this.tipOpeVlrIpd = item.tipOpeVlrIpd
       this.tipDescIpd = item.tipDsc
-      this.vlrDescIpd = item.tipDsc === 'valor' ? item.vlrDsc : item.perDsc
+      if (item.tipDsc === 'valor') this.vlrDscIpd = item.vlrDsc
+      else this.perDscIpd = item.perDsc
       this.itemEditando = item
       const modalElement = document.getElementById('descItemModal')
       modalElement.addEventListener('shown.bs.modal', () => {
@@ -2166,12 +2202,14 @@ export default {
     },
 
     async gravarDescItem() {
+      this.itemEditando.tipOpeVlrIpd = this.tipOpeVlrIpd
       this.itemEditando.tipDsc = this.tipDescIpd
       this.itemEditando.vlrDsc = this.vlrDscIpd
       this.itemEditando.perDsc = this.perDscIpd
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
+      console.log(this.itensCarrinho)
     },
 
     limparDescontoItemFromModal() {
@@ -2638,11 +2676,11 @@ export default {
     },
 
     calcularVlrDar() {
-      let vlrDarParc = Number(((this.getVlrCarrinho()) - this.vlrFinalNbr))
+      let vlrDarParc = Number(((this.vlrFinalNbr - this.getVlrCarrinho())))
       this.pagamentos.forEach(pagto => {
-        if(pagto.valorDesconto > 0) vlrDarParc += pagto.valorDesconto
+        if(pagto.valorDesconto > 0) vlrDarParc -= pagto.valorDesconto
       })
-      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').trim()
+      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
     },
 
     calcularVlrTro() {
@@ -2666,15 +2704,23 @@ export default {
           codTpr: item.codTpr,
           qtdPed: item.qtdPed,
           vlrTot: item.vlrTot,
-          vlrDsc: item.vlrDsc,
-          perDsc: item.perDsc,
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
           codDep: item.codDep,
           excluir: false
         }
+        if (item.tipOpeVlrIpd === 'acrescimo') {
+          itemPedido.vlrDsc = ''
+          itemPedido.perDsc = ''
+          itemPedido.perAcr = item.perDsc
+        } else {
+          itemPedido.vlrDsc = item.vlrDsc
+          itemPedido.perDsc = item.perDsc
+          itemPedido.perAcr = ''
+        }
         itens.push(itemPedido)
       })
+      // console.log(itens)
       this.enviarPedido(itens, limpar)
     },
 
@@ -2682,6 +2728,7 @@ export default {
       let pedido = null
       const vlrDar = this.calcularVlrDar()
       const vlrTro = this.calcularVlrTro()
+
       if (this.pedidoSelected && this.fecharVenda) {
         pedido = {
           numPed: this.pedPrv,
@@ -2739,7 +2786,7 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.setEverythingDisabled(false)
           this.status = ''
-        })
+        }) 
     },
 
     async gerarNFCe(numPed) {
@@ -2801,23 +2848,24 @@ export default {
     aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
-        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : (valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2)
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : Number((valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2))
                 
-        if (valorTmp < this.vlrDescPedido) {
+        if (valorTmp < this.vlrDescPedido && this.tipOpeVlr === 'desconto') {
           alert('O desconto não pode ser maior que o valor total do pedido!')
           this.vlrDesc = ''
           this.vlrDescPedido = ''
           this.vlrFinalNbr = valorTmp
           atualizar = false
-        } else if (this.descontoExcedeLimite(valorTmp)) {
+        } else if (this.tipOpeVlr === 'desconto' && this.descontoExcedeLimite(valorTmp)) {
           alert('O desconto não pode ser maior que o estipulado nos parâmetros, que é de ' + this.paramsPDV.dscTot + '% do valor da compra!')
           this.vlrDesc = ''
           this.vlrDescPedido = ''
           this.vlrFinalNbr = valorTmp
           atualizar = false
         } else {
-          this.vlrComDesconto = shared.toMoneyString((valorTmp - this.vlrDescPedido))
-          this.vlrFinalNbr = (valorTmp - this.vlrDescPedido)
+          const vlrCalc = this.tipOpeVlr === 'desconto' ? valorTmp - this.vlrDescPedido : valorTmp + this.vlrDescPedido
+          this.vlrComDesconto = shared.toMoneyString(vlrCalc)
+          this.vlrFinalNbr = vlrCalc
           this.vlrFinal = this.vlrComDesconto
         }
       }
@@ -2843,6 +2891,7 @@ export default {
     },
 
     limparDesconto(atualizar) {
+      this.tipOpeVlr = 'desconto'
       this.vlrDesc = ''
       this.vlrComDesconto = ''
       this.vlrDescPedido = 0
@@ -2938,31 +2987,26 @@ export default {
     preencherItensPedido(pedido) {
       pedido.itens.forEach(item => {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, item.tipDsc, item.vlrDsc, item.perDsc, false, item.codDep)
+        let tipOpeVlrIpd = ''
+        let perDsc = ''
+        if (Number(item.perAcr.replace(',','.')) > 0) {
+          tipOpeVlrIpd = 'acrescimo'
+          perDsc = item.perAcr
+        } else {
+          tipOpeVlrIpd = 'desconto'
+          perDsc = item.perDsc
+        }
+        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, tipOpeVlrIpd, item.tipDsc, item.vlrDsc, perDsc, false, item.codDep)
       })
     },
 
     preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
-        if (pedido.fpg && pedido.fpg.perDsc !== '0,00') {
-          const vlrCarrinho = this.getVlrCarrinho() 
-          const vlrDarNbr = Number(pedido.vlrDar.replace(',', '.')) 
-          const vlrDscFinal = vlrCarrinho - vlrDarNbr
-          const vlrComDescontoManual = vlrDscFinal / (1 - (Number(pedido.fpg.perDsc.replace(',', '.')) / 100).toFixed(2))
-          const vlrComDescontoManualStr = shared.toMoneyString(vlrComDescontoManual).replace('R$', '').trim()
-          const vlrDescNbr = vlrCarrinho - Number(vlrComDescontoManualStr.replace(',', '.'))
-          
-          if (vlrDescNbr > 0) {
-            this.tipDesc = 'valor'
-            this.vlrDesc = shared.toMoneyString(vlrDescNbr).replace('R$', '').trim()
-          } else {
-            this.tipDesc = ''
-            this.vlrDesc = ''
-          }
-        } else {
-          this.tipDesc = 'valor'
-          this.vlrDesc = pedido.vlrDar
-        }
+        this.tipOpeVlr = pedido.vlrDar.endsWith('-') ? 'desconto' : 'acrescimo'
+        const vlrDarTmp = pedido.vlrDar.replace('-', '')
+        this.tipDesc = 'valor'
+        this.vlrDesc = vlrDarTmp
+     
         this.atualizarValorTotalCompra()
       }
     },
