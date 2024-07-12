@@ -361,7 +361,7 @@
             <div class="col-3">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CEP</span>
-                <vue-mask class="form-control" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli"></vue-mask>
+                <vue-mask class="form-control" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli" id="inputCadCliCepCli" v-on:keyup="consultarCep"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -1765,6 +1765,32 @@ export default {
       const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
       this.clienteExistente = false
       if (cliente) this.clienteExistente = true
+    },
+
+    async consultarCep() {
+      const numCep = document.getElementById('inputCadCliCepCli').value.replace('-', '')
+      if (numCep.length === 8) {
+        document.getElementById('inputCadCliCepCli').disabled = true
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+
+        await api.consultarCEP(numCep)
+          .then((response) => {
+              const retornoCEP = response.data
+              this.cadCliEndCli = retornoCEP.logradouro
+              this.cadCliBaiCli = retornoCEP.bairro
+              this.cadCliCidCli = retornoCEP.localidade
+              this.cadCliSigUfs = retornoCEP.uf
+            })
+            .catch((err) => {
+              console.log(err)
+              alert('Não foi possível localizar as informações para o CEP informado.')
+            })
+            .finally(() => {
+              document.getElementsByTagName('body')[0].style.cursor = 'auto'
+              document.getElementById('inputCadCliCepCli').disabled = false
+              document.getElementById('inputCadCliCepCli').focus()
+            })
+      }
     },
 
     async cadastrarCliente() {
