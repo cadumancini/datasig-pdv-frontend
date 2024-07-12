@@ -78,6 +78,9 @@ var functions = {
   },
   cancelarPedido(numPed, sitPed) {
     return axios.post(urlBase + '/pedidos/cancelar?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed + '&sitPed=' + sitPed)
+  },
+  consultarCEP(numCep) {
+    return axios.get(urlBase + '/clientes/consultaCEP?token=' + sessionStorage.getItem('token') + '&numCep=' + numCep)
   }
 }
 
