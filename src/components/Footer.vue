@@ -50,7 +50,7 @@ export default {
           nomUsu: response.data.parametrosPDV.nomUsu,
           base: process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção' 
         }
-        sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
+        sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
       })
       .catch((err) => {
         console.log(err)
