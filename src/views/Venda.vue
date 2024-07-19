@@ -2237,7 +2237,6 @@ export default {
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
-      console.log(this.itensCarrinho)
     },
 
     limparDescontoItemFromModal() {
@@ -2748,7 +2747,6 @@ export default {
         }
         itens.push(itemPedido)
       })
-      // console.log(itens)
       this.enviarPedido(itens, limpar)
     },
 
