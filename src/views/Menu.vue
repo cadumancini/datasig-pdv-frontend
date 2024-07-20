@@ -1,21 +1,42 @@
 <template>
-  <div class="menu-tela">
+  <div class="pdv-tela">
     <Navbar title="Menu"/>
-    <div class="menu">
+    <div class="pdv-frame">
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Operações de Caixa</span>
-        <button disabled class="btn btn-secondary btn-menu mx-4">Abertura</button>
-        <button disabled class="btn btn-secondary btn-menu mx-4">Fechamento</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="startOperacao('ABERTURA')">Abertura</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="startOperacao('SANGRIA')">Sangria</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="startOperacao('FECHAMENTO')">Fechamento</button>
+        <button id="btnOperacaoCaixa" class="btn-busca" data-bs-toggle="modal" data-bs-target="#operacaoCaixaModal">...</button>
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Operações de Venda</span>
-        <button class="btn btn-secondary btn-menu mx-4" @click="access('Venda')">Realizar Venda (V)</button>
-        <button class="btn btn-secondary btn-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos (L)</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('Venda')">Realizar Venda (V)</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos (L)</button>
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Consultas</span>
-        <button class="btn btn-secondary btn-menu mx-4" @click="access('ConsultaNotas')">Notas Fiscais (N)</button>
-        <button disabled class="btn btn-secondary btn-menu mx-4">Produtos</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaNotas')">Notas Fiscais (N)</button>
+        <button disabled class="btn btn-secondary btn-main-menu mx-4">Produtos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Operação do Caixa -->
+  <div class="modal fade" id="operacaoCaixaModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Operação de Caixa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalOperacaoCaixa"></button>
+        </div>
+        <div class="modal-body">
+          <textarea id="inputObsItem" class="form-control" maxlength="255" v-model="obsIpd" rows="5" placeholder="Informe a observação do item"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="realizarOperacaoCaixa">Confirmar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -26,9 +47,18 @@
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import api from '../utils/api'
+import vueMask from 'vue-jquery-mask'
 export default {
   name: 'Menu',
-  components: { Navbar, Footer },
+  components: { Navbar, Footer, vueMask },
+  data () {
+    return {
+      tipoOperacao: '',
+      options: {
+        reverse: true
+      }
+    }
+  },
   created () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
@@ -117,67 +147,18 @@ export default {
         })
       }
     },
+
+    startOperacao(operacao) {
+      this.tipoOperacao = operacao
+
+      document.getElementById('btnOperacaoCaixa').click()
+      const modalElement = document.getElementById('operacaoCaixaModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputRepresentantesFiltro').focus()
+      })
+    }
   }
 }
 </script>
 
-<style scoped>
-   html, body {
-    height: 100%;
-  }
-  .menu-tela {
-    height: 100%;
-  }
-  .menu {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    height: 80%;
-  }
-  .btn-sub {
-    display: block;
-    color: #fff;
-    background-color: #93999e;
-    width: 100%;
-  }
-  .btn-sub:hover {
-    color: #fff;
-    background-color: #808283;
-  }
-  .btn-sub:active {
-    background-color: #bdbdbd !important;
-    color:
-     #fff !important;
-  }
-  .btn-menu {
-    height:10rem;
-    width:10rem;
-    cursor:pointer;
-  }
-  .margin-b {
-    margin-bottom: 1.5rem !important;
-  }
-  .section {
-    font-size: 2.5rem !important;
-  }
-
-  @media (max-width: 450px) {
-    .btn-menu {
-      height:7rem;
-      width:7rem;
-    }
-  }
-
-  @media (max-height: 768px) {
-    .btn-menu {
-      height:7rem;
-      width:9rem;
-    }
-    .margin-b {
-      margin-bottom: 0.5rem !important;
-    }
-    .section {
-      font-size: 1.7rem !important;
-    }
-  }
-
-</style>
+<style scoped src="../styles/general.css"></style>
