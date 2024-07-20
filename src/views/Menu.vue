@@ -24,14 +24,26 @@
 
   <!-- Modal Operação do Caixa -->
   <div class="modal fade" id="operacaoCaixaModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-sm">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Operação de Caixa</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalOperacaoCaixa"></button>
         </div>
         <div class="modal-body">
-          <textarea id="inputObsItem" class="form-control" maxlength="255" v-model="obsIpd" rows="5" placeholder="Informe a observação do item"></textarea>
+          <div class="row">
+            <div class="col">
+              <span>Informe o valor para realizar a operação de {{ tipoOperacao.toLowerCase() }}:</span>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">R$</span>
+                <vue-mask id="inputVlrMov" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrMov"></vue-mask>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="realizarOperacaoCaixa">Confirmar</button>
@@ -48,12 +60,14 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import api from '../utils/api'
 import vueMask from 'vue-jquery-mask'
+
 export default {
   name: 'Menu',
   components: { Navbar, Footer, vueMask },
   data () {
     return {
       tipoOperacao: '',
+      vlrMov: '',
       options: {
         reverse: true
       }
@@ -150,12 +164,18 @@ export default {
 
     startOperacao(operacao) {
       this.tipoOperacao = operacao
+      this.vlrMov = ''
 
       document.getElementById('btnOperacaoCaixa').click()
       const modalElement = document.getElementById('operacaoCaixaModal')
       modalElement.addEventListener('shown.bs.modal', () => {
-        document.getElementById('inputRepresentantesFiltro').focus()
+        document.getElementById('inputVlrMov').focus()
       })
+    },
+
+    realizarOperacaoCaixa() {
+      console.log(this.tipoOperacao)
+      console.log(this.vlrMov)
     }
   }
 }
