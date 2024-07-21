@@ -59,6 +59,7 @@
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import api from '../utils/api'
+import shared from '../utils/sharedFunctions'
 import vueMask from 'vue-jquery-mask'
 
 export default {
