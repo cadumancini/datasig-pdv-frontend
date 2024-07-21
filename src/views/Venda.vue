@@ -805,8 +805,8 @@
     </div>
   </div>
 
-    <!-- Modal Observação item -->
-    <div class="modal fade" id="obsItemModal" tabindex="-1">
+  <!-- Modal Observação item -->
+  <div class="modal fade" id="obsItemModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
