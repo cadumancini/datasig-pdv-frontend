@@ -33,7 +33,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="col">
-              <span>Informe o valor para realizar a operação de {{ tipoOperacao.toLowerCase() }}:</span>
+              <span>Informe o valor para realizar a operação de {{ tipoOperacao.toLowerCase() }} do caixa:</span>
             </div>
           </div>
           <div class="row margin-y-fields">
@@ -46,8 +46,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="realizarOperacaoCaixa">Confirmar</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-secondary" id="btnRealizarOperacaoCaixa" @click="realizarOperacaoCaixa">Confirmar</button>
+          <button type="button" class="btn btn-secondary" id="btnCancelarOperacaoCaixa" data-bs-dismiss="modal">Cancelar</button>
         </div>
       </div>
     </div>
@@ -173,9 +173,34 @@ export default {
       })
     },
 
-    realizarOperacaoCaixa() {
-      console.log(this.tipoOperacao)
-      console.log(this.vlrMov)
+    async realizarOperacaoCaixa() {
+      if (this.vlrMov === '' || Number(this.vlrMov.replace(',','.')) === 0) {
+        alert('Por favor, preencha um valor.')
+      } else {
+        document.getElementById('inputVlrMov').disabled = true
+        document.getElementById('btnRealizarOperacaoCaixa').disabled = true
+        document.getElementById('btnCancelarOperacaoCaixa').disabled = true
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+
+        await api.realizarOperacaoCaixa(this.tipoOperacao, this.vlrMov)
+          .then((response) => {
+            alert('Operação realizada com sucesso.')         
+            document.getElementById('closeModalOperacaoCaixa').click()
+          })
+          .catch((err) => {
+            console.log(err)
+            shared.handleRequestError(err)
+            if(err.response.data) {
+              document.getElementById('inputVlrMov').focus()
+            }
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            document.getElementById('inputVlrMov').disabled = false
+            document.getElementById('btnRealizarOperacaoCaixa').disabled = false
+            document.getElementById('btnCancelarOperacaoCaixa').disabled = false
+          })
+      }
     }
   }
 }
