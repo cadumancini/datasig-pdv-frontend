@@ -211,7 +211,7 @@ hr {
     padding-bottom: 15px;
     height: 80%;
   }
-  .btn-menu {
+  .btn-main-menu {
     height:7rem;
     width:9rem;
   }
@@ -258,7 +258,7 @@ hr {
 }
 
 @media (max-width: 450px) {
-  .btn-menu {
+  .btn-main-menu {
     height:7rem;
     width:7rem;
   }
