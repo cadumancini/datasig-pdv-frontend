@@ -44,6 +44,13 @@
               </div>
             </div>
           </div>
+          <div class="row margin-y-fields">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <textarea id="inputHisMov" class="form-control" maxlength="100" v-model="hisMov" rows="5" placeholder="Informe o histórico da movimentação (máx. 100 caracteres)"></textarea>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btnRealizarOperacaoCaixa" @click="realizarOperacaoCaixa">Confirmar</button>
@@ -69,6 +76,7 @@ export default {
     return {
       tipoOperacao: '',
       vlrMov: '',
+      hisMov: '',
       options: {
         reverse: true
       }
@@ -166,6 +174,7 @@ export default {
     startOperacao(operacao) {
       this.tipoOperacao = operacao
       this.vlrMov = ''
+      this.hisMov = ''
 
       document.getElementById('btnOperacaoCaixa').click()
       const modalElement = document.getElementById('operacaoCaixaModal')
@@ -175,15 +184,14 @@ export default {
     },
 
     async realizarOperacaoCaixa() {
-      if (this.vlrMov === '' || Number(this.vlrMov.replace(',','.')) === 0) {
-        alert('Por favor, preencha um valor.')
-      } else {
+      if (this.validarOperacaoCaixa()) {
         document.getElementById('inputVlrMov').disabled = true
+        document.getElementById('inputHisMov').disabled = true
         document.getElementById('btnRealizarOperacaoCaixa').disabled = true
         document.getElementById('btnCancelarOperacaoCaixa').disabled = true
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
 
-        await api.realizarOperacaoCaixa(this.tipoOperacao, this.vlrMov)
+        await api.realizarOperacaoCaixa(this.tipoOperacao, this.vlrMov, this.hisMov)
           .then((response) => {
             alert('Operação realizada com sucesso.')         
             document.getElementById('closeModalOperacaoCaixa').click()
@@ -198,10 +206,24 @@ export default {
           .finally(() => {
             document.getElementsByTagName('body')[0].style.cursor = 'auto'
             document.getElementById('inputVlrMov').disabled = false
+            document.getElementById('inputHisMov').disabled = false
             document.getElementById('btnRealizarOperacaoCaixa').disabled = false
             document.getElementById('btnCancelarOperacaoCaixa').disabled = false
           })
       }
+    },
+
+    validarOperacaoCaixa() {
+      if (this.vlrMov === '' || Number(this.vlrMov.replace(',','.')) === 0) {
+        alert('Por favor, preencha um valor.')
+        document.getElementById('inputVlrMov').focus()
+        return false
+      } else if (this.hisMov === '') {
+        alert('Por favor, preencha o texto do histórico da movimentação.')
+        document.getElementById('inputHisMov').focus()
+        return false
+      }
+      return true
     }
   }
 }
