@@ -154,10 +154,11 @@
           <div class="row margin-y-fields">
             <div class="col-6">
               <div class="input-group input-group-sm">
-                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlr" id="selectTipOpeVlr">
+                <!-- <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlr" id="selectTipOpeVlr">
                   <option selected value="desconto">Desconto</option>
                   <option value="acrescimo">Acréscimo</option>
-                </select>
+                </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
+                <span class="input-group-text">Desconto</span> <!-- TODO: remover quando resolver acrescimo -->
                 <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
@@ -804,8 +805,8 @@
     </div>
   </div>
 
-    <!-- Modal Observação item -->
-    <div class="modal fade" id="obsItemModal" tabindex="-1">
+  <!-- Modal Observação item -->
+  <div class="modal fade" id="obsItemModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -835,10 +836,11 @@
           <div class="row">
             <div class="col">
               <div class="input-group input-group-sm">
-                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlrIpd" id="selectTipOpeVlr">
+                <!-- <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; tipDesc=''" class="form-select disable-on-sale" v-model="tipOpeVlrIpd" id="selectTipOpeVlr">
                   <option selected value="desconto">Desconto</option>
                   <option value="acrescimo">Acréscimo</option>
-                </select>
+                </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
+                <span class="input-group-text">Desconto</span> <!-- TODO: remover depois de resolver acrescimo -->
                 <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
                   <option selected value="">Nenhum</option>
                   <option value="valor" v-if="tipOpeVlrIpd === 'desconto'">Valor</option>
@@ -2235,7 +2237,6 @@ export default {
       document.getElementById('closeModalDescItem').click()
       this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
-      console.log(this.itensCarrinho)
     },
 
     limparDescontoItemFromModal() {
@@ -2746,7 +2747,6 @@ export default {
         }
         itens.push(itemPedido)
       })
-      // console.log(itens)
       this.enviarPedido(itens, limpar)
     },
 

@@ -81,6 +81,9 @@ var functions = {
   },
   consultarCEP(numCep) {
     return axios.get(urlBase + '/clientes/consultaCEP?token=' + sessionStorage.getItem('token') + '&numCep=' + numCep)
+  },
+  realizarOperacaoCaixa(tipoOperacao, valorOperacao, hisMov) {
+    return axios.post(urlBase + '/caixa?token=' + sessionStorage.getItem('token') + '&tipoOperacao=' + tipoOperacao + '&valorOperacao=' + valorOperacao + '&hisMov=' + hisMov)
   }
 }
 

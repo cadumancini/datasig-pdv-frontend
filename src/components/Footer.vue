@@ -35,7 +35,7 @@ export default {
     if (sessionStorage.getItem('paramsPDV')) {
       this.paramsPDV = JSON.parse(sessionStorage.getItem('paramsPDV'))
       this.paramsPDV.base = process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção'  
-    } else {
+    } else if (sessionStorage.getItem('token')) {
       api.getUserParams()
       .then((response) => {
         this.paramsPDV = {

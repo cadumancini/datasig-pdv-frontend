@@ -15,6 +15,32 @@ html, body {
 .btn-busca {
   display: none;
 }
+.btn-sub {
+  display: block;
+  color: #fff;
+  background-color: #93999e;
+  width: 100%;
+}
+.btn-sub:hover {
+  color: #fff;
+  background-color: #808283;
+}
+.btn-sub:active {
+  background-color: #bdbdbd !important;
+  color:
+   #fff !important;
+}
+.btn-main-menu {
+  height:10rem;
+  width:10rem;
+  cursor:pointer;
+}
+.margin-b {
+  margin-bottom: 1.5rem !important;
+}
+.section {
+  font-size: 2.5rem !important;
+}
 .table-wrapper {
   height: 22rem;
   width: 100%;
@@ -185,6 +211,16 @@ hr {
     padding-bottom: 15px;
     height: 80%;
   }
+  .btn-main-menu {
+    height:7rem;
+    width:9rem;
+  }
+  .margin-b {
+    margin-bottom: 0.5rem !important;
+  }
+  .section {
+    font-size: 1.7rem !important;
+  }
 }
 
 @media only screen and (max-height: 730px) {
@@ -218,5 +254,12 @@ hr {
   .margin-y-fields {
     margin-top: 0.4rem !important;
     margin-bottom: 0.4rem !important;
+  }
+}
+
+@media (max-width: 450px) {
+  .btn-main-menu {
+    height:7rem;
+    width:7rem;
   }
 }
