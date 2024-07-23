@@ -4,6 +4,7 @@ import Menu from '../views/Menu.vue'
 import Venda from '../views/Venda.vue'
 import ConsultaPedidos from '../views/ConsultaPedidos.vue'
 import ConsultaNotas from '../views/ConsultaNotas.vue'
+import ConsultaMovimentos from '../views/ConsultaMovimentos.vue'
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/consulta-notas',
     name: 'ConsultaNotas',
     component: ConsultaNotas
+  },
+  {
+    path: '/consulta-movimentos',
+    name: 'ConsultaMovimentos',
+    component: ConsultaMovimentos
   }
 ]
 

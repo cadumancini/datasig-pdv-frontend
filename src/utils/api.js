@@ -84,7 +84,13 @@ var functions = {
   },
   realizarOperacaoCaixa(tipoOperacao, valorOperacao, hisMov) {
     return axios.post(urlBase + '/caixa?token=' + sessionStorage.getItem('token') + '&tipoOperacao=' + tipoOperacao + '&valorOperacao=' + valorOperacao + '&hisMov=' + hisMov)
-  }
+  },
+  getMovimentosCaixa(datIni, datFim) {
+    let url = urlBase + '/caixa/movimentos?token=' + sessionStorage.getItem('token')
+    url += datIni !== null ? '&datIni=' + datIni : ''
+    url += datFim !== null ? '&datFim=' + datFim : ''
+    return axios.get(url)
+  },
 }
 
 export default functions
