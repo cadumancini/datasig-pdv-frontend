@@ -11,12 +11,12 @@
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Operações de Venda</span>
-        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('Venda')">Realizar Venda (V)</button>
-        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos (L)</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('Venda')">Realizar Venda</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaPedidos')">Consultar Pedidos</button>
       </div>
       <div class="row mx-4 margin-b">
         <span class="fw-bold section margin-b">Consultas</span>
-        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaNotas')">Notas Fiscais (N)</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaNotas')">Notas Fiscais</button>
         <button disabled class="btn btn-secondary btn-main-menu mx-4">Produtos</button>
       </div>
     </div>
@@ -94,24 +94,24 @@ export default {
       this.populateFormasPagto()
       this.populateParams()
 
-      this.addEvents()
+      //this.addEvents()
     }
   },
   methods: {
-    addEvents() {
-      let self = this
-      window.addEventListener('keyup', function(ev) {
-          self.handleOption(ev)
-      });
-    },
+    // addEvents() {
+    //   let self = this
+    //   window.addEventListener('keyup', function(ev) {
+    //       self.handleOption(ev)
+    //   });
+    // },
 
-    handleOption(event) {
-      if (sessionStorage.getItem('form') === 'menu') {
-        if(event.key.toUpperCase() === 'V') this.access('Venda')
-        if(event.key.toUpperCase() === 'L') this.access('ConsultaPedidos')
-        if(event.key.toUpperCase() === 'N') this.access('ConsultaNotas')
-      }
-    },
+    // handleOption(event) {
+    //   if (sessionStorage.getItem('form') === 'menu') {
+    //     if(event.key.toUpperCase() === 'V') this.access('Venda')
+    //     if(event.key.toUpperCase() === 'L') this.access('ConsultaPedidos')
+    //     if(event.key.toUpperCase() === 'N') this.access('ConsultaNotas')
+    //   }
+    // },
 
     access (form) {
       this.$router.push({ name: form })
