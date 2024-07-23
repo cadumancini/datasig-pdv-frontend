@@ -93,26 +93,9 @@ export default {
       this.populateClientes()
       this.populateFormasPagto()
       this.populateParams()
-
-      //this.addEvents()
     }
   },
   methods: {
-    // addEvents() {
-    //   let self = this
-    //   window.addEventListener('keyup', function(ev) {
-    //       self.handleOption(ev)
-    //   });
-    // },
-
-    // handleOption(event) {
-    //   if (sessionStorage.getItem('form') === 'menu') {
-    //     if(event.key.toUpperCase() === 'V') this.access('Venda')
-    //     if(event.key.toUpperCase() === 'L') this.access('ConsultaPedidos')
-    //     if(event.key.toUpperCase() === 'N') this.access('ConsultaNotas')
-    //   }
-    // },
-
     access (form) {
       this.$router.push({ name: form })
       sessionStorage.setItem('form', form)
