@@ -31,23 +31,23 @@
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead>
             <tr>
-              <th class="sm-header" style="width: 7%;"><small>Transação</small></th>
               <th class="sm-header" style="width: 9%;"><small>Data</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Déb./Créd.</small></th>
-              <th class="sm-header" style="width: 50%;"><small>Histórico</small></th>
               <th class="sm-header" style="width: 7%;"><small>Num. Caixa</small></th>
               <th class="sm-header" style="width: 7%;"><small>Seq. Mov.</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Transação</small></th>
+              <th class="sm-header" style="width: 50%;"><small>Histórico</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Déb./Créd.</small></th>
               <th class="sm-header" style="width: 13%;"><small>Valor (R$)</small></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="row in movimentos">
-              <th class="fw-normal sm">{{ row.codTns }}</th>
               <th class="fw-normal sm">{{ row.datMov }}</th>
-              <th class="fw-normal sm">{{ row.debCre }}</th>
-              <th class="fw-normal sm">{{ row.hisMov }}</th>
               <th class="fw-normal sm">{{ row.numCxa }}</th>
               <th class="fw-normal sm">{{ row.seqMov }}</th>
+              <th class="fw-normal sm">{{ row.codTns }}</th>
+              <th class="fw-normal sm">{{ row.hisMov }}</th>
+              <th class="fw-normal sm">{{ row.debCre }}</th>
               <th class="fw-normal sm">{{ toMoneyString(row.vlrMov) }}</th>
             </tr>
           </tbody>
