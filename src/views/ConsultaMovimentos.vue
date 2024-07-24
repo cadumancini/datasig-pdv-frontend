@@ -31,13 +31,13 @@
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead>
             <tr>
-              <th class="sm-header" style="width: 14%;"><small>Transação</small></th>
-              <th class="sm-header" style="width: 15%;"><small>Data</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Déb./Créd.</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Histórico</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Num. Caixa</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Seq. Mov.</small></th>
-              <th class="sm-header" style="width: 15%;"><small>Valor (R$)</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Transação</small></th>
+              <th class="sm-header" style="width: 9%;"><small>Data</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Déb./Créd.</small></th>
+              <th class="sm-header" style="width: 50%;"><small>Histórico</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Num. Caixa</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Seq. Mov.</small></th>
+              <th class="sm-header" style="width: 13%;"><small>Valor (R$)</small></th>
             </tr>
           </thead>
           <tbody>
@@ -52,14 +52,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-      <div class="row mt-2" v-if="movimentos && movimentos.length > 0">
-        <div class="col-3">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Total Movimentos</span>
-            <input disabled class="form-control" :value="toMoneyString(totalMovimentos)">
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -134,7 +126,6 @@ export default {
 
       // registros
       movimentos: null,
-      totalMovimentos: 0,
 
       // geral
       options: {
@@ -185,7 +176,6 @@ export default {
     limparCampos() {
       this.datIni = ''
       this.datFim = ''
-      this.totalMovimentos = 0
     },
 
     toMoneyString(value) {
@@ -206,7 +196,6 @@ export default {
       await api.getMovimentosCaixa(filterDatIni, filterDatFim)
       .then((response) => {
         this.movimentos = response.data
-        this.calcResumo()
       })
       .catch((err) => {
         console.log(err)
@@ -214,10 +203,6 @@ export default {
       })
       this.setEverythingDisabled(false)
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
-    },
-
-    calcResumo() {
-      this.totalMovimentos = Number(this.movimentos.map(item => item.vlrMov).reduce((prev, curr) => prev + curr, 0))
     }
   }
 }
