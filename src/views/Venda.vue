@@ -1992,7 +1992,7 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          const vlrPerc = Number((item.vlrTot * (perDsc / 100)).toFixed(2))
+          const vlrPerc = shared.customRound(item.vlrTot * (perDsc / 100))
           item.vlrLiq = item.tipOpeVlrIpd === 'desconto' ? 
                           (item.vlrTot - vlrPerc) :
                           (item.vlrTot + vlrPerc)
@@ -2874,7 +2874,7 @@ export default {
     aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
-        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : Number((valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2))
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : shared.customRound(valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100))
                 
         if (valorTmp < this.vlrDescPedido && this.tipOpeVlr === 'desconto') {
           alert('O desconto não pode ser maior que o valor total do pedido!')
