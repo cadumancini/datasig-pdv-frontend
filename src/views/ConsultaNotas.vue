@@ -27,6 +27,20 @@
             </select>
           </div>
         </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Representante</span>
+            <input autocomplete="off" id="inputCodRep" class="form-control disable-on-search" v-model="codRep">
+          </div>
+        </div>
+        <div class="col">
+          <div class="float-end">
+            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
+            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
+          </div>
+        </div>
+      </div>
+      <div class="row margin-y-fields">
         <div class="col-5">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Emissão</span>
@@ -39,28 +53,22 @@
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
-        <div class="col">
-          <div class="float-end">
-            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
-            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
-          </div>
-        </div>
       </div>
       <div class="row table-registros border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead>
             <tr>
               <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
-              <th class="sm-header" style="width: 5%;"><small>Filial</small></th>
-              <th class="sm-header" style="width: 5%;"><small>Nota</small></th>
-              <th class="sm-header" style="width: 5%;"><small>Série</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Filial</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Nota</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Série</small></th>
               <th class="sm-header" style="width: 5%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 6%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Emissão</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Valor</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Sit. Nota</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 25%;"><small>Ação</small></th>
+              <th class="sm-header" style="width: 20%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 11%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Valor</small></th>
+              <th class="sm-header" style="width: 8%;"><small>Sit. Nota</small></th>
+              <th class="sm-header" style="width: 9%;"><small>Sit. Doc. Eletr.</small></th>
+              <th class="sm-header" style="width: 23%;"><small>Ação</small></th>
             </tr>
           </thead>
           <tbody>
@@ -70,7 +78,7 @@
               <th class="fw-normal sm">{{ row.numNfv }}</th>
               <th class="fw-normal sm">{{ row.codSnf }}</th>
               <th class="fw-normal sm">{{ row.codCli }}</th>
-              <th class="fw-normal sm">{{ row.codRep }}</th>
+              <th class="fw-normal sm">{{ row.codRep }} - {{ row.nomRep }}</th>
               <th class="fw-normal sm">{{ row.datEmi }} - {{ row.horEmi }}</th>
               <th class="fw-normal sm">{{ toMoneyString(row.vlrLiq) }}</th>
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
@@ -226,6 +234,7 @@ export default {
     return {
       // filtros
       numNfv: '',
+      codRep: '',
       situacao: '',
       datIni: '',
       datFim: '',
@@ -291,6 +300,7 @@ export default {
     limparCampos() {
       this.numNfv = ''
       this.situacao = ''
+      this.codRep = ''
       this.datIni = ''
       this.datFim = ''
       this.jusCan = ''
@@ -326,7 +336,8 @@ export default {
       const filterSituacao = this.situacao !== '' ? this.situacao : null
       const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
-      await api.getNotas(filterNumNfv, filterSituacao, filterDatIni, filterDatFim)
+      const filterCodRep = this.codRep !== '' ? this.codRep : null
+      await api.getNotas(filterNumNfv, filterSituacao, filterDatIni, filterDatFim, filterCodRep)
       .then((response) => {
         this.notas = response.data
         this.calcResumo()
