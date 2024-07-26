@@ -29,7 +29,7 @@ var functions = {
       const digit = parseInt(numStr[i])
       if (digit > 5) {
         result = (parseInt(numStr[i - 1]) + 1).toString() + result
-        i--; // Skip the next digit as it's already processed
+        i-- // Skip the next digit as it's already processed
       } else {
         result = digit.toString() + result
       }
