@@ -37,6 +37,13 @@ var functions = {
   
     result = numStr.slice(0, decimalIndex) + '.' + result
     return Number(result.slice(0, result.indexOf('.') + 3))
+  },
+  populateTabIndex(list) {
+    let index = 0
+    list.forEach(item => {
+      item.tabIndex = index
+      index++
+    })
   }
 }
 
