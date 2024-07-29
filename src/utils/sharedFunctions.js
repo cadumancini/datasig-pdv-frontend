@@ -19,6 +19,31 @@ var functions = {
   toMoneyThenNumber(value) {
     return Number(this.toMoneyString(value)
       .replace('R$', '').replace('.','').replace(',','.').trim())
+  },
+  customRound(num) {
+    const numStr = num.toString()
+    const decimalIndex = numStr.indexOf('.')
+    let result = ''
+  
+    for (let i = numStr.length - 1; i >= decimalIndex + 1; i--) {
+      const digit = parseInt(numStr[i])
+      if (digit > 5) {
+        result = (parseInt(numStr[i - 1]) + 1).toString() + result
+        i-- // Skip the next digit as it's already processed
+      } else {
+        result = digit.toString() + result
+      }
+    }
+  
+    result = numStr.slice(0, decimalIndex) + '.' + result
+    return Number(result.slice(0, result.indexOf('.') + 3))
+  },
+  populateTabIndex(list) {
+    let index = 0
+    list.forEach(item => {
+      item.tabIndex = index
+      index++
+    })
   }
 }
 

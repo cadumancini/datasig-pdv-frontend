@@ -1311,14 +1311,6 @@ export default {
       return true
     },
 
-    populateTabIndex(list) {
-      let index = 0
-      list.forEach(item => {
-        item.tabIndex = index
-        index++
-      })
-    },
-
     scrollToElement(element) {
       element.scrollIntoView({
         behavior: 'smooth',
@@ -1399,7 +1391,7 @@ export default {
                   rep.apeRep.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexRep = 0
 
-      this.populateTabIndex(this.representantesFiltrados)
+      shared.populateTabIndex(this.representantesFiltrados)
     },
 
     openRepresentantesModal() {
@@ -1509,7 +1501,7 @@ export default {
                   dep.desDep.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexDep = 0
 
-      this.populateTabIndex(this.depositosFiltrados)
+      shared.populateTabIndex(this.depositosFiltrados)
     },
 
     openDepositosModal() {
@@ -1936,7 +1928,7 @@ export default {
 
       this.codBar = ''
       document.getElementById('inputProduto').focus()
-      this.populateTabIndex(this.itensCarrinho)
+      shared.populateTabIndex(this.itensCarrinho)
       this.atualizarValorTotalCompra()
 
       if (this.pedidoSelected && atualizar) {
@@ -1992,7 +1984,7 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          const vlrPerc = Number((item.vlrTot * (perDsc / 100)).toFixed(2))
+          const vlrPerc = shared.customRound(item.vlrTot * (perDsc / 100))
           item.vlrLiq = item.tipOpeVlrIpd === 'desconto' ? 
                           (item.vlrTot - vlrPerc) :
                           (item.vlrTot + vlrPerc)
@@ -2161,7 +2153,7 @@ export default {
 
     async removerItem(item) {
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
-      this.populateTabIndex(this.itensCarrinho)
+      shared.populateTabIndex(this.itensCarrinho)
       this.atualizarValorTotalCompra()
       this.tableIndexCar = 0
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
@@ -2377,7 +2369,7 @@ export default {
       this.tabelasPrecoFiltrados = this.tabelasPreco.filter(tpr => (tpr.codTpr.toUpperCase().startsWith(filter.toUpperCase())))
       this.tableIndexTpr = 0
 
-      this.populateTabIndex(this.tabelasPrecoFiltrados)
+      shared.populateTabIndex(this.tabelasPrecoFiltrados)
     },
 
     openTabelasPrecoModal() {
@@ -2615,7 +2607,7 @@ export default {
     },
 
     updateValorPendente() {
-      this.populateTabIndex(this.pagamentos)
+      shared.populateTabIndex(this.pagamentos)
       this.calcularValorPendente()
     },
 
@@ -2874,7 +2866,7 @@ export default {
     aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
-        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : Number((valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100)).toFixed(2))
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : shared.customRound(valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100))
                 
         if (valorTmp < this.vlrDescPedido && this.tipOpeVlr === 'desconto') {
           alert('O desconto não pode ser maior que o valor total do pedido!')
@@ -3041,7 +3033,7 @@ export default {
       this.pedidosFiltrados = filter !== '' ? this.pedidos.filter(ped => (ped.numPed === filter)) : this.pedidos
       this.tableIndexPed = 0
 
-      this.populateTabIndex(this.pedidosFiltrados)
+      shared.populateTabIndex(this.pedidosFiltrados)
     },
 
     openPedidosModal() {
