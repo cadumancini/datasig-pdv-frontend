@@ -1966,8 +1966,9 @@ export default {
       }
     },
 
-    atualizarValorTotalCompra() {
-      if (this.calcularValorLiqItens()) {
+    async atualizarValorTotalCompra() {
+      const successful = await this.calcularValorLiqItens()
+      if (successful) {
         this.vlrTot = shared.toMoneyString(this.getVlrCarrinho())
         this.vlrFinalNbr = this.getVlrCarrinho()
         this.vlrFinal = this.vlrTot
@@ -1978,8 +1979,9 @@ export default {
       }
     },
 
-    calcularValorLiqItens() {
-      this.itensCarrinho.forEach(item => {
+    async calcularValorLiqItens() {
+      for(let i = 0; i < this.itensCarrinho.length; i++) {
+        const item = this.itensCarrinho[i]
         if (item.tipDsc === 'valor') {
           const vlrDsc = Number(item.vlrDsc.replace('.','').replace(',','.').trim())
           if(vlrDsc > item.vlrTot) {
@@ -1990,14 +1992,14 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          const vlrPerc = shared.customRound(item.vlrTot * (perDsc / 100))
+          const vlrPerc = await this.calcularDescontoAPI(item.vlrTot, (perDsc / 100))
           item.vlrLiq = item.tipOpeVlrIpd === 'desconto' ? 
                           (item.vlrTot - vlrPerc) :
                           (item.vlrTot + vlrPerc)
         } else {
           item.vlrLiq = item.vlrTot
         }
-      })
+      }
       return true
     },
 
@@ -2509,10 +2511,10 @@ export default {
       }
     },
 
-    calcValorPagto() { 
+    async calcValorPagto() { 
       this.valorParcial = this.valorPendente
       if (this.prcDescontoForma !== '') {
-        this.valorDescontoParcial = (this.valorParcial * Number(this.prcDescontoForma.replace(',', '.')) / 100).toFixed(2)
+        this.valorDescontoParcial = await this.calcularDescontoAPI(this.valorParcial, (Number(this.prcDescontoForma.replace(',', '.')) / 100))
         this.valorDescontoParcial = shared.toMoneyString(this.valorDescontoParcial)
         this.valorParcial = this.valorParcial - this.valorDescontoParcial
       } else {
@@ -2869,11 +2871,11 @@ export default {
       return (!this.itensCarrinho || !this.itensCarrinho.length)
     },
 
-    aplicarDesconto(atualizar) {
+    async aplicarDesconto(atualizar) {
       if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
-        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : shared.customRound(valorTmp * (Number(this.vlrDesc.replace(',', '.')) / 100))
-                
+        this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : await this.calcularDescontoAPI(valorTmp, Number(this.vlrDesc.replace(',', '.')) / 100)
+
         if (valorTmp < this.vlrDescPedido && this.tipOpeVlr === 'desconto') {
           alert('O desconto não pode ser maior que o valor total do pedido!')
           this.vlrDesc = ''
@@ -2899,6 +2901,19 @@ export default {
         const itens = []
         this.enviarPedido(itens, false)
       }
+    },
+
+    async calcularDescontoAPI(vlrPro, vlrDsc) {
+      let vlrDesc = 0
+      await api.calcularDesconto(vlrPro, vlrDsc)
+      .then((response) => {
+        vlrDesc = response.data
+      })
+      .catch((err) => {
+        console.log(err)
+        shared.handleRequestError(err)
+      })
+      return vlrDesc
     },
 
     descontoExcedeLimite(vlrTmp) {
