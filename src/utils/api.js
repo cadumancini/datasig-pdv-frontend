@@ -92,6 +92,10 @@ var functions = {
     url += datFim !== null ? '&datFim=' + datFim : ''
     return axios.get(url)
   },
+  calcularDesconto(vlrPro, vlrDsc) {
+    let url = urlBase + '/pedidos/calcularDesconto?token=' + sessionStorage.getItem('token') + '&vlrPro=' + vlrPro + '&vlrDsc=' + vlrDsc
+    return axios.get(url)
+  },
 }
 
 export default functions
