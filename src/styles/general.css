@@ -48,7 +48,7 @@ html, body {
   overflow: auto;
 }
 .table-registros {
-  height: 40rem;
+  height: 37rem;
   width: 100%;
   margin: 0px auto 0px auto;
   overflow: auto;
@@ -176,7 +176,7 @@ hr {
     overflow: auto;
   }
   .table-registros {
-    height: 26rem;
+    height: 24rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
@@ -231,7 +231,7 @@ hr {
     overflow: auto;
   }
   .table-registros {
-    height: 24rem;
+    height: 23rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
