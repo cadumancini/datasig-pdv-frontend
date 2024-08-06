@@ -84,7 +84,12 @@ var functions = {
     return axios.get(urlBase + '/clientes/consultaCEP?token=' + sessionStorage.getItem('token') + '&numCep=' + numCep)
   },
   realizarOperacaoCaixa(tipoOperacao, valorOperacao, hisMov) {
-    return axios.post(urlBase + '/caixa?token=' + sessionStorage.getItem('token') + '&tipoOperacao=' + tipoOperacao + '&valorOperacao=' + valorOperacao + '&hisMov=' + hisMov)
+    const formData = new FormData()
+    formData.append('token', sessionStorage.getItem('token'))
+    formData.append('tipoOperacao', tipoOperacao)
+    formData.append('valorOperacao', valorOperacao)
+    formData.append('hisMov', hisMov)
+    return axios.post(urlBase + '/caixa', formData)
   },
   getMovimentosCaixa(datIni, datFim) {
     let url = urlBase + '/caixa/movimentos?token=' + sessionStorage.getItem('token')
