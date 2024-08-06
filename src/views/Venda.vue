@@ -441,6 +441,7 @@
         </div>
         <div class="modal-footer">
           <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
+          <span v-if="buscandoCEP" class="mandatory">Buscando informações de endereço...</span>
           <button type="button" class="btn btn-secondary btn-sm" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
@@ -916,6 +917,7 @@ export default {
       //cadastro clientes
       erroCliente: true,
       clienteExistente: false,
+      buscandoCEP: false,
       cadCliCodCli: '',
       cadCliTipCli: '',
       cadCliCgcCpf: '',
@@ -1772,6 +1774,7 @@ export default {
       if (numCep.length === 8) {
         document.getElementById('inputCadCliCepCli').disabled = true
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        this.buscandoCEP = true
 
         await api.consultarCEP(numCep)
           .then((response) => {
@@ -1789,6 +1792,7 @@ export default {
               document.getElementsByTagName('body')[0].style.cursor = 'auto'
               document.getElementById('inputCadCliCepCli').disabled = false
               document.getElementById('inputCadCliCepCli').focus()
+              this.buscandoCEP = false
             })
       }
     },

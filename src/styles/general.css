@@ -176,19 +176,19 @@ hr {
     overflow: auto;
   }
   .table-registros {
-    height: 28rem;
+    height: 26rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
   }
   .table-consulta-pedidos {
-    height: 31rem;
+    height: 29rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
   }
   .table-consulta-itens {
-    height: 17.7rem;
+    height: 15.7rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
@@ -231,7 +231,7 @@ hr {
     overflow: auto;
   }
   .table-registros {
-    height: 26rem;
+    height: 24rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
