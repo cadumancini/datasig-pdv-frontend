@@ -170,7 +170,7 @@ hr {
 
 @media only screen and (max-height: 768px) {
   .table-wrapper {
-    height: 16rem;
+    height: 14rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
@@ -182,13 +182,13 @@ hr {
     overflow: auto;
   }
   .table-consulta-pedidos {
-    height: 29rem;
+    height: 27rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
   }
   .table-consulta-itens {
-    height: 15.7rem;
+    height: 13.7rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
@@ -212,7 +212,7 @@ hr {
     height: 80%;
   }
   .btn-main-menu {
-    height:7rem;
+    height:6rem;
     width:9rem;
   }
   .margin-b {
@@ -225,7 +225,7 @@ hr {
 
 @media only screen and (max-height: 730px) {
   .table-wrapper {
-    height: 14.5rem;
+    height: 12.5rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
@@ -237,13 +237,13 @@ hr {
     overflow: auto;
   }
   .table-consulta-pedidos {
-    height: 29rem;
+    height: 24rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
   }
   .table-consulta-itens {
-    height: 16.2rem;
+    height: 11.2rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
