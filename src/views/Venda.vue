@@ -340,7 +340,7 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Tipo</span>
-                <select @change="cadCliCgcCpf=''" class="form-select" v-model="cadCliTipCli" id="selectTipCli">
+                <select @change="cadCliCgcCpf=''" class="form-select cadastro-cliente" v-model="cadCliTipCli" id="selectTipCli">
                   <option selected disabled value="" >Selecione</option>
                   <option value="F">Física</option>
                   <option value="J">Jurídica</option>
@@ -351,8 +351,8 @@
             <div class="col-8">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CPF/CNPJ</span>
-                <vue-mask id="inputCgcCpf" v-if="cadCliTipCli !== 'J'" class="form-control" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
-                <vue-mask id="inputCgcCpf" v-else class="form-control" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" v-if="cadCliTipCli !== 'J'" class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" v-else class="form-control cadastro-cliente" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -360,7 +360,7 @@
           <div class="row mb-2">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Nome</span>
-              <input autocomplete="off" class="form-control" type="text" v-model="cadCliNomCli">  
+              <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliNomCli">  
               <span class="mandatory">&nbsp;&nbsp;*</span>
             </div>
           </div>
@@ -368,14 +368,14 @@
             <div class="col-3">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CEP</span>
-                <vue-mask class="form-control" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli" id="inputCadCliCepCli" v-on:keyup="consultarCep"></vue-mask>
+                <vue-mask class="form-control cadastro-cliente" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli" id="inputCadCliCepCli" v-on:keyup="consultarCep"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Endereço</span>
-                <input autocomplete="off" class="form-control" type="text" v-model="cadCliEndCli">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliEndCli">  
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -384,14 +384,14 @@
             <div class="col-3">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número</span>
-                <input autocomplete="off" class="form-control" v-model="cadCliNenCli" maxLength="5"
+                <input autocomplete="off" class="form-control cadastro-cliente" v-model="cadCliNenCli" maxLength="5"
                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
               </div> 
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Complemento</span>
-                <input autocomplete="off" class="form-control" type="text" v-model="cadCliCplEnd">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliCplEnd">  
               </div>
             </div>
           </div>
@@ -399,21 +399,21 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Bairro</span>
-                <input autocomplete="off" class="form-control" type="text" v-model="cadCliBaiCli"> 
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliBaiCli"> 
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div> 
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cidade</span>
-                <input autocomplete="off" class="form-control" type="text" v-model="cadCliCidCli">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliCidCli">  
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Estado</span>
-                <select class="form-select" v-model="cadCliSigUfs" id="selectSigUfs">
+                <select class="form-select cadastro-cliente" v-model="cadCliSigUfs" id="selectSigUfs">
                   <option selected disabled value="">Selecione</option>
                   <option v-for="row in estados" :key="row.codUfs" :value="row.codUfs">{{ row.desUfs }}</option>
                 </select> 
@@ -425,13 +425,13 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Telefone</span>
-                <vue-mask class="form-control" mask="00 00000-0000" :raw="false" :options="options" v-model="cadCliFonCli"></vue-mask>
+                <vue-mask class="form-control cadastro-cliente" mask="00 00000-0000" :raw="false" :options="options" v-model="cadCliFonCli"></vue-mask>
               </div> 
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">E-mail</span>
-                <input autocomplete="off" class="form-control" type="text" v-model="cadCliEmaCli"> 
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliEmaCli"> 
               </div> 
             </div>
           </div>
@@ -442,8 +442,8 @@
         <div class="modal-footer">
           <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
           <span v-if="buscandoCEP" class="mandatory">Buscando informações de endereço...</span>
-          <button type="button" class="btn btn-secondary btn-sm" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
+          <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
     </div>
@@ -1202,8 +1202,8 @@ export default {
       this.cartao.catTef = ''
       this.cartao.nsuTef = ''
     },
-    setEverythingDisabled(value) {
-      const elements = document.getElementsByClassName('disable-on-sale')
+    setEverythingDisabled(className, value) {
+      const elements = document.getElementsByClassName(className)
       for (var i = 0; i < elements.length; i++) elements[i].disabled = value
     },
     addEvents() {
@@ -1816,6 +1816,7 @@ export default {
           codRep: this.codRep,
         }
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        this.setEverythingDisabled('cadastro-cliente', true)
         await api.putCliente(cliente)
           .then((response) => {
             alert('Cliente cadastrado com sucesso.')         
@@ -1852,6 +1853,7 @@ export default {
           })
           .finally(() => {
             document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            this.setEverythingDisabled('cadastro-cliente', false)
           })
       }
     },
@@ -2784,7 +2786,7 @@ export default {
       }
       
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      this.setEverythingDisabled(true)
+      this.setEverythingDisabled('disable-on-sale', true)
 
       this.status = 'pedido'
       const operacao = this.pedidoSelected ? 'alterado' : 'criado'
@@ -2814,7 +2816,7 @@ export default {
         })
         .finally(() => {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          this.setEverythingDisabled(false)
+          this.setEverythingDisabled('disable-on-sale', false)
           this.status = ''
         }) 
     },
