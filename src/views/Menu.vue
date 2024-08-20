@@ -48,7 +48,7 @@
           <div class="row margin-y-fields">
             <div class="col">
               <div class="input-group input-group-sm">
-                <textarea id="inputHisMov" class="form-control" maxlength="100" v-model="hisMov" rows="5" placeholder="Informe o histórico da movimentação (máx. 100 caracteres)"></textarea>
+                <textarea id="inputHisMov" class="form-control" maxlength="88" v-model="hisMov" rows="5" placeholder="Informe o histórico da movimentação (máx. 88 caracteres)"></textarea>
               </div>
             </div>
           </div>
