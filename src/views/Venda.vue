@@ -202,12 +202,15 @@
           </div>
           <div class="row margin-y-fields">
             <div class="col">
-              <div class="float-end">
-                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true)" :disabled="!this.itensCarrinho.length">Finalizar Venda</button>
+              <div class="float-end mx-2">
+                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" :disabled="!this.itensCarrinho.length">Gerar NFC</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Inserir Orçamento</button>
+                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)" :disabled="!this.itensCarrinho.length">Gerar Pedido</button>
+              </div>
+              <div class="float-end mx-2">
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Inserir Orçamento</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -607,7 +610,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"></button>
         </div>
         <div class="modal-body">
-          <div class="row mx-2" v-if="fecharVenda">
+          <div class="row mx-2" v-if="fecharVenda || gerarPedido">
             <div class="row">
               <div class="col-6">
                 <div class="input-group input-group-sm">
@@ -729,7 +732,7 @@
           </div>
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
-        <div class="modal-footer" v-if="fecharVenda">
+        <div class="modal-footer" v-if="fecharVenda || gerarPedido">
           <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
@@ -1040,6 +1043,7 @@ export default {
         nsuTef: '',
       },
       fecharVenda: false,
+      gerarPedido: false,
       msgConfirmacao: '',
       tipOpeVlr: 'desconto',
       tipDesc: '',
@@ -1085,8 +1089,9 @@ export default {
         { codAta: 9, tecAta: 'S', desAta: 'Desconto do Item' },
         { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
         { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 12, tecAta: 'I', desAta: 'Inserir Pedido' },
-        { codAta: 13, tecAta: 'X', desAta: 'Finalizar Venda' }
+        { codAta: 12, tecAta: 'I', desAta: 'Inserir Orçcamento' },
+        { codAta: 13, tecAta: 'G', desAta: 'Gerar Pedido' },
+        { codAta: 14, tecAta: 'N', desAta: 'Gerar NFC' }
       ],
 
       //Pedidos
@@ -1279,7 +1284,7 @@ export default {
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
-        this.triggerFinalizandoVenda(false, this.fecharVenda)
+        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido)
       })
     },
 
@@ -1292,7 +1297,8 @@ export default {
           else if (event.key.toUpperCase() === 'P') this.focusProduto()
           else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
           else if (event.key.toUpperCase() === 'A') this.focusPedido()
-          else if (event.key.toUpperCase() === 'X') document.getElementById('btnFinalizarVenda').click()
+          else if (event.key.toUpperCase() === 'N') document.getElementById('btnFinalizarVenda').click()
+          else if (event.key.toUpperCase() === 'G') document.getElementById('btnGerarPedido').click()
           else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
           else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipOpeVlr').focus()
           else if (event.key.toUpperCase() === 'E') {
@@ -1531,6 +1537,7 @@ export default {
       document.getElementById('closeModalDepositos').click()
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
+        this.gerarPedido = false
         await this.enviarVenda(false)
       }
     },
@@ -1663,6 +1670,7 @@ export default {
         document.getElementById('closeModalClientes').click()
         if (this.pedidoSelected) {
           this.fecharVenda = false
+          this.gerarPedido = false
           await this.enviarVenda(false)
         }
       }
@@ -1976,6 +1984,7 @@ export default {
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
+        this.gerarPedido = false
         await this.enviarVenda(false)
         this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
       }
@@ -2204,6 +2213,7 @@ export default {
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
       if (this.pedidoSelected) {
         this.fecharVenda = false
+        this.gerarPedido = false
         await this.removerItemPedido(item)
       }
     },  
@@ -2293,6 +2303,7 @@ export default {
       this.clearFocus()
       if (this.itemEditando.seqIpd > 0) {
         this.fecharVenda = false
+        this.gerarPedido = false
         await this.enviarVenda(false)
       }
       this.itemEditando = null  
@@ -2366,6 +2377,7 @@ export default {
           this.atualizarPrecosCarrinho()
           this.status = ''
           this.fecharVenda = false
+          this.gerarPedido = false
           await this.enviarVenda(false)
         }
       }
@@ -2512,9 +2524,10 @@ export default {
       }
     },
 
-    triggerFinalizandoVenda(finalizandoVenda, fechar) {
+    triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido) {
       this.finalizandoVenda = finalizandoVenda
       this.fecharVenda = fechar
+      this.gerarPedido = gerarPedido
       if (this.finalizandoVenda) {
         if (this.allFieldsArePopulated()) this.openFinalizarVendaModal()
         else this.finalizandoVenda = false
@@ -2523,7 +2536,7 @@ export default {
 
     openFinalizarVendaModal() {
       this.pagamentos = []
-      if (this.fecharVenda) {
+      if (this.fecharVenda || this.gerarPedido) {
         this.valorPendente = this.vlrFinalNbr
         this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
@@ -2699,7 +2712,7 @@ export default {
     },
 
     async finalizarVenda() {
-      if (this.fecharVenda && this.valorPendente > 0) {
+      if ((this.fecharVenda || this.gerarPedido) && this.valorPendente > 0) {
         alert('Favor informar o pagamento!')
       } else {
         document.getElementById('closeModalConfirmaVenda').click()
@@ -2792,10 +2805,11 @@ export default {
       const vlrDar = this.calcularVlrDar()
       const vlrTro = this.calcularVlrTro()
 
-      if (this.pedidoSelected && this.fecharVenda) {
+      if (this.pedidoSelected && (this.fecharVenda || this.gerarPedido)) {
         pedido = {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
+          gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
           vlrTro: vlrTro,
@@ -2809,6 +2823,7 @@ export default {
           codCpg: this.definirCodCpg(),
           itens: itens,
           fechar: this.fecharVenda,
+          gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
           vlrTro: vlrTro,
@@ -2933,6 +2948,7 @@ export default {
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
+        this.gerarPedido = false
         const itens = []
         this.enviarPedido(itens, false)
       }
@@ -2974,6 +2990,7 @@ export default {
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
+        this.gerarPedido = false
         const itens = []
         this.enviarPedido(itens, false)
       }
