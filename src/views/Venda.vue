@@ -2998,7 +2998,7 @@ export default {
 
     /* Pedidos */
     async initPedidos() {
-      await api.getPedidos('ORÇAMENTO', 'TODOS', null, null, null, 'ASC')
+      await api.getPedidos('TODOS', 'ABERTOS', null, null, null, 'ASC')
       .then((response) => {
         this.pedidos = response.data
         this.preencherRepresentanteCliente()
