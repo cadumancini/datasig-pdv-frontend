@@ -176,7 +176,7 @@ export default {
         document.getElementById('btnCancelarOperacaoCaixa').disabled = true
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
 
-        await api.realizarOperacaoCaixa(this.tipoOperacao, this.vlrMov, this.hisMov)
+        await api.realizarOperacaoCaixa(this.tipoOperacao, this.vlrMov, this.hisMov.toUpperCase())
           .then((response) => {
             alert('Operação realizada com sucesso.')         
             document.getElementById('closeModalOperacaoCaixa').click()
