@@ -210,7 +210,7 @@
                 <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)" :disabled="!this.itensCarrinho.length">Gerar Pedido</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Inserir Orçamento</button>
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Gerar Orçamento</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -1089,7 +1089,7 @@ export default {
         { codAta: 9, tecAta: 'S', desAta: 'Desconto do Item' },
         { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
         { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 12, tecAta: 'I', desAta: 'Inserir Orçcamento' },
+        { codAta: 12, tecAta: 'I', desAta: 'Gerar Orçcamento' },
         { codAta: 13, tecAta: 'G', desAta: 'Gerar Pedido' },
         { codAta: 14, tecAta: 'N', desAta: 'Gerar NFC' }
       ],
