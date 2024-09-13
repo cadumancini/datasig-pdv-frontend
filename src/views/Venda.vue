@@ -24,8 +24,8 @@
               <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
                 :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
-              <button id="btnSearchPed" :disabled="idePedPrv !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchPedidos"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearPed" :disabled="!this.pedidoSelected" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnSearchPed" :disabled="idePedPrv !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchPedidos"><font-awesome-icon icon="fa-search"/></button>
+              <button id="btnClearPed" :disabled="!this.pedidoSelected || isOnVenda()" class="btn btn-secondary input-group-btn" @click="beginPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
             </div>
           </div>
@@ -34,18 +34,21 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
               <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
-                :disabled="!this.representantes.length || this.codRep !== ''" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
-              <button id="btnSearchRep" :disabled="ideRep !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchRepresentantes"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearRep" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
+                :disabled="!this.representantes.length || this.codRep !== ''"
+                :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''"
+                :class="{searching: !this.representantes.length}">
+              <button id="btnSearchRep" :disabled="ideRep !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchRepresentantes"><font-awesome-icon icon="fa-search"/></button>
+              <button id="btnClearRep" :disabled="this.codRep === '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
             </div>
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
-              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
-              <button id="btnSearchTpr" :disabled="ideTpr !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearTpr" :disabled="this.codTpr === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" 
+                type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
+              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
+              <button id="btnClearTpr" :disabled="this.codTpr === '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
             </div>
           </div>
@@ -55,8 +58,8 @@
               <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
                 :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
                 :class="{searching: (!this.depositos.length && this.codDep === '')}">
-              <button id="btnSearchDep" :disabled="ideDep !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchDepositos"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearDep" :disabled="this.codDep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnSearchDep" :disabled="ideDep !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchDepositos"><font-awesome-icon icon="fa-search"/></button>
+              <button id="btnClearDep" :disabled="this.codDep === '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#depositosModal">...</button>
             </div>
           </div>
@@ -66,8 +69,8 @@
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
                 :class="{searching: (!this.clientes.length && this.codCli === '')}">
-              <button id="btnSearchCli" :disabled="ideCli !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchClientes"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearCli" :disabled="this.codCli === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
+              <button id="btnSearchCli" :disabled="ideCli !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchClientes"><font-awesome-icon icon="fa-search"/></button>
+              <button id="btnClearCli" :disabled="this.codCli === '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
             </div>
           </div>
@@ -727,7 +730,7 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda">
-          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button> <!-- TODO: mudar texto se for fechar venda -->
+          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
@@ -1175,6 +1178,29 @@ export default {
       this.obsIpd = ''
       this.limparDesconto(false)
     },
+    clearAfterVenda() {
+      this.idePedPrv = ''
+      this.pedPrv = ''
+      this.pedidoSelected = null
+      this.pedidosFiltro = ''
+      this.representantesFiltro = ''
+      this.ideCli = ''
+      this.codCli = ''
+      this.clientesFiltro = ''
+      this.depositosFiltro = ''
+      this.codBar = ''
+      this.produtosFiltro = ''
+      this.itensCarrinho = []
+      this.tabelasPrecoFiltro = ''
+      this.vlrTot = 'R$ 0,00'
+      this.status = ''
+      this.vlrFinalNbr = 0
+      this.vlrFinal = 'R$ 0,00'
+      this.prcDescontoForma = ''
+      this.newValue = ''
+      this.obsIpd = ''
+      this.limparDesconto(false)
+    },
     clearInputsCadCli() {
       document.getElementById('selectTipCli').selectedIndex = "0"
       document.getElementById('selectSigUfs').selectedIndex = "0"
@@ -1379,9 +1405,14 @@ export default {
       document.getElementById('closeModalRepresentantes').click()
       
       this.tabelasPreco = []
+
       await this.initTabelasPreco()
       if (this.tabelasPreco.length) {
+        const tabelaPadrao = this.paramsPDV.codTpr !== '' ? this.tabelasPreco.find(tpr => tpr.codTpr === this.paramsPDV.codTpr) : null
         if (this.tabelasPreco.length === 1) this.selectTabelaPreco(this.tabelasPreco[0], true)
+        else if (tabelaPadrao) {
+          this.selectTabelaPreco(tabelaPadrao, true)
+        }
         else if (this.pedidoSelected) alert('Para atualizar o pedido de orçamento, selecione uma tabela de preços')
       } else {
         if (this.paramsPDV.codTpr !== '') {
@@ -2801,12 +2832,7 @@ export default {
             document.getElementById('closeModalConfirmaVenda').click()
             if (limpar) {
               alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
-              this.clearAllInputs()
-              this.clearInputsCadCli()
-              this.clearInputsCartao()
-              this.limparDesconto(false)
-              this.initEverything()
-              this.clearFocus()
+              this.limparCamposAposVenda()
             }
           }
         })
@@ -2826,16 +2852,7 @@ export default {
         .then((response) => {
           const resposta = response.data.toString()
           alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta)
-          const codDep = this.codDep
-          const ideDep = this.ideDep
-          this.clearAllInputs()
-          this.clearInputsCadCli()
-          this.clearInputsCartao()
-          this.limparDesconto(false)
-          this.clearFocus()
-          this.initRepresentantes()
-          this.codDep = codDep
-          this.ideDep = ideDep
+          this.limparCamposAposVenda()
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
@@ -2849,6 +2866,18 @@ export default {
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
         })
+    },
+
+    limparCamposAposVenda() {
+      this.clearAfterVenda()
+      this.clearInputsCadCli()
+      this.clearInputsCartao()
+      this.limparDesconto(false)
+      this.clearFocus()
+    },
+
+    isOnVenda() {
+      return (this.status === 'pedido' || this.status === 'nfce')
     },
 
     allFieldsArePopulated() {
