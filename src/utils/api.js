@@ -24,6 +24,9 @@ var functions = {
   getClientesSimplified() {
     return axios.get(urlBase + '/clientes/simplified?token=' + sessionStorage.getItem('token'))
   },
+  getCliente(codCli) {
+    return axios.get(urlBase + '/clientes/cliente?token=' + sessionStorage.getItem('token') + '&codCli=' + codCli)
+  },
   putCliente(cliente) {
     const body = JSON.stringify(cliente)
     const headers = { headers: { 'Content-Type': 'application/json' } }

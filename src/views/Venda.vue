@@ -1661,7 +1661,7 @@ export default {
     },
 
     async selectCliente(row) {
-      if (!this.dadosClientePreenchidos(row)) {
+      if (!await this.dadosClientePreenchidos(row)) {
         if (this.erroCliente) alert('O cliente possui dados incompletos!')
         else this.erroCliente = true
       } else {
@@ -1676,17 +1676,30 @@ export default {
       }
     },
 
-    dadosClientePreenchidos(cliente) {
-      if (cliente.tipCli.trim() === '' ||
-          cliente.cgcCpf.trim() === '' ||
-          cliente.cepCli.trim() === '' ||
-          cliente.nomCli.trim() === '' ||
-          cliente.endCli.trim() === '' ||
-          cliente.baiCli.trim() === '' ||
-          cliente.cidCli.trim() === '' ||
-          cliente.sigUfs.trim() === '' )
-          return false 
-      return true
+    async dadosClientePreenchidos(cliente) {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      let dadosPreenchidos = await api.getCliente(cliente.codCli)
+        .then((response) => {
+          const clienteSearched = response.data
+          console.log(clienteSearched)
+          if (clienteSearched.tipCli.trim() === '' ||
+            clienteSearched.cgcCpf.trim() === '' ||
+            clienteSearched.cepCli.trim() === '' ||
+            clienteSearched.nomCli.trim() === '' ||
+            clienteSearched.endCli.trim() === '' ||
+            clienteSearched.baiCli.trim() === '' ||
+            clienteSearched.cidCli.trim() === '' ||
+            clienteSearched.sigUfs.trim() === '' )
+            return false
+          else return true
+        })
+        .catch((err) => {
+          console.log(err)
+          alert('Não foi possível localizar as informações para o cliente selecionado.')
+        })
+        .finally(() => document.getElementsByTagName('body')[0].style.cursor = 'auto')
+      
+        return dadosPreenchidos
     },
 
     filtrarClientes(filter) {
