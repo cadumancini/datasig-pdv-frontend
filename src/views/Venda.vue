@@ -300,11 +300,11 @@
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
                     <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal" @click="selectCliente(row)">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">
                         <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
                       </th>
                     </tr>
@@ -1601,7 +1601,7 @@ export default {
     /* Clientes */
     async initClientes() {
       if (!sessionStorage.getItem('clientes')) {
-        await api.getClientes()
+        await api.getClientesSimplified()
         .then((response) => {
           this.clientes = response.data
           this.clientesFiltrados = this.clientes

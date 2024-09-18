@@ -419,7 +419,7 @@ export default {
 
     async loadCliente(codCli) {
       if (!sessionStorage.getItem('clientes')) {
-        await api.getClientes()
+        await api.getClientesSimplified()
           .then((response) => {
             const clientes = response.data
             sessionStorage.setItem('clientes', JSON.stringify(clientes))
