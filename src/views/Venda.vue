@@ -358,8 +358,8 @@
             <div class="col-8">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CPF/CNPJ</span>
-                <vue-mask id="inputCgcCpf" v-if="cadCliTipCli !== 'J'" class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
-                <vue-mask id="inputCgcCpf" v-else class="form-control cadastro-cliente" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli===''" v-if="cadCliTipCli !== 'J'" class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli===''" v-else class="form-control cadastro-cliente" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -449,6 +449,7 @@
         <div class="modal-footer">
           <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
           <span v-if="buscandoCEP" class="mandatory">Buscando informações de endereço...</span>
+          <span v-if="buscandoDadosCliente" class="mandatory">Buscando informações por CPF...</span>
           <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
           <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" data-bs-dismiss="modal">Fechar</button>
         </div>
@@ -926,6 +927,7 @@ export default {
       clienteExistente: false,
       buscandoCEP: false,
       buscandoDadosCliente: false,
+      validandoCPF: false,
       cadCliCodCli: '',
       cadCliTipCli: '',
       cadCliCgcCpf: '',
@@ -1681,7 +1683,7 @@ export default {
     async dadosClientePreenchidos(cliente) {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.buscandoDadosCliente = true
-      let dadosPreenchidos = await api.getCliente(cliente.codCli)
+      let dadosPreenchidos = await api.getCliente(cliente.codCli, null)
         .then((response) => {
           const clienteSearched = response.data
           console.log(clienteSearched)
@@ -1819,12 +1821,36 @@ export default {
       }
     },
 
-    validarCgcCpf() {
-      let cgcCpf = document.getElementById('inputCgcCpf').value
-      cgcCpf = cgcCpf.replace('/','').replace('-','').replace('.','').replace('.','')
-      const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
-      this.clienteExistente = false
-      if (cliente) this.clienteExistente = true
+    async validarCgcCpf() {
+      if(!this.validandoCPF) {
+        this.validandoCPF = true
+        this.buscandoDadosCliente = true
+        let cgcCpf = document.getElementById('inputCgcCpf').value
+        cgcCpf = cgcCpf.replace('/','').replace('-','').replace('.','').replace('.','')
+        const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
+        this.clienteExistente = false
+        if (cliente) this.clienteExistente = true
+        else {
+          if (this.cadCliTipCli === 'F' && cgcCpf.length === 11 ||
+              this.cadCliTipCli === 'J' && cgcCpf.length === 14) {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            let clienteSearched = await api.getCliente(null, cgcCpf)
+              .then((response) => {
+                return response.data
+              })
+              .catch(() => {})
+              .finally(() => {
+                document.getElementsByTagName('body')[0].style.cursor = 'auto'
+              })
+            if(clienteSearched) {
+              alert('Cliente encontrado com cadastro em outra filial. Favor atualizar o cadastro para incluir na filial atual.')
+              this.preencherDadosCadastroCliente(clienteSearched)
+            }
+          }
+        }
+        this.validandoCPF = false
+        this.buscandoDadosCliente = false
+      }
     },
 
     async consultarCep() {

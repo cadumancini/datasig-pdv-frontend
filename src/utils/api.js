@@ -24,8 +24,11 @@ var functions = {
   getClientesSimplified() {
     return axios.get(urlBase + '/clientes/simplified?token=' + sessionStorage.getItem('token'))
   },
-  getCliente(codCli) {
-    return axios.get(urlBase + '/clientes/cliente?token=' + sessionStorage.getItem('token') + '&codCli=' + codCli)
+  getCliente(codCli, cgcCpf) {
+    let url = urlBase + '/clientes/cliente?token=' + sessionStorage.getItem('token')
+    url += codCli !== null ? '&codCli=' + codCli : ''
+    url += cgcCpf !== null ? '&cgcCpf=' + cgcCpf : ''
+    return axios.get(url)
   },
   putCliente(cliente) {
     const body = JSON.stringify(cliente)
