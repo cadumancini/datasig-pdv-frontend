@@ -325,6 +325,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <span v-if="buscandoDadosCliente" class="mandatory">Buscando informações do cliente...</span>
           <button type="button" class="btn btn-secondary btn-sm" @click="habilitarCadastroCliente">Novo</button>
           <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal">Novo</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
@@ -924,6 +925,7 @@ export default {
       erroCliente: true,
       clienteExistente: false,
       buscandoCEP: false,
+      buscandoDadosCliente: false,
       cadCliCodCli: '',
       cadCliTipCli: '',
       cadCliCgcCpf: '',
@@ -1678,6 +1680,7 @@ export default {
 
     async dadosClientePreenchidos(cliente) {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.buscandoDadosCliente = true
       let dadosPreenchidos = await api.getCliente(cliente.codCli)
         .then((response) => {
           const clienteSearched = response.data
@@ -1697,7 +1700,10 @@ export default {
           console.log(err)
           alert('Não foi possível localizar as informações para o cliente selecionado.')
         })
-        .finally(() => document.getElementsByTagName('body')[0].style.cursor = 'auto')
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          this.buscandoDadosCliente = false
+        })
       
         return dadosPreenchidos
     },
