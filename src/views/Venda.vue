@@ -1109,14 +1109,14 @@ export default {
   },
   methods: {
     async initEverything() {
+      this.status = 'b_params'   
+      await this.initParams()  
       this.status = 'b_representantes'
       await this.initRepresentantes()    
       this.status = 'b_clientes'
       await this.initClientes()    
       this.status = 'b_formas'
       await this.initFormasPagto()  
-      this.status = 'b_params'   
-      await this.initParams()  
       this.status = '' 
     },
     restartRecords() {
@@ -2612,11 +2612,11 @@ export default {
     },
 
     isPagamentoDifferentThanDinheiro() {
-      return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() !== 'DINHEIRO'
+      return this.formaSelecionada && this.formaSelecionada.tipFpg !== '01'
     },
 
     isPagamentoDinheiro() {
-      return this.formaSelecionada && this.formaSelecionada.desFpg.toUpperCase() === 'DINHEIRO'
+      return this.formaSelecionada && this.formaSelecionada.tipFpg === '01'
     },
 
     processarPagto() {
