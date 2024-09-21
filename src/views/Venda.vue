@@ -300,10 +300,10 @@
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
                     <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row" @click="selectCliente(row)">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row)">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row)">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row)">{{ row.cgcCpf }}</th>
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row" @click="selectCliente(row, true)">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.cgcCpf }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">
                         <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
                       </th>
@@ -1658,14 +1658,14 @@ export default {
     searchClientes() {
       this.filtrarClientes(this.ideCli)
       if (this.clientesFiltrados.length === 1) { // encontramos, selecionar
-        this.selectCliente(this.clientesFiltrados[0])
+        this.selectCliente(this.clientesFiltrados[0], true)
       } else { // nao encontramos, abrir modal
         this.openClientesModal()
       }
     },
 
-    async selectCliente(row) {
-      if (!await this.dadosClientePreenchidos(row)) {
+    async selectCliente(row, applyCheck) {
+      if (applyCheck && !await this.dadosClientePreenchidos(row)) {
         if (this.erroCliente) alert('O cliente possui dados incompletos!')
         else this.erroCliente = true
       } else {
@@ -1686,7 +1686,6 @@ export default {
       let dadosPreenchidos = await api.getCliente(cliente.codCli, null)
         .then((response) => {
           const clienteSearched = response.data
-          console.log(clienteSearched)
           if (clienteSearched.tipCli.trim() === '' ||
             clienteSearched.cgcCpf.trim() === '' ||
             clienteSearched.cepCli.trim() === '' ||
@@ -1779,7 +1778,7 @@ export default {
 
     cliListHit() {
       const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
-      this.selectCliente(cli)
+      this.selectCliente(cli, true)
     },
 
     async abrirDadosCliente(cliente) {
@@ -1918,8 +1917,7 @@ export default {
         this.setEverythingDisabled('cadastro-cliente', true)
         await api.putCliente(cliente)
           .then((response) => {
-            alert('Cliente cadastrado com sucesso.')         
-            document.getElementById('closeModalCadastroClientes').click()
+            alert('Cliente cadastrado com sucesso.')    
             this.clientes = []
             sessionStorage.removeItem('clientes')
             this.beginCliente()
@@ -1940,7 +1938,9 @@ export default {
               emaCli: this.cadCliEmaCli,
               codRep: this.codRep
             }
-            this.selectCliente(newCli)
+            document.getElementById('closeModalCadastroClientes').disabled = false
+            document.getElementById('closeModalCadastroClientes').click()
+            this.selectCliente(newCli, false)
             this.clearInputsCadCli()
           })
           .catch((err) => {
