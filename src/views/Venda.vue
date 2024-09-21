@@ -299,11 +299,11 @@
                 </thead>
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal" @click="selectCliente(row)">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
+                    <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal">
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row" @click="selectCliente(row)">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row)">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row)">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row)">{{ row.cgcCpf }}</th>
                       <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">
                         <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
                       </th>
@@ -1782,10 +1782,25 @@ export default {
       this.selectCliente(cli)
     },
 
-    abrirDadosCliente(cliente) {
+    async abrirDadosCliente(cliente) {
       this.erroCliente = false
+      this.buscandoDadosCliente = true
+      
+      let clienteFull = await api.getCliente(cliente.codCli, null)
+        .then((response) => {
+          return response.data
+        })
+        .catch((err) => {
+          console.log(err)
+          alert('Não foi possível localizar as informações para o cliente selecionado.')
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          this.buscandoDadosCliente = false
+        })
+      
       this.habilitarCadastroCliente()
-      this.preencherDadosCadastroCliente(cliente)
+      this.preencherDadosCadastroCliente(clienteFull)
     },
 
     preencherDadosCadastroCliente(cliente) {
