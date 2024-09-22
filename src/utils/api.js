@@ -21,6 +21,15 @@ var functions = {
   getClientes() {
     return axios.get(urlBase + '/clientes?token=' + sessionStorage.getItem('token'))
   },
+  getClientesSimplified() {
+    return axios.get(urlBase + '/clientes/simplified?token=' + sessionStorage.getItem('token'))
+  },
+  getCliente(codCli, cgcCpf) {
+    let url = urlBase + '/clientes/cliente?token=' + sessionStorage.getItem('token')
+    url += codCli !== null ? '&codCli=' + codCli : ''
+    url += cgcCpf !== null ? '&cgcCpf=' + cgcCpf : ''
+    return axios.get(url)
+  },
   putCliente(cliente) {
     const body = JSON.stringify(cliente)
     const headers = { headers: { 'Content-Type': 'application/json' } }

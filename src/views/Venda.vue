@@ -299,12 +299,12 @@
                 </thead>
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal" @click="selectCliente(row)">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm" scope="row">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">{{ row.cgcCpf }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli, missingFields:!dadosClientePreenchidos(row)}" class="fw-normal ssm">
+                    <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal">
+                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row" @click="selectCliente(row, true)">{{ row.codCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.nomCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.apeCli }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.cgcCpf }}</th>
+                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">
                         <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
                       </th>
                     </tr>
@@ -325,6 +325,7 @@
           </div>
         </div>
         <div class="modal-footer">
+          <span v-if="buscandoDadosCliente" class="mandatory">Buscando informações do cliente...</span>
           <button type="button" class="btn btn-secondary btn-sm" @click="habilitarCadastroCliente">Novo</button>
           <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal">Novo</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
@@ -357,8 +358,8 @@
             <div class="col-8">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CPF/CNPJ</span>
-                <vue-mask id="inputCgcCpf" v-if="cadCliTipCli !== 'J'" class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
-                <vue-mask id="inputCgcCpf" v-else class="form-control cadastro-cliente" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli===''" v-if="cadCliTipCli !== 'J'" class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli===''" v-else class="form-control cadastro-cliente" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -448,6 +449,7 @@
         <div class="modal-footer">
           <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
           <span v-if="buscandoCEP" class="mandatory">Buscando informações de endereço...</span>
+          <span v-if="buscandoDadosCliente" class="mandatory">Buscando informações por CPF...</span>
           <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
           <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" data-bs-dismiss="modal">Fechar</button>
         </div>
@@ -924,6 +926,8 @@ export default {
       erroCliente: true,
       clienteExistente: false,
       buscandoCEP: false,
+      buscandoDadosCliente: false,
+      validandoCPF: false,
       cadCliCodCli: '',
       cadCliTipCli: '',
       cadCliCgcCpf: '',
@@ -1601,7 +1605,7 @@ export default {
     /* Clientes */
     async initClientes() {
       if (!sessionStorage.getItem('clientes')) {
-        await api.getClientes()
+        await api.getClientesSimplified()
         .then((response) => {
           this.clientes = response.data
           this.clientesFiltrados = this.clientes
@@ -1654,14 +1658,14 @@ export default {
     searchClientes() {
       this.filtrarClientes(this.ideCli)
       if (this.clientesFiltrados.length === 1) { // encontramos, selecionar
-        this.selectCliente(this.clientesFiltrados[0])
+        this.selectCliente(this.clientesFiltrados[0], true)
       } else { // nao encontramos, abrir modal
         this.openClientesModal()
       }
     },
 
-    async selectCliente(row) {
-      if (!this.dadosClientePreenchidos(row)) {
+    async selectCliente(row, applyCheck) {
+      if (applyCheck && !await this.dadosClientePreenchidos(row)) {
         if (this.erroCliente) alert('O cliente possui dados incompletos!')
         else this.erroCliente = true
       } else {
@@ -1676,17 +1680,33 @@ export default {
       }
     },
 
-    dadosClientePreenchidos(cliente) {
-      if (cliente.tipCli.trim() === '' ||
-          cliente.cgcCpf.trim() === '' ||
-          cliente.cepCli.trim() === '' ||
-          cliente.nomCli.trim() === '' ||
-          cliente.endCli.trim() === '' ||
-          cliente.baiCli.trim() === '' ||
-          cliente.cidCli.trim() === '' ||
-          cliente.sigUfs.trim() === '' )
-          return false 
-      return true
+    async dadosClientePreenchidos(cliente) {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.buscandoDadosCliente = true
+      let dadosPreenchidos = await api.getCliente(cliente.codCli, null)
+        .then((response) => {
+          const clienteSearched = response.data
+          if (clienteSearched.tipCli.trim() === '' ||
+            clienteSearched.cgcCpf.trim() === '' ||
+            clienteSearched.cepCli.trim() === '' ||
+            clienteSearched.nomCli.trim() === '' ||
+            clienteSearched.endCli.trim() === '' ||
+            clienteSearched.baiCli.trim() === '' ||
+            clienteSearched.cidCli.trim() === '' ||
+            clienteSearched.sigUfs.trim() === '' )
+            return false
+          else return true
+        })
+        .catch((err) => {
+          console.log(err)
+          alert('Não foi possível localizar as informações para o cliente selecionado.')
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          this.buscandoDadosCliente = false
+        })
+      
+        return dadosPreenchidos
     },
 
     filtrarClientes(filter) {
@@ -1758,13 +1778,28 @@ export default {
 
     cliListHit() {
       const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
-      this.selectCliente(cli)
+      this.selectCliente(cli, true)
     },
 
-    abrirDadosCliente(cliente) {
+    async abrirDadosCliente(cliente) {
       this.erroCliente = false
+      this.buscandoDadosCliente = true
+      
+      let clienteFull = await api.getCliente(cliente.codCli, null)
+        .then((response) => {
+          return response.data
+        })
+        .catch((err) => {
+          console.log(err)
+          alert('Não foi possível localizar as informações para o cliente selecionado.')
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          this.buscandoDadosCliente = false
+        })
+      
       this.habilitarCadastroCliente()
-      this.preencherDadosCadastroCliente(cliente)
+      this.preencherDadosCadastroCliente(clienteFull)
     },
 
     preencherDadosCadastroCliente(cliente) {
@@ -1800,12 +1835,36 @@ export default {
       }
     },
 
-    validarCgcCpf() {
-      let cgcCpf = document.getElementById('inputCgcCpf').value
-      cgcCpf = cgcCpf.replace('/','').replace('-','').replace('.','').replace('.','')
-      const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
-      this.clienteExistente = false
-      if (cliente) this.clienteExistente = true
+    async validarCgcCpf() {
+      if(!this.validandoCPF) {
+        this.validandoCPF = true
+        this.buscandoDadosCliente = true
+        let cgcCpf = document.getElementById('inputCgcCpf').value
+        cgcCpf = cgcCpf.replace('/','').replace('-','').replace('.','').replace('.','')
+        const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
+        this.clienteExistente = false
+        if (cliente) this.clienteExistente = true
+        else {
+          if (this.cadCliTipCli === 'F' && cgcCpf.length === 11 ||
+              this.cadCliTipCli === 'J' && cgcCpf.length === 14) {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            let clienteSearched = await api.getCliente(null, cgcCpf)
+              .then((response) => {
+                return response.data
+              })
+              .catch(() => {})
+              .finally(() => {
+                document.getElementsByTagName('body')[0].style.cursor = 'auto'
+              })
+            if(clienteSearched) {
+              alert('Cliente encontrado com cadastro em outra filial. Favor atualizar o cadastro para incluir na filial atual.')
+              this.preencherDadosCadastroCliente(clienteSearched)
+            }
+          }
+        }
+        this.validandoCPF = false
+        this.buscandoDadosCliente = false
+      }
     },
 
     async consultarCep() {
@@ -1858,8 +1917,7 @@ export default {
         this.setEverythingDisabled('cadastro-cliente', true)
         await api.putCliente(cliente)
           .then((response) => {
-            alert('Cliente cadastrado com sucesso.')         
-            document.getElementById('closeModalCadastroClientes').click()
+            alert('Cliente cadastrado com sucesso.')    
             this.clientes = []
             sessionStorage.removeItem('clientes')
             this.beginCliente()
@@ -1880,7 +1938,9 @@ export default {
               emaCli: this.cadCliEmaCli,
               codRep: this.codRep
             }
-            this.selectCliente(newCli)
+            document.getElementById('closeModalCadastroClientes').disabled = false
+            document.getElementById('closeModalCadastroClientes').click()
+            this.selectCliente(newCli, false)
             this.clearInputsCadCli()
           })
           .catch((err) => {
