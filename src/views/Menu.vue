@@ -114,7 +114,7 @@ export default {
     },
 
     populateClientes () {
-      api.getClientes()
+      api.getClientesSimplified()
       .then((response) => {
         sessionStorage.setItem('clientes', JSON.stringify(response.data))
       })
