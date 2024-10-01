@@ -365,10 +365,22 @@
             </div>
           </div>
           <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Nome</span>
-              <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliNomCli">  
-              <span class="mandatory">&nbsp;&nbsp;*</span>
+            <div class="col-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Ramo</span>
+                <select class="form-select cadastro-cliente" v-model="cadCliCodRam" id="selectCodRam">
+                  <option selected disabled value="">Selecione</option>
+                  <option v-for="row in paramsPDV.ramos" :key="row.codRam" :value="row.codRam">{{ row.desRam }}</option>
+                </select> 
+                <span class="mandatory">&nbsp;&nbsp;*</span>
+              </div>  
+            </div>
+            <div class="col-8">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Nome</span>
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliNomCli">  
+                <span class="mandatory">&nbsp;&nbsp;*</span>
+              </div>
             </div>
           </div>
           <div class="row mb-2">
@@ -930,6 +942,7 @@ export default {
       validandoCPF: false,
       cadCliCodCli: '',
       cadCliTipCli: '',
+      cadCliCodRam: '',
       cadCliCgcCpf: '',
       cadCliNomCli: '',
       cadCliCepCli: '',
@@ -1215,6 +1228,7 @@ export default {
       document.getElementById('selectSigUfs').selectedIndex = "0"
       this.cadCliCodCli = ''
       this.cadCliTipCli = ''
+      this.cadCliCodRam = ''
       this.cadCliCgcCpf = ''
       this.cadCliNomCli = ''
       this.cadCliCepCli = ''
@@ -1688,6 +1702,7 @@ export default {
           const clienteSearched = response.data
           if (clienteSearched.tipCli.trim() === '' ||
             clienteSearched.cgcCpf.trim() === '' ||
+            clienteSearched.codRam.trim() === '' || 
             clienteSearched.cepCli.trim() === '' ||
             clienteSearched.nomCli.trim() === '' ||
             clienteSearched.endCli.trim() === '' ||
@@ -1805,6 +1820,7 @@ export default {
     preencherDadosCadastroCliente(cliente) {
       this.cadCliCodCli = cliente.codCli
       this.cadCliTipCli = cliente.tipCli
+      this.cadCliCodRam = cliente.codRam
       this.cadCliCgcCpf = cliente.cgcCpf
       this.cadCliNomCli = cliente.nomCli
       this.cadCliCepCli = cliente.cepCli
@@ -1900,6 +1916,7 @@ export default {
         const cliente = {
           codCli: this.cadCliCodCli !== '' ? this.cadCliCodCli : '0',
           tipCli: this.cadCliTipCli,
+          codRam: this.cadCliCodRam,
           cgcCpf: this.cadCliCgcCpf,
           cepCli: this.cadCliCepCli,
           nomCli: this.cadCliNomCli,
@@ -1926,6 +1943,7 @@ export default {
               codCli: response.data.codCli,
               nomCli: cliente.nomCli.toUpperCase(),
               tipCli: this.cadCliTipCli,
+              codRam: this.cadCliCodRam,
               cgcCpf: this.cadCliCgcCpf,
               cepCli: this.cadCliCepCli,
               endCli: this.cadCliEndCli,
@@ -1964,6 +1982,10 @@ export default {
       }
       else if (this.cadCliCgcCpf.trim() === '') {
         alert('É necessário informar o CPF/CNPJ!')
+        return false
+      }
+      else if (this.cadCliCodRam.trim() === '') {
+        alert('É necessário informar o Ramo de Atividade!')
         return false
       }
       else if (this.cadCliNomCli.trim() === '') {
