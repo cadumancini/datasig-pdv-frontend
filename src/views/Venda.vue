@@ -2828,10 +2828,6 @@ export default {
       return shared.toMoneyString(vlrTroParc).replace('R$', '').replace('.','').replace(',','.').trim()
     },
 
-    definirCodCpg() {
-      return this.formasPagto.find(forma => forma.condicoes.length > 0).condicoes[0].codCpg
-    },
-
     async enviarVenda(limpar) {
       const itens = []
       this.itensCarrinho.forEach(item => {
@@ -2880,7 +2876,6 @@ export default {
           numPed: !this.pedidoSelected ? '0' : this.pedPrv,
           codCli: this.codCli,
           codRep: this.codRep,
-          codCpg: this.definirCodCpg(),
           itens: itens,
           fechar: this.fecharVenda,
           gerar: this.gerarPedido,
