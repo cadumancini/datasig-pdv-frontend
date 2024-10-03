@@ -369,10 +369,9 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Ramo</span>
                 <select class="form-select cadastro-cliente" v-model="cadCliCodRam" id="selectCodRam">
-                  <option selected disabled value="">Selecione</option>
+                  <option selected value="">Sem Ramo</option>
                   <option v-for="row in paramsPDV.ramos" :key="row.codRam" :value="row.codRam">{{ row.desRam }}</option>
                 </select> 
-                <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>  
             </div>
             <div class="col-8">
@@ -1702,7 +1701,6 @@ export default {
           const clienteSearched = response.data
           if (clienteSearched.tipCli.trim() === '' ||
             clienteSearched.cgcCpf.trim() === '' ||
-            clienteSearched.codRam.trim() === '' || 
             clienteSearched.cepCli.trim() === '' ||
             clienteSearched.nomCli.trim() === '' ||
             clienteSearched.endCli.trim() === '' ||
@@ -1982,10 +1980,6 @@ export default {
       }
       else if (this.cadCliCgcCpf.trim() === '') {
         alert('É necessário informar o CPF/CNPJ!')
-        return false
-      }
-      else if (this.cadCliCodRam.trim() === '') {
-        alert('É necessário informar o Ramo de Atividade!')
         return false
       }
       else if (this.cadCliNomCli.trim() === '') {
