@@ -42,6 +42,7 @@ export default {
           codTpr: response.data.parametrosPDV.codTpr,
           dscTot: response.data.parametrosPDV.dscTot,
           depositos: response.data.parametrosPDV.depositos,
+          ramos: response.data.parametrosPDV.ramos,
           depPad: response.data.parametrosPDV.codDep,
           codEmp: response.data.parametrosPDV.codEmp,
           codFil: response.data.parametrosPDV.codFil,
