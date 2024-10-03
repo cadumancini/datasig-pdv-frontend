@@ -369,7 +369,7 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Ramo</span>
                 <select class="form-select cadastro-cliente" v-model="cadCliCodRam" id="selectCodRam">
-                  <option selected value="">Sem Ramo</option>
+                  <option selected value=""> </option>
                   <option v-for="row in paramsPDV.ramos" :key="row.codRam" :value="row.codRam">{{ row.desRam }}</option>
                 </select> 
               </div>  
