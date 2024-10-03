@@ -443,7 +443,8 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Telefone</span>
-                <vue-mask class="form-control cadastro-cliente" mask="00 00000-0000" :raw="false" :options="options" v-model="cadCliFonCli"></vue-mask>
+                <input autocomplete="off" class="form-control cadastro-cliente" v-model="cadCliFonCli" maxLength="12"
+                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
               </div> 
             </div>
             <div class="col">
