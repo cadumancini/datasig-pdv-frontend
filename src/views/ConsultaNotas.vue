@@ -17,7 +17,7 @@
         <div class="col-3">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Situação</span>
-            <select class="form-select disable-on-search" v-model="situacao" id="selectTipDesc">
+            <select class="form-select disable-on-search" v-model="situacao">
               <option selected value="">Todos</option>
               <option selected value="1">Digitada</option>
               <option selected value="2">Fechada</option>
@@ -28,15 +28,28 @@
           </div>
         </div>
         <div class="col-3">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Representante</span>
-              <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
-                :disabled="!this.representantes.length || this.codRep !== ''" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
-              <button id="btnSearchRep" :disabled="this.codRep !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchRepresentantes"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearRep" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
-            </div>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Situação Doc. Eletr.</span>
+            <select class="form-select disable-on-search" v-model="situacaoDocEle">
+              <option selected value="">Todos</option>
+              <option selected value="1">Não Enviada</option>
+              <option selected value="2">Enviada</option>
+              <option selected value="3">Autorizada</option>
+              <option selected value="4">Rejeitada</option>
+              <option selected value="5">Denegada</option>
+              <option selected value="6">Solicitado Inutilização</option>
+              <option selected value="7">Solicitado Cancelamento</option>
+              <option selected value="8">Inutilizada</option>
+              <option selected value="9">Cancelada</option>
+              <option selected value="10">Erro Geração</option>
+              <option selected value="11">Erro Solicitação Cancelamento</option>
+              <option selected value="12">Erro Solicitação Inutilização</option>
+              <option selected value="13">Pendente de Cancelamento</option>
+              <option selected value="14">Solicitado Encerramento (MDF-e)</option>
+              <option selected value="15">Encerrado (MDF-e)</option>
+            </select>
           </div>
+        </div>
         <div class="col">
           <div class="float-end">
             <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
@@ -45,6 +58,16 @@
         </div>
       </div>
       <div class="row margin-y-fields">
+        <div class="col-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Representante</span>
+            <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
+              :disabled="!this.representantes.length || this.codRep !== ''" :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''" :class="{searching: !this.representantes.length}">
+            <button id="btnSearchRep" :disabled="this.codRep !== ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchRepresentantes"><font-awesome-icon icon="fa-search"/></button>
+            <button id="btnClearRep" :disabled="this.codRep === ''" class="btn btn-secondary input-group-btn disable-on-sale" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
+            <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
+          </div>
+        </div>
         <div class="col-5">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Emissão</span>
@@ -60,7 +83,7 @@
       </div>
       <div class="row table-registros border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
-          <thead>
+          <thead class="header-notas">
             <tr>
               <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
               <th class="sm-header" style="width: 4%;"><small>Filial</small></th>
@@ -279,6 +302,7 @@ export default {
       // filtros
       numNfv: '',
       situacao: '',
+      situacaoDocEle: '',
       datIni: '',
       datFim: '',
       datClick: '',
@@ -353,6 +377,7 @@ export default {
     limparCampos() {
       this.numNfv = ''
       this.situacao = ''
+      this.situacaoDocEle = ''
       this.ideRep = ''
       this.codRep = ''
       this.representantesFiltro = ''
@@ -390,10 +415,11 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       const filterNumNfv = this.numNfv !== '' ? this.numNfv : null
       const filterSituacao = this.situacao !== '' ? this.situacao : null
+      const filterSituacaoDocEle = this.situacaoDocEle !== '' ? this.situacaoDocEle : null
       const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
       const filterCodRep = this.codRep !== '' ? this.codRep : null
-      await api.getNotas(filterNumNfv, filterSituacao, filterDatIni, filterDatFim, filterCodRep)
+      await api.getNotas(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep)
       .then((response) => {
         this.notas = response.data
         this.calcResumo()
