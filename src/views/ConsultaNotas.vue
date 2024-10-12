@@ -83,7 +83,7 @@
       </div>
       <div class="row table-registros border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
-          <thead class="header-notas">
+          <thead class="header-fixed">
             <tr>
               <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
               <th class="sm-header" style="width: 4%;"><small>Filial</small></th>
