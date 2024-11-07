@@ -80,15 +80,6 @@
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
-        <div class="col-3">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Forma de Pagto</span>
-            <select class="form-select disable-on-search" :disabled="!formasPagto.length" v-model="codFpg">
-              <option selected value="">Todas</option>
-              <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma.codFpg">{{ forma.desFpg }}</option>
-            </select>
-          </div>
-        </div>
       </div>
       <div class="row table-registros border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
@@ -96,15 +87,14 @@
             <tr>
               <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
               <th class="sm-header" style="width: 4%;"><small>Filial</small></th>
-              <th class="sm-header" style="width: 4%;"><small>Nota</small></th>
-              <th class="sm-header" style="width: 4%;"><small>Série</small></th>
-              <th class="sm-header" style="width: 5%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Representante</small></th>
               <th class="sm-header" style="width: 11%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Série</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Nota</small></th>
+              <th class="sm-header" style="width: 10%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 15%;"><small>Cliente</small></th>
               <th class="sm-header" style="width: 7%;"><small>Valor</small></th>
               <th class="sm-header" style="width: 8%;"><small>Sit. Nota</small></th>
               <th class="sm-header" style="width: 9%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Forma Pagto.</small></th>
               <th class="sm-header" style="width: 23%;"><small>Ação</small></th>
             </tr>
           </thead>
@@ -112,15 +102,14 @@
             <tr v-for="row in notas" :key="row.codSnf + row.numNfv">
               <th class="fw-normal sm">{{ row.codEmp }}</th>
               <th class="fw-normal sm">{{ row.codFil }}</th>
-              <th class="fw-normal sm">{{ row.numNfv }}</th>
-              <th class="fw-normal sm">{{ row.codSnf }}</th>
-              <th class="fw-normal sm">{{ row.codCli }}</th>
-              <th class="fw-normal sm">{{ row.codRep }} - {{ row.nomRep }}</th>
               <th class="fw-normal sm">{{ row.datEmi }} - {{ row.horEmi }}</th>
+              <th class="fw-normal sm">{{ row.codSnf }}</th>
+              <th class="fw-normal sm">{{ row.numNfv }}</th>
+              <th class="fw-normal sm">{{ row.codRep }} - {{ row.nomRep }}</th>
+              <th class="fw-normal sm">{{ row.codCli }} - {{ row.nomCli }}</th>
               <th class="fw-normal sm">{{ toMoneyString(row.vlrLiq) }}</th>
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
               <th class="fw-normal sm">{{ row.desSitDoe }}</th>
-              <th class="fw-normal sm">{{ row.pagamentos.map(pagto => pagto.desFpg).join(', ') }}</th>
               <th class="fw-normal sm">
                 <button :id="'btnCancelarNota' + row.codSnf + row.numNfv" :disabled="row.cancelavel === false" @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Cancelar</button>
                 <button :id="'btnInutilizarNota' + row.codSnf + row.numNfv" :disabled="row.inutilizavel === false" @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Inutilizar</button>
@@ -326,10 +315,6 @@ export default {
       representantesFiltrados: [],
       tableIndexRep: 0,
 
-      // formas de pagto
-      codFpg: '',
-      formasPagto: [],
-
       // registros
       notas: null,
       notaSelected: null,
@@ -356,7 +341,6 @@ export default {
     }
 
     this.initRepresentantes() 
-    this.initFormasPagto() 
   },
 
   methods: {
@@ -396,8 +380,6 @@ export default {
       this.situacaoDocEle = ''
       this.ideRep = ''
       this.codRep = ''
-      this.ideFpg = ''
-      this.codFpg = ''
       this.representantesFiltro = ''
       this.datIni = ''
       this.datFim = ''
@@ -437,8 +419,7 @@ export default {
       const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
       const filterCodRep = this.codRep !== '' ? this.codRep : null
-      const filterCodFpg = this.codFpg !== '' ? this.codFpg : null
-      await api.getNotas(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep, filterCodFpg)
+      await api.getNotas(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep)
       .then((response) => {
         this.notas = response.data
         this.calcResumo()
@@ -645,23 +626,6 @@ export default {
     repListHit() {
       const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
       this.selectRepresentante(rep)
-    },
-
-    /* Formas de Pagamento */
-    async initFormasPagto() {
-      if (!sessionStorage.getItem('formasPagto')) {
-        await api.getFormasPagto()
-        .then((response) => {
-          this.formasPagto = response.data
-          sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
-        })
-        .catch((err) => {
-          shared.handleRequestError(err)
-          console.log(err)
-        })
-      } else {
-        this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
-      }
     }
   }
 }
