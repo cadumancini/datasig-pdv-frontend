@@ -111,6 +111,10 @@ var functions = {
     let url = urlBase + '/pedidos/calcularDesconto?token=' + sessionStorage.getItem('token') + '&vlrPro=' + vlrPro + '&vlrDsc=' + vlrDsc
     return axios.get(url)
   },
+  calcularItemComDesconto(vlrPro, vlrDsc) {
+    let url = urlBase + '/pedidos/calcularItemComDesconto?token=' + sessionStorage.getItem('token') + '&vlrPro=' + vlrPro + '&vlrDsc=' + vlrDsc
+    return axios.get(url)
+  },
 }
 
 export default functions
