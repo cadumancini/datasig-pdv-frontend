@@ -18,7 +18,8 @@
         <span class="fw-bold section margin-b">Consultas</span>
         <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaNotas')">Notas Fiscais</button>
         <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaMovimentos')">Movimentos de Caixa</button>
-        <button disabled class="btn btn-secondary btn-main-menu mx-4">Produtos</button>
+        <button class="btn btn-secondary btn-main-menu mx-4" @click="access('ConsultaTitulos')">Títulos</button>
+        <!-- <button disabled class="btn btn-secondary btn-main-menu mx-4">Produtos</button> -->
       </div>
     </div>
   </div>
