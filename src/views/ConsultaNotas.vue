@@ -91,11 +91,11 @@
               <th class="sm-header" style="width: 4%;"><small>Série</small></th>
               <th class="sm-header" style="width: 4%;"><small>Nota</small></th>
               <th class="sm-header" style="width: 10%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 19%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 22%;"><small>Cliente</small></th>
               <th class="sm-header" style="width: 7%;"><small>Valor</small></th>
-              <th class="sm-header" style="width: 8%;"><small>Sit. Nota</small></th>
-              <th class="sm-header" style="width: 9%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 20%;"><small>Ação</small></th>
+              <th class="sm-header" style="width: 7%;"><small>Sit. Nota</small></th>
+              <th class="sm-header" style="width: 8%;"><small>Sit. Doc. Eletr.</small></th>
+              <th class="sm-header" style="width: 19%;"><small>Ação</small></th>
             </tr>
           </thead>
           <tbody>
