@@ -110,7 +110,7 @@
           </div>
         </div>
       </div>
-      <div class="row table-registros border">
+      <div class="row table-registros-titulos border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead class="header-fixed">
             <tr>
@@ -152,37 +152,43 @@
           </tbody>
         </table>
       </div>
-      <div class="row mt-2" v-if="notas && notas.length > 0">
+      <div class="row" v-if="titulos && titulos.length > 0">
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Total Vendas</span>
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Total Vendas</span>
             <input disabled class="form-control" v-model="totalVendas">
           </div>
         </div>
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Itens Vendidos</span>
-            <input disabled class="form-control" v-model="itensVendidos">
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Total Títulos</span>
+            <input disabled class="form-control" v-model="totalTiulos">
           </div>
         </div>
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Autorizado</span>
-            <input disabled class="form-control" :value="toMoneyString(totalAutorizado)">
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Vlr. em Aberto</span>
+            <input disabled class="form-control" :value="toMoneyString(totalAberto)">
           </div>
         </div>
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Canc./Inu.</span>
-            <input disabled class="form-control" :value="toMoneyString(totalCanInu)">
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Vlr. Original</span>
+            <input disabled class="form-control" :value="toMoneyString(totalOriginal)">
           </div>
         </div>
-        <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Outros</span>
-            <input disabled class="form-control" :value="toMoneyString(totalOutros)">
+      </div>
+      <div class="row" v-if="titulos && titulos.length > 0">
+        <div class="row"><span class="fw-bold sm mt-2">Totais por Formas de Pagamento</span></div>
+        <div class="row">
+          <div class="col-3" v-for="pagto in new Set(this.titulos.map(tit => tit.desFpg))">
+            <div class="input-group input-group-sm mt-2">
+              <span class="input-group-text ssm">{{ pagto }}</span>
+              <input disabled class="form-control" :value="toMoneyString(calcTotal(pagto))">
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -309,10 +315,9 @@ export default {
       // registros
       titulos: null,
       totalVendas: 0,
-      itensVendidos: 0,
-      totalAutorizado: 0,
-      totalCanInu: 0,
-      totalOutros: 0,
+      totalTiulos: 0,
+      totalAberto: 0,
+      totalOriginal: 0,
 
       // geral
       options: {
@@ -379,10 +384,9 @@ export default {
       this.datIni = ''
       this.datFim = ''
       this.totalVendas = 0
-      this.itensVendidos = 0
-      this.totalAutorizado = 0
-      this.totalCanInu = 0
-      this.totalOutros = 0
+      this.totalTiulos = 0
+      this.totalAberto = 0
+      this.totalOriginal = 0
     },
 
     toMoneyString(value) {
@@ -408,7 +412,7 @@ export default {
       await api.getTitulos(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep, filterCodFpg)
       .then((response) => {
         this.titulos = response.data
-        // this.calcResumo()
+        this.calcResumo()
       })
       .catch((err) => {
         console.log(err)
@@ -419,11 +423,14 @@ export default {
     },
 
     calcResumo() {
-      this.totalVendas = this.notas.length
-      this.itensVendidos = Number(this.notas.map(item => item.qtdFat).reduce((prev, curr) => prev + curr, 0))
-      this.totalAutorizado = Number(this.notas.filter(item => Number(item.sitDoe) === 3).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
-      this.totalCanInu = Number(this.notas.filter(item => [5,8,9].includes(Number(item.sitDoe))).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
-      this.totalOutros = Number(this.notas.filter(item => ![3,5,8,9].includes(Number(item.sitDoe))).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+      this.totalTiulos = this.titulos.length
+      this.totalVendas = new Set(this.titulos.map(tit => tit.numNfv)).size
+      this.totalAberto = Number(this.titulos.map(tit => tit.vlrAbe).reduce((prev, curr) => prev + curr, 0))
+      this.totalOriginal = Number(this.titulos.map(tit => tit.vlrOri).reduce((prev, curr) => prev + curr, 0))
+    },
+
+    calcTotal(pagto) {
+      return Number(this.titulos.filter(tit => tit.desFpg === pagto).map(tit => tit.vlrOri).reduce((prev, curr) => prev + curr, 0))
     },
 
     /* Representantes */

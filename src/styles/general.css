@@ -53,6 +53,12 @@ html, body {
   margin: 0px auto 0px auto;
   overflow: auto;
 }
+.table-registros-titulos {
+  height: 34.5rem;
+  width: 100%;
+  margin: 0px auto 0px auto;
+  overflow: auto;
+}
 .table-consulta-pedidos {
   height: 54.5rem;
   width: 100%;
@@ -186,6 +192,12 @@ hr {
     margin: 0px auto 0px auto;
     overflow: auto;
   }
+  .table-registros-titulos {
+    height: 19.5rem;
+    width: 100%;
+    margin: 0px auto 0px auto;
+    overflow: auto;
+  }
   .table-consulta-pedidos {
     height: 27rem;
     width: 100%;
@@ -237,6 +249,12 @@ hr {
   }
   .table-registros {
     height: 20rem;
+    width: 100%;
+    margin: 0px auto 0px auto;
+    overflow: auto;
+  }
+  .table-registros-titulos {
+    height: 17.5rem;
     width: 100%;
     margin: 0px auto 0px auto;
     overflow: auto;
