@@ -16,14 +16,34 @@
         </div>
         <div class="col-3">
           <div class="input-group input-group-sm">
-            <span class="input-group-text">Situação</span>
+            <span class="input-group-text">Situação Título</span>
             <select class="form-select disable-on-search" v-model="situacao">
-              <option selected value="">Todos</option>
-              <option selected value="1">Digitada</option>
-              <option selected value="2">Fechada</option>
-              <option selected value="3">Cancelada</option>
-              <option selected value="4">Documento Fiscal Emitido (saída)</option>
-              <option selected value="5">Aguardando Fechamento (pós-saída)</option>
+              <option selected value="AO">Aberto ao Órgão de Proteção ao Crédito</option>
+              <option selected value="AN">Aberto Negociação</option>
+              <option selected value="AA">Aberto Advogado</option>
+              <option selected value="AB">Aberto Normal</option>
+              <option selected value="AC">Aberto Cartório</option>
+              <option selected value="AE">Aberto Encontro de Contas</option>
+              <option selected value="AI">Aberto Impostos</option>
+              <option selected value="AJ">Aberto Retorno Jurídico</option>
+              <option selected value="AP">Aberto Protestado</option>
+              <option selected value="AR">Aberto Representante</option>
+              <option selected value="AS">Aberto Suspenso</option>
+              <option selected value="AV">Aberto Gestão de Pessoas</option>
+              <option selected value="AX">Aberto Externo</option>
+              <option selected value="CA">Cancelado</option>
+              <option selected value="CE">Aberto CE (Preparação Cobrança Escritural)</option>
+              <option selected value="CO">Aberto Cobrança</option>
+              <option selected value="LQ">Liquidado Normal</option>
+              <option selected value="LC">Liquidado Cartório</option>
+              <option selected value="LI">Liquidado Impostos</option>
+              <option selected value="LM">Liquidado Compensado</option>
+              <option selected value="LO">Liquidado Cobrança</option>
+              <option selected value="LP">Liquidado Protestado</option>
+              <option selected value="LS">Liquidado Substituído</option>
+              <option selected value="LV">Liquidado Gestão de Pessoas</option>
+              <option selected value="LX">Liquidado Externo</option>
+              <option selected value="PE">Aberto PE (Pagamento Eletrônico)</option>
             </select>
           </div>
         </div>
@@ -51,14 +71,6 @@
           </div>
         </div>
         <div class="col">
-          <div class="float-end">
-            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
-            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
-          </div>
-        </div>
-      </div>
-      <div class="row margin-y-fields">
-        <div class="col-3">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Representante</span>
             <input autocomplete="off" id="inputIdeRep" class="form-control input-sale disable-on-search" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
@@ -68,6 +80,8 @@
             <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
           </div>
         </div>
+      </div>
+      <div class="row margin-y-fields">
         <div class="col-5">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Emissão</span>
@@ -78,6 +92,21 @@
             <input class="form-control" type="text" disabled :value="datFim ? datFim.toLocaleDateString('pt-BR') : ''">
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
+          </div>
+        </div>        
+        <div class="col-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Forma de Pagto</span>
+            <select class="form-select disable-on-search" :disabled="!formasPagto.length" v-model="codFpg">
+              <option selected value="">Todas</option>
+              <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma.codFpg">{{ forma.desFpg }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col">
+          <div class="float-end">
+            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
+            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
           </div>
         </div>
       </div>
@@ -329,7 +358,11 @@ export default {
       // geral
       options: {
         reverse: false
-      },
+      },      
+      
+      // formas de pagto
+      codFpg: '',
+      formasPagto: [],
     }
   },
 
@@ -341,6 +374,7 @@ export default {
     }
 
     this.initRepresentantes() 
+    this.initFormasPagto() 
   },
 
   methods: {
@@ -380,6 +414,8 @@ export default {
       this.situacaoDocEle = ''
       this.ideRep = ''
       this.codRep = ''
+      this.ideFpg = ''
+      this.codFpg = ''
       this.representantesFiltro = ''
       this.datIni = ''
       this.datFim = ''
@@ -626,6 +662,23 @@ export default {
     repListHit() {
       const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
       this.selectRepresentante(rep)
+    },
+
+    /* Formas de Pagamento */
+    async initFormasPagto() {
+      if (!sessionStorage.getItem('formasPagto')) {
+        await api.getFormasPagto()
+        .then((response) => {
+          this.formasPagto = response.data
+          sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
+        })
+        .catch((err) => {
+          shared.handleRequestError(err)
+          console.log(err)
+        })
+      } else {
+        this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
+      }
     }
   }
 }
