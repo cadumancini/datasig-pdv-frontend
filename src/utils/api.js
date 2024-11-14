@@ -78,6 +78,17 @@ var functions = {
     url += datFim !== null ? '&datFim=' + datFim : ''
     return axios.get(url)
   },
+  getTitulos(numNfv, sitTit, sitDoe, datIni, datFim, codRep, codFpg) {
+    let url = urlBase + '/titulo?token=' + sessionStorage.getItem('token')
+    url += codFpg !== null ? '&codFpg=' + codFpg : ''
+    url += codRep !== null ? '&codRep=' + codRep : ''
+    url += datIni !== null ? '&datIni=' + datIni : ''
+    url += datFim !== null ? '&datFim=' + datFim : ''
+    url += numNfv !== null ? '&numNfv=' + numNfv : ''
+    url += sitDoe !== null ? '&sitDoe=' + sitDoe : ''
+    url += sitTit !== null ? '&sitTit=' + sitTit : ''
+    return axios.get(url)
+  },
   cancelarNFCe(codSnf, numNfv, jusCan) {
     return axios.put(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },
