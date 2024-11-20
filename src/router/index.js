@@ -5,6 +5,7 @@ import Venda from '../views/Venda.vue'
 import ConsultaPedidos from '../views/ConsultaPedidos.vue'
 import ConsultaNotas from '../views/ConsultaNotas.vue'
 import ConsultaMovimentos from '../views/ConsultaMovimentos.vue'
+import ConsultaTitulos from '../views/ConsultaTitulos.vue'
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/consulta-movimentos',
     name: 'ConsultaMovimentos',
     component: ConsultaMovimentos
+  },
+  {
+    path: '/consulta-titulos',
+    name: 'ConsultaTitulos',
+    component: ConsultaTitulos
   }
 ]
 

@@ -2115,10 +2115,7 @@ export default {
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
           const perDsc = Number(item.perDsc.replace(',','.').trim())
-          const vlrPerc = await this.calcularDescontoAPI(item.vlrTot, (perDsc / 100))
-          item.vlrLiq = item.tipOpeVlrIpd === 'desconto' ? 
-                          (item.vlrTot - vlrPerc) :
-                          (item.vlrTot + vlrPerc)
+          item.vlrLiq = await this.calcularItemComDescontoAPI(item.vlrTot, (perDsc / 100))
         } else {
           item.vlrLiq = item.vlrTot
         }
@@ -3030,6 +3027,19 @@ export default {
     async calcularDescontoAPI(vlrPro, vlrDsc) {
       let vlrDesc = 0
       await api.calcularDesconto(vlrPro, vlrDsc)
+      .then((response) => {
+        vlrDesc = response.data
+      })
+      .catch((err) => {
+        console.log(err)
+        shared.handleRequestError(err)
+      })
+      return vlrDesc
+    },
+
+    async calcularItemComDescontoAPI(vlrPro, vlrDsc) {
+      let vlrDesc = 0
+      await api.calcularItemComDesconto(vlrPro, vlrDsc)
       .then((response) => {
         vlrDesc = response.data
       })

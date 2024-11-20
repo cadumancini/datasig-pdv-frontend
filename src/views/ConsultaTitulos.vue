@@ -1,10 +1,10 @@
 <template>
   <div class="pdv-tela">
-    <Navbar title="ConsultaNotas"/>
+    <Navbar title="ConsultaTitulos"/>
     <div class="pdv-frame mx-4">
       <div class="row mb-2">
         <div class="col">
-          <span class="fw-bold title">Consulta de Notas</span>
+          <span class="fw-bold title">Consulta de Títulos</span>
         </div>
       </div>
       <div class="row margin-y-fields">
@@ -16,14 +16,34 @@
         </div>
         <div class="col-3">
           <div class="input-group input-group-sm">
-            <span class="input-group-text">Situação</span>
+            <span class="input-group-text">Situação Título</span>
             <select class="form-select disable-on-search" v-model="situacao">
-              <option selected value="">Todos</option>
-              <option selected value="1">Digitada</option>
-              <option selected value="2">Fechada</option>
-              <option selected value="3">Cancelada</option>
-              <option selected value="4">Documento Fiscal Emitido (saída)</option>
-              <option selected value="5">Aguardando Fechamento (pós-saída)</option>
+              <option selected value="AO">Aberto ao Órgão de Proteção ao Crédito</option>
+              <option selected value="AN">Aberto Negociação</option>
+              <option selected value="AA">Aberto Advogado</option>
+              <option selected value="AB">Aberto Normal</option>
+              <option selected value="AC">Aberto Cartório</option>
+              <option selected value="AE">Aberto Encontro de Contas</option>
+              <option selected value="AI">Aberto Impostos</option>
+              <option selected value="AJ">Aberto Retorno Jurídico</option>
+              <option selected value="AP">Aberto Protestado</option>
+              <option selected value="AR">Aberto Representante</option>
+              <option selected value="AS">Aberto Suspenso</option>
+              <option selected value="AV">Aberto Gestão de Pessoas</option>
+              <option selected value="AX">Aberto Externo</option>
+              <option selected value="CA">Cancelado</option>
+              <option selected value="CE">Aberto CE (Preparação Cobrança Escritural)</option>
+              <option selected value="CO">Aberto Cobrança</option>
+              <option selected value="LQ">Liquidado Normal</option>
+              <option selected value="LC">Liquidado Cartório</option>
+              <option selected value="LI">Liquidado Impostos</option>
+              <option selected value="LM">Liquidado Compensado</option>
+              <option selected value="LO">Liquidado Cobrança</option>
+              <option selected value="LP">Liquidado Protestado</option>
+              <option selected value="LS">Liquidado Substituído</option>
+              <option selected value="LV">Liquidado Gestão de Pessoas</option>
+              <option selected value="LX">Liquidado Externo</option>
+              <option selected value="PE">Aberto PE (Pagamento Eletrônico)</option>
             </select>
           </div>
         </div>
@@ -51,14 +71,6 @@
           </div>
         </div>
         <div class="col">
-          <div class="float-end">
-            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscarNotas">Buscar</button>
-            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
-          </div>
-        </div>
-      </div>
-      <div class="row margin-y-fields">
-        <div class="col-3">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Representante</span>
             <input autocomplete="off" id="inputIdeRep" class="form-control input-sale disable-on-search" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
@@ -68,6 +80,8 @@
             <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
           </div>
         </div>
+      </div>
+      <div class="row margin-y-fields">
         <div class="col-5">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Emissão</span>
@@ -79,119 +93,102 @@
             <button class="btn btn-secondary input-group-btn disable-on-search" @click="selectDate('fim')" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
+        </div>        
+        <div class="col-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Forma de Pagto</span>
+            <select class="form-select disable-on-search" :disabled="!formasPagto.length" v-model="codFpg">
+              <option selected value="">Todas</option>
+              <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma.codFpg">{{ forma.desFpg }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col">
+          <div class="float-end">
+            <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscar">Buscar</button>
+            <button id="btnLimpar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="limpar">Limpar</button>
+          </div>
         </div>
       </div>
-      <div class="row table-registros border">
+      <div class="row table-registros-titulos border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead class="header-fixed">
             <tr>
               <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
-              <th class="sm-header" style="width: 4%;"><small>Filial</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Emissão</small></th>
-              <th class="sm-header" style="width: 4%;"><small>Série</small></th>
-              <th class="sm-header" style="width: 4%;"><small>Nota</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 22%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Valor</small></th>
-              <th class="sm-header" style="width: 7%;"><small>Sit. Nota</small></th>
+              <th class="sm-header" style="width: 3%;"><small>Filial</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Tipo</small></th>
+              <th class="sm-header" style="width: 4%;"><small>Título</small></th>
+              <th class="sm-header" style="width: 9%;"><small>Sit. Título</small></th>
+              <th class="sm-header" style="width: 3%;"><small>Série</small></th>
+              <th class="sm-header" style="width: 3%;"><small>Nota</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Sit. Nota</small></th>
               <th class="sm-header" style="width: 8%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 19%;"><small>Ação</small></th>
+              <th class="sm-header" style="width: 18%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 10%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 9%;"><small>Forma Pagto.</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Vlr. Original</small></th>
+              <th class="sm-header" style="width: 6%;"><small>Vlr. Aberto</small></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in notas" :key="row.codSnf + row.numNfv">
-              <th class="fw-normal sm">{{ row.codEmp }}</th>
-              <th class="fw-normal sm">{{ row.codFil }}</th>
-              <th class="fw-normal sm">{{ row.datEmi }} - {{ row.horEmi }}</th>
-              <th class="fw-normal sm">{{ row.codSnf }}</th>
-              <th class="fw-normal sm">{{ row.numNfv }}</th>
-              <th class="fw-normal sm">{{ row.codRep }} - {{ row.nomRep }}</th>
-              <th class="fw-normal sm">{{ row.codCli }} - {{ row.nomCli }}</th>
-              <th class="fw-normal sm">{{ toMoneyString(row.vlrLiq) }}</th>
-              <th class="fw-normal sm">{{ row.desSitNfv }}</th>
-              <th class="fw-normal sm">{{ row.desSitDoe }}</th>
-              <th class="fw-normal sm">
-                <button :id="'btnCancelarNota' + row.codSnf + row.numNfv" :disabled="row.cancelavel === false" @click="confirmCancelarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Cancelar</button>
-                <button :id="'btnInutilizarNota' + row.codSnf + row.numNfv" :disabled="row.inutilizavel === false" @click="confirmInutilizarNota(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">Inutilizar</button>
-                <button :id="'btnConsultaEDocs' + row.codSnf + row.numNfv" @click="consultarEDocs(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-search">eDocs</button>
-              </th>
+            <tr v-for="row in titulos" :key="row.numTit">
+              <th class="fw-normal ssm">{{ row.codEmp }}</th>
+              <th class="fw-normal ssm">{{ row.codFil }}</th>
+              <th class="fw-normal ssm">{{ row.datEmi }}</th>
+              <th class="fw-normal ssm">{{ row.codTpt }}</th>
+              <th class="fw-normal ssm">{{ row.numTit }}</th>
+              <th class="fw-normal ssm">{{ row.desSitTit }}</th>
+              <th class="fw-normal ssm">{{ row.codSnf }}</th>
+              <th class="fw-normal ssm">{{ row.numNfv }}</th>
+              <th class="fw-normal ssm">{{ row.desSitNfv }}</th>
+              <th class="fw-normal ssm">{{ row.desSitDoe }}</th>
+              <th class="fw-normal ssm">{{ row.codCli }} - {{ row.nomCli }}</th>
+              <th class="fw-normal ssm">{{ row.codRep }} - {{ row.nomRep }}</th>
+              <th class="fw-normal ssm">{{ row.desFpg }}</th>
+              <th class="fw-normal ssm">{{ toMoneyString(row.vlrOri) }}</th>
+              <th class="fw-normal ssm">{{ toMoneyString(row.vlrAbe) }}</th>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="row mt-2" v-if="notas && notas.length > 0">
+      <div class="row" v-if="titulos && titulos.length > 0">
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Total Vendas</span>
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Total Vendas</span>
             <input disabled class="form-control" v-model="totalVendas">
           </div>
         </div>
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Itens Vendidos</span>
-            <input disabled class="form-control" v-model="itensVendidos">
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Total Títulos</span>
+            <input disabled class="form-control" v-model="totalTiulos">
           </div>
         </div>
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Autorizado</span>
-            <input disabled class="form-control" :value="toMoneyString(totalAutorizado)">
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Vlr. em Aberto</span>
+            <input disabled class="form-control" :value="toMoneyString(totalAberto)">
           </div>
         </div>
         <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Canc./Inu.</span>
-            <input disabled class="form-control" :value="toMoneyString(totalCanInu)">
-          </div>
-        </div>
-        <div class="col-2">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">Outros</span>
-            <input disabled class="form-control" :value="toMoneyString(totalOutros)">
+          <div class="input-group input-group-sm mt-2">
+            <span class="input-group-text sm">Vlr. Original</span>
+            <input disabled class="form-control" :value="toMoneyString(totalOriginal)">
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <button id="btnConfirmCancelarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaCancelarModal">.</button>
-  <button id="btnConfirmInutilizarNota" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaInutilizarModal">.</button>
+      <div class="row" v-if="titulos && titulos.length > 0">
+        <div class="row"><span class="fw-bold sm mt-2">Totais por Formas de Pagamento</span></div>
+        <div class="row">
+          <div class="col-3" v-for="pagto in new Set(this.titulos.map(tit => tit.desFpg))">
+            <div class="input-group input-group-sm mt-2">
+              <span class="input-group-text ssm">{{ pagto }}</span>
+              <input disabled class="form-control" :value="toMoneyString(calcTotal(pagto))">
+            </div>
+          </div>
+        </div>
 
-  <!-- Modal Confirma Cancelamento -->
-  <div class="modal fade" id="confirmaCancelarModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirma cancelameto</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaCancelar"></button>
-        </div>
-        <div class="modal-body">
-          <p>Tem certeza que deseja cancelar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo (mín. 15 caracteres):</p>
-          <textarea class="form-control" maxlength="255" v-model="jusCan" rows="5"></textarea>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="cancelarNota(this.notaSelected)" :disabled="jusCan.length < 15">Sim</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Confirma Inutilização -->
-  <div class="modal fade" id="confirmaInutilizarModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirma inutilização</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaInutilizar"></button>
-        </div>
-        <div class="modal-body">
-          <p>Tem certeza que deseja inutilizar a nota número {{ this.notaSelected ? this.notaSelected.numNfv : '' }}? Se sim, favor informar o motivo abaixo (mín. 15 caracteres):</p>
-          <textarea class="form-control" maxlength="255" v-model="jusInu" rows="5"></textarea>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="inutilizarNota(this.notaSelected)" :disabled="jusInu.length < 15">Sim</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
-        </div>
       </div>
     </div>
   </div>
@@ -275,7 +272,7 @@ import { DatePicker } from 'v-calendar'
 import 'v-calendar/style.css'
 
 export default {
-  name: 'ConsultaNotas',
+  name: 'ConsultaTitulos',
   components: { Navbar, Footer, DatePicker },
   computed: {
     datIniPicked: {
@@ -316,20 +313,20 @@ export default {
       tableIndexRep: 0,
 
       // registros
-      notas: null,
-      notaSelected: null,
-      jusCan: '',
-      jusInu: '',
+      titulos: null,
       totalVendas: 0,
-      itensVendidos: 0,
-      totalAutorizado: 0,
-      totalCanInu: 0,
-      totalOutros: 0,
+      totalTiulos: 0,
+      totalAberto: 0,
+      totalOriginal: 0,
 
       // geral
       options: {
         reverse: false
-      },
+      },      
+      
+      // formas de pagto
+      codFpg: '',
+      formasPagto: [],
     }
   },
 
@@ -341,6 +338,7 @@ export default {
     }
 
     this.initRepresentantes() 
+    this.initFormasPagto() 
   },
 
   methods: {
@@ -368,7 +366,7 @@ export default {
     },
 
     limpar() {
-      this.notas = null
+      this.titulos = null
       this.setEverythingDisabled(false)
       this.limparCampos()
       this.initDates()
@@ -380,17 +378,15 @@ export default {
       this.situacaoDocEle = ''
       this.ideRep = ''
       this.codRep = ''
+      this.ideFpg = ''
+      this.codFpg = ''
       this.representantesFiltro = ''
       this.datIni = ''
       this.datFim = ''
-      this.jusCan = ''
-      this.jusInu = ''
       this.totalVendas = 0
-      this.itensVendidos = 0
-      this.totalAutorizado = 0
-      this.totalCanInu = 0
-      this.totalOutros = 0
-      this.limparCamposJustificativa()
+      this.totalTiulos = 0
+      this.totalAberto = 0
+      this.totalOriginal = 0
     },
 
     toMoneyString(value) {
@@ -400,17 +396,10 @@ export default {
     setEverythingDisabled(value) {
       const elements = document.getElementsByClassName('disable-on-search')
       for (var i = 0; i < elements.length; i++) elements[i].disabled = value
-
-      if (value === false && this.notas) {
-        this.notas.forEach(nota => {
-          if(!nota.cancelavel) document.getElementById('btnCancelarNota' + nota.codSnf + nota.numNfv).disabled = true
-          if(!nota.inutilizavel) document.getElementById('btnInutilizarNota' + nota.codSnf + nota.numNfv).disabled = true
-        });
-      }
     },
 
-    async buscarNotas() {
-      this.notas = null
+    async buscar() {
+      this.titulos = null
       this.setEverythingDisabled(true)
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       const filterNumNfv = this.numNfv !== '' ? this.numNfv : null
@@ -419,9 +408,10 @@ export default {
       const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
       const filterCodRep = this.codRep !== '' ? this.codRep : null
-      await api.getNotas(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep)
+      const filterCodFpg = this.codFpg !== '' ? this.codFpg : null
+      await api.getTitulos(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep, filterCodFpg)
       .then((response) => {
-        this.notas = response.data
+        this.titulos = response.data
         this.calcResumo()
       })
       .catch((err) => {
@@ -433,100 +423,14 @@ export default {
     },
 
     calcResumo() {
-      this.totalVendas = this.notas.length
-      this.itensVendidos = Number(this.notas.map(item => item.qtdFat).reduce((prev, curr) => prev + curr, 0))
-      this.totalAutorizado = Number(this.notas.filter(item => Number(item.sitDoe) === 3).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
-      this.totalCanInu = Number(this.notas.filter(item => [5,8,9].includes(Number(item.sitDoe))).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
-      this.totalOutros = Number(this.notas.filter(item => ![3,5,8,9].includes(Number(item.sitDoe))).map(item => item.vlrLiq).reduce((prev, curr) => prev + curr, 0))
+      this.totalTiulos = this.titulos.length
+      this.totalVendas = new Set(this.titulos.map(tit => tit.numNfv)).size
+      this.totalAberto = Number(this.titulos.map(tit => tit.vlrAbe).reduce((prev, curr) => prev + curr, 0))
+      this.totalOriginal = Number(this.titulos.map(tit => tit.vlrOri).reduce((prev, curr) => prev + curr, 0))
     },
 
-    confirmCancelarNota(row) {
-      this.notaSelected = row
-      this.limparCamposJustificativa()
-      document.getElementById('btnConfirmCancelarNota').click()
-    },
-
-    confirmInutilizarNota(row) {
-      this.notaSelected = row
-      this.limparCamposJustificativa()
-      document.getElementById('btnConfirmInutilizarNota').click()
-    },
-
-    limparCamposJustificativa() {
-      this.jusCan = ''
-      this.jusInu = ''
-    },
-
-    async cancelarNota(nota) {
-      document.getElementById('closeModalConfirmaCancelar').click()
-      this.setEverythingDisabled(true)
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-
-      await api.cancelarNFCe(nota.codSnf, nota.numNfv, this.jusCan)
-      .then((response) => {
-        const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
-        } else {
-          alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso. Favor recarregar a busca para atualizar os valores.')
-          this.limpar()
-        } 
-      })
-      .catch((err) => {
-        console.log(err)
-        if (err.response.status === 404) {
-          alert('Nenhum registro encontrado.')
-          this.clearFocus()
-        } else {
-          shared.handleRequestError(err)
-        }
-      })
-
-      this.setEverythingDisabled(false)
-      document.getElementsByTagName('body')[0].style.cursor = 'auto'
-    },
-
-    async inutilizarNota(nota) {
-      document.getElementById('closeModalConfirmaInutilizar').click()
-      this.setEverythingDisabled(true)
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-
-      await api.inutilizarNFCe(nota.codSnf, nota.numNfv, this.jusInu)
-      .then((response) => {
-        const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
-        } else {
-          alert('NFC-e ' + nota.numNfv + ' inutilizada com sucesso. Favor recarregar a busca para atualizar os valores.')
-          this.limpar()
-        } 
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-
-      this.setEverythingDisabled(false)
-      document.getElementsByTagName('body')[0].style.cursor = 'auto'
-    },
-
-    async consultarEDocs(nota) {
-      this.setEverythingDisabled(true)
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-
-      await api.consultarEDocs(nota.codSnf, nota.numNfv)
-      .then((response) => {
-        alert(response.data.response)
-        const index = this.notas.findIndex(notaFound => notaFound.numNfv === response.data.notaFiscal.numNfv)
-        this.notas[index] = response.data.notaFiscal
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-
-      this.setEverythingDisabled(false)
-      document.getElementsByTagName('body')[0].style.cursor = 'auto'
+    calcTotal(pagto) {
+      return Number(this.titulos.filter(tit => tit.desFpg === pagto).map(tit => tit.vlrOri).reduce((prev, curr) => prev + curr, 0))
     },
 
     /* Representantes */
@@ -626,6 +530,23 @@ export default {
     repListHit() {
       const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
       this.selectRepresentante(rep)
+    },
+
+    /* Formas de Pagamento */
+    async initFormasPagto() {
+      if (!sessionStorage.getItem('formasPagto')) {
+        await api.getFormasPagto()
+        .then((response) => {
+          this.formasPagto = response.data
+          sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
+        })
+        .catch((err) => {
+          shared.handleRequestError(err)
+          console.log(err)
+        })
+      } else {
+        this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
+      }
     }
   }
 }
