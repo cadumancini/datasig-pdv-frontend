@@ -205,12 +205,22 @@ export default {
         alert('Por favor, preencha um valor.')
         document.getElementById('inputVlrMov').focus()
         return false
-      } else if (this.hisMov === '') {
+      } else if (this.hisMov === '' || this.historicoTemApenasValoresPadrao() || !this.historicoIniciaComValoresPadrao()) {
         alert('Por favor, preencha o texto do histórico da movimentação.')
         document.getElementById('inputHisMov').focus()
         return false
       }
       return true
+    },
+
+    historicoTemApenasValoresPadrao() {
+      return ['ABERTURA:', 'SANGRIA:', 'FECHAMENTO:'].includes(this.hisMov.toUpperCase().trim())
+    },
+
+    historicoIniciaComValoresPadrao() {
+      return (this.hisMov.toUpperCase().trim().startsWith('ABERTURA:') ||
+        this.hisMov.toUpperCase().trim().startsWith('SANGRIA:') ||
+        this.hisMov.toUpperCase().trim().startsWith('FECHAMENTO:'))
     }
   }
 }
