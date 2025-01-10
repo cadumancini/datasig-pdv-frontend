@@ -114,8 +114,6 @@
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead class="header-fixed">
             <tr>
-              <th class="sm-header" style="width: 5%;"><small>Empresa</small></th>
-              <th class="sm-header" style="width: 3%;"><small>Filial</small></th>
               <th class="sm-header" style="width: 6%;"><small>Emissão</small></th>
               <th class="sm-header" style="width: 4%;"><small>Tipo</small></th>
               <th class="sm-header" style="width: 4%;"><small>Título</small></th>
@@ -124,8 +122,8 @@
               <th class="sm-header" style="width: 3%;"><small>Nota</small></th>
               <th class="sm-header" style="width: 6%;"><small>Sit. Nota</small></th>
               <th class="sm-header" style="width: 8%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 18%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 10%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 22%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 14%;"><small>Representante</small></th>
               <th class="sm-header" style="width: 9%;"><small>Forma Pagto.</small></th>
               <th class="sm-header" style="width: 6%;"><small>Vlr. Original</small></th>
               <th class="sm-header" style="width: 6%;"><small>Vlr. Aberto</small></th>
@@ -133,8 +131,6 @@
           </thead>
           <tbody>
             <tr v-for="row in titulos" :key="row.numTit">
-              <th class="fw-normal ssm">{{ row.codEmp }}</th>
-              <th class="fw-normal ssm">{{ row.codFil }}</th>
               <th class="fw-normal ssm">{{ row.datEmi }}</th>
               <th class="fw-normal ssm">{{ row.codTpt }}</th>
               <th class="fw-normal ssm">{{ row.numTit }}</th>
