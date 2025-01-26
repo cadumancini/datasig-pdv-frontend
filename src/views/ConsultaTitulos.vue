@@ -103,6 +103,12 @@
             </select>
           </div>
         </div>
+        <div class="col-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Usuário</span>
+            <input autocomplete="off" id="inputNomUsu" class="form-control disable-on-search" v-model="nomUsu">
+          </div>
+        </div>
         <div class="col">
           <div class="float-end">
             <button id="btnBuscar" class="btn btn-sm btn-secondary mx-2 disable-on-search" @click="buscar">Buscar</button>
@@ -114,17 +120,18 @@
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead class="header-fixed">
             <tr>
-              <th class="sm-header" style="width: 6%;"><small>Emissão</small></th>
-              <th class="sm-header" style="width: 4%;"><small>Tipo</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 3%;"><small>Tipo</small></th>
               <th class="sm-header" style="width: 4%;"><small>Título</small></th>
-              <th class="sm-header" style="width: 9%;"><small>Sit. Título</small></th>
+              <th class="sm-header" style="width: 8%;"><small>Sit. Título</small></th>
               <th class="sm-header" style="width: 3%;"><small>Série</small></th>
               <th class="sm-header" style="width: 3%;"><small>Nota</small></th>
               <th class="sm-header" style="width: 6%;"><small>Sit. Nota</small></th>
               <th class="sm-header" style="width: 8%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 22%;"><small>Cliente</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 21%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 13%;"><small>Representante</small></th>
               <th class="sm-header" style="width: 9%;"><small>Forma Pagto.</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Usuário</small></th>
               <th class="sm-header" style="width: 6%;"><small>Vlr. Original</small></th>
               <th class="sm-header" style="width: 6%;"><small>Vlr. Aberto</small></th>
             </tr>
@@ -142,6 +149,7 @@
               <th class="fw-normal ssm">{{ row.codCli }} - {{ row.nomCli }}</th>
               <th class="fw-normal ssm">{{ row.codRep }} - {{ row.nomRep }}</th>
               <th class="fw-normal ssm">{{ row.desFpg }}</th>
+              <th class="fw-normal ssm">{{ row.nomUsu }}</th>
               <th class="fw-normal ssm">{{ toMoneyString(row.vlrOri) }}</th>
               <th class="fw-normal ssm">{{ toMoneyString(row.vlrAbe) }}</th>
             </tr>
@@ -299,6 +307,7 @@ export default {
       datIni: '',
       datFim: '',
       datClick: '',
+      nomUsu: '',
 
       // representantes
       ideRep: '',
@@ -335,6 +344,7 @@ export default {
 
     this.initRepresentantes() 
     this.initFormasPagto() 
+    this.nomUsu = shared.getNomUsu()
   },
 
   methods: {
@@ -383,6 +393,7 @@ export default {
       this.totalTiulos = 0
       this.totalAberto = 0
       this.totalOriginal = 0
+      this.nomUsu = shared.getNomUsu()
     },
 
     toMoneyString(value) {
@@ -405,7 +416,8 @@ export default {
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
       const filterCodRep = this.codRep !== '' ? this.codRep : null
       const filterCodFpg = this.codFpg !== '' ? this.codFpg : null
-      await api.getTitulos(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep, filterCodFpg)
+      const filterNomUsu = this.nomUsu !== '' ? this.nomUsu : null
+      await api.getTitulos(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep, filterCodFpg, filterNomUsu)
       .then((response) => {
         this.titulos = response.data
         this.calcResumo()
