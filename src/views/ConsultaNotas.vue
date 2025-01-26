@@ -80,20 +80,27 @@
             <button id="btnClearIni" class="btn btn-secondary input-group-btn disable-on-search" @click="clearDate('fim')"><font-awesome-icon icon="fa-circle-xmark"/></button>
           </div>
         </div>
+        <div class="col-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Usuário</span>
+            <input autocomplete="off" id="inputNomUsu" class="form-control disable-on-search" v-model="nomUsu">
+          </div>
+        </div>
       </div>
       <div class="row table-registros border">
         <table class="table table-striped table-hover table-sm table-responsive table-items">
           <thead class="header-fixed">
             <tr>
-              <th class="sm-header" style="width: 10%;"><small>Emissão</small></th>
+              <th class="sm-header" style="width: 8%;"><small>Emissão</small></th>
               <th class="sm-header" style="width: 4%;"><small>Série</small></th>
               <th class="sm-header" style="width: 4%;"><small>Nota</small></th>
-              <th class="sm-header" style="width: 14%;"><small>Representante</small></th>
-              <th class="sm-header" style="width: 27%;"><small>Cliente</small></th>
+              <th class="sm-header" style="width: 13%;"><small>Representante</small></th>
+              <th class="sm-header" style="width: 26%;"><small>Cliente</small></th>
               <th class="sm-header" style="width: 7%;"><small>Valor</small></th>
+              <th class="sm-header" style="width: 5%;"><small>Usuário</small></th>
               <th class="sm-header" style="width: 7%;"><small>Sit. Nota</small></th>
               <th class="sm-header" style="width: 8%;"><small>Sit. Doc. Eletr.</small></th>
-              <th class="sm-header" style="width: 19%;"><small>Ação</small></th>
+              <th class="sm-header" style="width: 18%;"><small>Ação</small></th>
             </tr>
           </thead>
           <tbody>
@@ -104,6 +111,7 @@
               <th class="fw-normal sm">{{ row.codRep }} - {{ row.nomRep }}</th>
               <th class="fw-normal sm">{{ row.codCli }} - {{ row.nomCli }}</th>
               <th class="fw-normal sm">{{ toMoneyString(row.vlrLiq) }}</th>
+              <th class="fw-normal sm">{{ row.nomUsu }}</th>
               <th class="fw-normal sm">{{ row.desSitNfv }}</th>
               <th class="fw-normal sm">{{ row.desSitDoe }}</th>
               <th class="fw-normal sm">
@@ -302,6 +310,7 @@ export default {
       datIni: '',
       datFim: '',
       datClick: '',
+      nomUsu: '',
 
       // representantes
       ideRep: '',
@@ -337,6 +346,7 @@ export default {
     }
 
     this.initRepresentantes() 
+    this.nomUsu = shared.getNomUsu()
   },
 
   methods: {
@@ -368,6 +378,7 @@ export default {
       this.setEverythingDisabled(false)
       this.limparCampos()
       this.initDates()
+      document.getElementById('btnClearRep').disabled = true
     },
 
     limparCampos() {
@@ -387,6 +398,7 @@ export default {
       this.totalCanInu = 0
       this.totalOutros = 0
       this.limparCamposJustificativa()
+      this.nomUsu = shared.getNomUsu()
     },
 
     toMoneyString(value) {
@@ -415,7 +427,8 @@ export default {
       const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
       const filterCodRep = this.codRep !== '' ? this.codRep : null
-      await api.getNotas(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep)
+      const filterNomUsu = this.nomUsu !== '' ? this.nomUsu : null
+      await api.getNotas(filterNumNfv, filterSituacao, filterSituacaoDocEle, filterDatIni, filterDatFim, filterCodRep, filterNomUsu)
       .then((response) => {
         this.notas = response.data
         this.calcResumo()

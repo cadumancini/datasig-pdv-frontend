@@ -58,7 +58,7 @@ var functions = {
   deleteItem(pedido, item) {
     return axios.delete(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)
   },
-  getNotas(numNfv, sitNfv, sitDoe, datIni, datFim, codRep) {
+  getNotas(numNfv, sitNfv, sitDoe, datIni, datFim, codRep, nomUsu) {
     let url = urlBase + '/nfce?token=' + sessionStorage.getItem('token')
     url += numNfv !== null ? '&numNfv=' + numNfv : ''
     url += sitNfv !== null ? '&sitNfv=' + sitNfv : ''
@@ -66,6 +66,7 @@ var functions = {
     url += datIni !== null ? '&datIni=' + datIni : ''
     url += datFim !== null ? '&datFim=' + datFim : ''
     url += codRep !== null ? '&codRep=' + codRep : ''
+    url += nomUsu !== null ? '&nomUsu=' + nomUsu : ''
     return axios.get(url)
   },
   getPedidos(tipo, situacao, numPed, datIni, datFim, order) {
@@ -78,7 +79,7 @@ var functions = {
     url += datFim !== null ? '&datFim=' + datFim : ''
     return axios.get(url)
   },
-  getTitulos(numNfv, sitTit, sitDoe, datIni, datFim, codRep, codFpg) {
+  getTitulos(numNfv, sitTit, sitDoe, datIni, datFim, codRep, codFpg, nomUsu) {
     let url = urlBase + '/titulo?token=' + sessionStorage.getItem('token')
     url += codFpg !== null ? '&codFpg=' + codFpg : ''
     url += codRep !== null ? '&codRep=' + codRep : ''
@@ -87,6 +88,7 @@ var functions = {
     url += numNfv !== null ? '&numNfv=' + numNfv : ''
     url += sitDoe !== null ? '&sitDoe=' + sitDoe : ''
     url += sitTit !== null ? '&sitTit=' + sitTit : ''
+    url += nomUsu !== null ? '&nomUsu=' + nomUsu : ''
     return axios.get(url)
   },
   cancelarNFCe(codSnf, numNfv, jusCan) {
