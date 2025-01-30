@@ -20,7 +20,7 @@
           <span class="fw-bold subtitle">Pedido</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Pedido</span>
+              <span class="input-group-text">Pedido (Alt + A)</span>
               <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
                 :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
@@ -32,7 +32,7 @@
           <span class="fw-bold subtitle">Identificação</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Representante</span>
+              <span class="input-group-text">Representante (Alt + R)</span>
               <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
                 :disabled="!this.representantes.length || this.codRep !== ''"
                 :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''"
@@ -44,7 +44,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Tabela de Preço</span> 
+              <span class="input-group-text">Tabela de Preço (Alt + T)</span> 
               <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" 
                 type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
               <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
@@ -54,7 +54,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Depósito</span>
+              <span class="input-group-text">Depósito (Alt + O)</span>
               <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
                 :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
                 :class="{searching: (!this.depositos.length && this.codDep === '')}">
@@ -65,7 +65,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Cliente</span>
+              <span class="input-group-text">Cliente (Alt + C)</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
                 :class="{searching: (!this.clientes.length && this.codCli === '')}">
@@ -79,7 +79,7 @@
           <span class="fw-bold subtitle">Carrinho</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Produto</span>
+              <span class="input-group-text">Produto (F2)</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
                 :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === ''" :class="{searching: !this.produtosTabelaPreco.length}" 
                 :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
@@ -167,7 +167,7 @@
                   <option selected value="desconto">Desconto</option>
                   <option value="acrescimo">Acréscimo</option>
                 </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
-                <span class="input-group-text">Desconto</span> <!-- TODO: remover quando resolver acrescimo -->
+                <span class="input-group-text">Desconto (Alt + D)</span> <!-- TODO: remover quando resolver acrescimo -->
                 <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
@@ -203,14 +203,14 @@
           <div class="row margin-y-fields">
             <div class="col">
               <div class="float-end mx-2">
-                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" :disabled="!this.itensCarrinho.length">Gerar NFC</button>
+                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)" :disabled="!this.itensCarrinho.length">Gerar Pedido</button>
+                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)" :disabled="!this.itensCarrinho.length">Gerar Pedido (F9)</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Gerar Orçamento</button>
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Gerar Orçamento (F4)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -771,8 +771,8 @@
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
-                  <th class="sm-header" scope="col" style="width: 10%;">Tecla</th>
-                  <th class="sm-header" scope="col" style="width: 90%;">Ação</th>
+                  <th class="sm-header" scope="col" style="width: 20%;">Tecla</th>
+                  <th class="sm-header" scope="col" style="width: 80%;">Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -1094,22 +1094,23 @@ export default {
         minimumFractionDigits: 3
       },
       atalhos: [
-        { codAta: 0, tecAta: 'A', desAta: 'Pedido' },
-        { codAta: 1, tecAta: 'R', desAta: 'Representante' },
-        { codAta: 2, tecAta: 'T', desAta: 'Tabela de Preço' },
-        { codAta: 3, tecAta: 'C', desAta: 'Cliente' },
-        { codAta: 4, tecAta: 'O', desAta: 'Depósito' },
-        { codAta: 5, tecAta: 'P', desAta: 'Produto' },
-        { codAta: 6, tecAta: 'E', desAta: 'Editar carrinho' },
-        { codAta: 7, tecAta: 'Q', desAta: 'Alterar Quantidade do Item' },
-        { codAta: 8, tecAta: 'B', desAta: 'Observação do Item' },
-        { codAta: 9, tecAta: 'S', desAta: 'Desconto do Item' },
-        { codAta: 10, tecAta: 'Delete', desAta: 'Remover Item' },
-        { codAta: 11, tecAta: 'D', desAta: 'Desconto' },
-        { codAta: 12, tecAta: 'I', desAta: 'Gerar Orçcamento' },
-        { codAta: 13, tecAta: 'G', desAta: 'Gerar Pedido' },
-        { codAta: 14, tecAta: 'N', desAta: 'Gerar NFC' }
+        { codAta: 0, tecAta: 'F2', desAta: 'Produto' },
+        { codAta: 1, tecAta: 'F4', desAta: 'Gerar Orçamento' },
+        { codAta: 2, tecAta: 'F9', desAta: 'Gerar Pedido' },
+        { codAta: 3, tecAta: 'F8', desAta: 'Gerar NFC' },
+        { codAta: 4, tecAta: 'Alt + A', desAta: 'Pedido' },
+        { codAta: 5, tecAta: 'Alt + R', desAta: 'Representante' },
+        { codAta: 6, tecAta: 'Alt + T', desAta: 'Tabela de Preço' },
+        { codAta: 7, tecAta: 'Alt + C', desAta: 'Cliente' },
+        { codAta: 8, tecAta: 'Alt + O', desAta: 'Depósito' },
+        { codAta: 9, tecAta: 'Alt + E', desAta: 'Editar carrinho' },
+        { codAta: 10, tecAta: 'Alt + Q', desAta: 'Alterar Quantidade do Item' },
+        { codAta: 11, tecAta: 'Alt + B', desAta: 'Observação do Item' },
+        { codAta: 12, tecAta: 'Alt + S', desAta: 'Desconto do Item' },
+        { codAta: 13, tecAta: 'Alt + D', desAta: 'Desconto' },
+        { codAta: 14, tecAta: 'Delete', desAta: 'Remover Item' }
       ],
+      pressedKeys: null,
 
       //Pedidos
       idePedPrv: '',
@@ -1131,6 +1132,7 @@ export default {
   },
   methods: {
     async initEverything() {
+      this.pressedKeys = new Set()
       this.status = 'b_params'   
       await this.initParams()  
       this.status = 'b_representantes'
@@ -1139,7 +1141,7 @@ export default {
       await this.initClientes()    
       this.status = 'b_formas'
       await this.initFormasPagto()  
-      this.status = '' 
+      this.status = ''  
     },
     restartRecords() {
       this.clearEverything()
@@ -1257,11 +1259,12 @@ export default {
     },
     addEvents() {
       let self = this
-      window.addEventListener('keyup', function(ev) {
-          self.handleOption(ev)
+      document.addEventListener('keyup', function(ev) {
+          self.deleteKey(ev.key)
       })
-      window.addEventListener('keydown', function(ev) {
+      document.addEventListener('keydown', function(ev) {
           self.handleNavigation(ev)
+          self.handleOption(ev)
       })
 
       const inputIdeRep = document.getElementById('inputIdeRep')
@@ -1306,42 +1309,57 @@ export default {
       })
     },
 
+    deleteKey(key) {
+      this.pressedKeys.delete(key.toUpperCase())
+    },
+
     async handleOption(event) {
       if (sessionStorage.getItem('form') === 'Venda') {
-        if(this.noInputIsFocused() && !this.editandoCarrinho) {
-          if (event.key.toUpperCase() === 'R') this.focusRepresentante()
-          else if (event.key.toUpperCase() === 'C') this.focusCliente()
-          else if (event.key.toUpperCase() === 'O') this.focusDeposito()
-          else if (event.key.toUpperCase() === 'P') this.focusProduto()
-          else if (event.key.toUpperCase() === 'T') this.focusTabelaPreco()
-          else if (event.key.toUpperCase() === 'A') this.focusPedido()
-          else if (event.key.toUpperCase() === 'N') document.getElementById('btnFinalizarVenda').click()
-          else if (event.key.toUpperCase() === 'G') document.getElementById('btnGerarPedido').click()
-          else if (event.key.toUpperCase() === 'I') document.getElementById('btnInserirPedido').click()
-          else if (event.key.toUpperCase() === 'D') document.getElementById('selectTipOpeVlr').focus()
-          else if (event.key.toUpperCase() === 'E') {
-            if (this.itensCarrinho.length > 0) { 
-              this.editarCarrinho()
-            }
-            else {
-              alert('Carrinho vazio!')
+        this.pressedKeys.add(event.key.toUpperCase())
+
+        if (this.pressedKeys.size === 2) {
+          if (this.editandoCarrinho) {
+            if (this.pressedKeys.has('ALT') && this.pressedKeys.has('Q')) document.getElementById('btnEdit' + this.tableIndexCar).click()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('B')) document.getElementById('btnObs' + this.tableIndexCar).click()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('S')) document.getElementById('btnDesc' + this.tableIndexCar).click()
+          } else {
+            if (this.pressedKeys.has('ALT') && this.pressedKeys.has('A')) this.focusPedido()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('R')) this.focusRepresentante()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('T')) this.focusTabelaPreco()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('C')) this.focusCliente()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('O')) this.focusDeposito()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('D')) document.getElementById('selectTipOpeVlr').focus()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('X')) {
+              if (this.itensCarrinho.length > 0) { 
+                this.editarCarrinho()
+              } else {
+                this.pressedKeys.clear()
+                alert('Carrinho vazio!')
+              }
+            } else {
+              this.pressedKeys.clear()
             }
           }
+        } else if (this.pressedKeys.size === 1) {
+          if (this.editandoCarrinho) {
+            if (this.pressedKeys.has('DELETE')) document.getElementById('btnDelete' + this.tableIndexCar).click()
+          } else if (this.finalizandoVenda) {
+            if (this.pressedKeys.has('ENTER')) await this.finalizarVenda()
+          } else {
+            if (this.pressedKeys.has('F2')) this.focusProduto()
+            else if (this.pressedKeys.has('F4')) document.getElementById('btnInserirPedido').click()
+            else if (this.pressedKeys.has('F8')) document.getElementById('btnFinalizarVenda').click()
+            else if (this.pressedKeys.has('F9')) document.getElementById('btnGerarPedido').click()
+          }
+
+          if (this.pressedKeys.has('ESCAPE')) {
+            this.clearFocus()
+            this.pressedKeys.clear()
+          }
+
+          if (!this.pressedKeys.has('ALT')) this.pressedKeys.clear()
         } else {
-          if (event.key === 'Escape') this.clearFocus()
-        }
-
-        if (this.editandoCarrinho && this.noInputIsFocused()) {
-          if (event.key.toUpperCase() === 'Q') document.getElementById('btnEdit' + this.tableIndexCar).click()
-          if (event.key.toUpperCase() === 'B') document.getElementById('btnObs' + this.tableIndexCar).click()
-          if (event.key.toUpperCase() === 'S') document.getElementById('btnDesc' + this.tableIndexCar).click()
-          if (event.key === 'Delete') document.getElementById('btnDelete' + this.tableIndexCar).click()
-        }
-
-        if (this.finalizandoVenda) {
-          if (event.key === 'Enter') {
-            await this.finalizarVenda()
-          }
+          this.pressedKeys.clear()
         }
       }
     },
@@ -1658,6 +1676,7 @@ export default {
     changePageCli(value) {
       if ((this.numPagCli + value) >= 1 && (this.numPagCli + value) <= this.numPagCliMax) {
         this.numPagCli += value
+        this.tableIndexCli = 0
       }
     },
 
@@ -2191,6 +2210,7 @@ export default {
     changePagePro(value) {
       if ((this.numPagPro + value) >= 1 && (this.numPagPro + value) <= this.numPagProMax) {
         this.numPagPro += value
+        this.tableIndexPro = 0
       }
     },
 
@@ -2444,6 +2464,7 @@ export default {
         this.status = 'b_produtos'
         await this.buscarProdutosTabela()
         this.status = ''
+        this.focusProduto()
         document.getElementsByTagName('body')[0].style.cursor = 'auto'
         
         if (this.pedidoSelected && atualizar) {
@@ -2959,6 +2980,7 @@ export default {
       this.clearInputsCartao()
       this.limparDesconto(false)
       this.clearFocus()
+      this.focusProduto()
     },
 
     isOnVenda() {
