@@ -1328,7 +1328,7 @@ export default {
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('T')) this.focusTabelaPreco()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('C')) this.focusCliente()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('O')) this.focusDeposito()
-            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('D')) document.getElementById('selectTipOpeVlr').focus()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('D')) document.getElementById('selectTipDesc').focus()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('X')) {
               if (this.itensCarrinho.length > 0) { 
                 this.editarCarrinho()
@@ -2638,6 +2638,14 @@ export default {
         this.confirmaVendaTitle = 'Processar pagamento'
         this.resetPagamento()
         document.getElementById('btnOpenFinalizarVendaModal').click()
+        
+        const modalElement = document.getElementById('confirmaVendaModal')
+        modalElement.addEventListener('shown.bs.modal', () => {
+          document.getElementById('selectFpg').focus()
+        })
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          this.focusProduto()
+        })
       }
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
