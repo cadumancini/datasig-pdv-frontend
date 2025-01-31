@@ -21,7 +21,7 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Pedido</span>
-              <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
+              <input autocomplete="off" id="inputPedPrv" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
                 :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
               <button id="btnSearchPed" :disabled="idePedPrv !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchPedidos"><font-awesome-icon icon="fa-search"/></button>
@@ -33,7 +33,7 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
-              <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
+              <input autocomplete="off" id="inputIdeRep" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
                 :disabled="!this.representantes.length || this.codRep !== ''"
                 :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''"
                 :class="{searching: !this.representantes.length}">
@@ -45,7 +45,7 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
-              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" 
+              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale disable-on-sale" 
                 type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
               <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
               <button id="btnClearTpr" :disabled="this.codTpr === '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
@@ -55,7 +55,7 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Depósito</span>
-              <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
+              <input autocomplete="off" id="inputIdeDep" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
                 :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
                 :class="{searching: (!this.depositos.length && this.codDep === '')}">
               <button id="btnSearchDep" :disabled="ideDep !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchDepositos"><font-awesome-icon icon="fa-search"/></button>
@@ -66,7 +66,7 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
-              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
+              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
                 :class="{searching: (!this.clientes.length && this.codCli === '')}">
               <button id="btnSearchCli" :disabled="ideCli !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchClientes"><font-awesome-icon icon="fa-search"/></button>
@@ -80,7 +80,7 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
-              <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
+              <input autocomplete="off" id="inputProduto" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
                 :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === ''" :class="{searching: !this.produtosTabelaPreco.length}" 
                 :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
                               !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : 
@@ -2042,11 +2042,13 @@ export default {
     },
 
     searchProdutos() {
-      this.filtrarProdutos(this.codBar)
-      if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
-        this.selectProduto(this.produtosFiltrados[0], 1, 0, '', 'desconto', '', '', '', true, this.codDep)
-      } else { // nao encontramos, abrir modal
-        this.openProdutosModal()
+      if (!this.finalizandoVenda) {
+        this.filtrarProdutos(this.codBar)
+        if (this.produtosFiltrados.length === 1) { // encontramos, selecionar
+          this.selectProduto(this.produtosFiltrados[0], 1, 0, '', 'desconto', '', '', '', true, this.codDep)
+        } else { // nao encontramos, abrir modal
+          this.openProdutosModal()
+        }
       }
     },
 
