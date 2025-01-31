@@ -20,7 +20,7 @@
           <span class="fw-bold subtitle">Pedido</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Pedido (Alt + A)</span>
+              <span class="input-group-text">Pedido</span>
               <input autocomplete="off" id="inputPedPrv" class="form-control input-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
                 :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
@@ -32,7 +32,7 @@
           <span class="fw-bold subtitle">Identificação</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Representante (Alt + R)</span>
+              <span class="input-group-text">Representante</span>
               <input autocomplete="off" id="inputIdeRep" class="form-control input-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
                 :disabled="!this.representantes.length || this.codRep !== ''"
                 :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''"
@@ -44,7 +44,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Tabela de Preço (Alt + T)</span> 
+              <span class="input-group-text">Tabela de Preço</span> 
               <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale" 
                 type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
               <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
@@ -54,7 +54,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Depósito (Alt + O)</span>
+              <span class="input-group-text">Depósito</span>
               <input autocomplete="off" id="inputIdeDep" class="form-control input-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
                 :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
                 :class="{searching: (!this.depositos.length && this.codDep === '')}">
@@ -65,7 +65,7 @@
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Cliente (Alt + C)</span>
+              <span class="input-group-text">Cliente</span>
               <input autocomplete="off" id="inputIdeCli" class="form-control input-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
                 :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
                 :class="{searching: (!this.clientes.length && this.codCli === '')}">
@@ -79,7 +79,7 @@
           <span class="fw-bold subtitle">Carrinho</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Produto (F2)</span>
+              <span class="input-group-text">Produto</span>
               <input autocomplete="off" id="inputProduto" class="form-control input-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
                 :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === ''" :class="{searching: !this.produtosTabelaPreco.length}" 
                 :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
@@ -167,7 +167,7 @@
                   <option selected value="desconto">Desconto</option>
                   <option value="acrescimo">Acréscimo</option>
                 </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
-                <span class="input-group-text">Desconto (Alt + D)</span> <!-- TODO: remover quando resolver acrescimo -->
+                <span class="input-group-text">Desconto</span> <!-- TODO: remover quando resolver acrescimo -->
                 <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
@@ -1106,7 +1106,7 @@ export default {
         { codAta: 9, tecAta: 'Alt + X', desAta: 'Editar carrinho' },
         { codAta: 10, tecAta: 'Alt + Q', desAta: 'Alterar Quantidade do Item' },
         { codAta: 11, tecAta: 'Alt + B', desAta: 'Observação do Item' },
-        { codAta: 12, tecAta: 'Alt + D', desAta: 'Desconto (se editando carrinho, vale pro item, se não, para o total)' },
+        { codAta: 12, tecAta: 'Alt + S', desAta: 'Desconto (se editando carrinho, vale pro item, se não, para o total)' },
         { codAta: 13, tecAta: 'Delete', desAta: 'Remover Item' }
       ],
       pressedKeys: null,
