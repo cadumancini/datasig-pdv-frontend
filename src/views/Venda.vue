@@ -646,9 +646,9 @@
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Forma</span>
-                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto()" id="selectFpg">
+                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto" id="selectFpg" ref="selectFpgRef">
                       <option selected disabled :value="null" >Selecione ...</option>
-                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.desFpg }}</option>
+                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.codAta ? '(' + forma.codAta + ') - ' : ''}}{{ forma.desFpg }}</option>
                     </select>
                   </div>
                 </div>
@@ -747,7 +747,7 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button>
+          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda" id="btnProcessarVenda">Finalizar</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
@@ -760,7 +760,7 @@
 
   <!-- Modal Opções teclado -->
   <div class="modal fade" id="atalhosModal" tabindex="-1" aria-labelledby="atalhosModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-sm">
+    <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="atalhosModalLabel">Atalhos do Teclado</h5>
@@ -1103,12 +1103,11 @@ export default {
         { codAta: 6, tecAta: 'Alt + T', desAta: 'Tabela de Preço' },
         { codAta: 7, tecAta: 'Alt + C', desAta: 'Cliente' },
         { codAta: 8, tecAta: 'Alt + O', desAta: 'Depósito' },
-        { codAta: 9, tecAta: 'Alt + E', desAta: 'Editar carrinho' },
+        { codAta: 9, tecAta: 'Alt + X', desAta: 'Editar carrinho' },
         { codAta: 10, tecAta: 'Alt + Q', desAta: 'Alterar Quantidade do Item' },
         { codAta: 11, tecAta: 'Alt + B', desAta: 'Observação do Item' },
-        { codAta: 12, tecAta: 'Alt + S', desAta: 'Desconto do Item' },
-        { codAta: 13, tecAta: 'Alt + D', desAta: 'Desconto' },
-        { codAta: 14, tecAta: 'Delete', desAta: 'Remover Item' }
+        { codAta: 12, tecAta: 'Alt + D', desAta: 'Desconto (se editando carrinho, vale pro item, se não, para o total)' },
+        { codAta: 13, tecAta: 'Delete', desAta: 'Remover Item' }
       ],
       pressedKeys: null,
 
@@ -1328,7 +1327,7 @@ export default {
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('T')) this.focusTabelaPreco()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('C')) this.focusCliente()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('O')) this.focusDeposito()
-            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('D')) document.getElementById('selectTipOpeVlr').focus()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('S')) document.getElementById('selectTipDesc').focus()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('X')) {
               if (this.itensCarrinho.length > 0) { 
                 this.editarCarrinho()
@@ -1343,6 +1342,13 @@ export default {
         } else if (this.pressedKeys.size === 1) {
           if (this.editandoCarrinho) {
             if (this.pressedKeys.has('DELETE')) document.getElementById('btnDelete' + this.tableIndexCar).click()
+          } else if (document.activeElement === document.getElementById('selectFpg')) {
+            const forma = this.formasPagto.filter(fpg => ((fpg.codAta) && (fpg.codAta.toUpperCase() === event.key.toUpperCase())))
+            if (forma[0]) {
+              event.preventDefault()
+              this.formaSelecionada = forma[0]
+              this.attemptToFillCondicaoPagto()
+            } 
           } else if (this.finalizandoVenda) {
             if (this.pressedKeys.has('ENTER')) await this.finalizarVenda()
           } else {
@@ -2638,6 +2644,14 @@ export default {
         this.confirmaVendaTitle = 'Processar pagamento'
         this.resetPagamento()
         document.getElementById('btnOpenFinalizarVendaModal').click()
+        
+        const modalElement = document.getElementById('confirmaVendaModal')
+        modalElement.addEventListener('shown.bs.modal', () => {
+          document.getElementById('selectFpg').focus()
+        })
+        modalElement.addEventListener('hidden.bs.modal', () => {
+          this.focusProduto()
+        })
       }
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
@@ -2747,7 +2761,11 @@ export default {
           })
           this.resetPagamento()
           this.updateValorPendente()
-          document.getElementById('selectFpg').focus()
+          if (this.valorPendente > 0)
+            document.getElementById('selectFpg').focus()
+          else
+            document.getElementById('btnProcessarVenda').disabled = false
+            document.getElementById('btnProcessarVenda').focus()
         }
       }
     },
