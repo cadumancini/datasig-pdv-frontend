@@ -646,9 +646,9 @@
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Forma</span>
-                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto()" id="selectFpg">
+                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto" id="selectFpg" ref="selectFpgRef">
                       <option selected disabled :value="null" >Selecione ...</option>
-                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.desFpg }}</option>
+                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.codAta ? '(' + forma.codAta + ') - ' : ''}}{{ forma.desFpg }}</option>
                     </select>
                   </div>
                 </div>
@@ -747,7 +747,7 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda">Finalizar</button>
+          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda" id="btnProcessarVenda">Finalizar</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
@@ -1342,6 +1342,13 @@ export default {
         } else if (this.pressedKeys.size === 1) {
           if (this.editandoCarrinho) {
             if (this.pressedKeys.has('DELETE')) document.getElementById('btnDelete' + this.tableIndexCar).click()
+          } else if (document.activeElement === document.getElementById('selectFpg')) {
+            const forma = this.formasPagto.filter(fpg => ((fpg.codAta) && (fpg.codAta.toUpperCase() === event.key.toUpperCase())))
+            if (forma[0]) {
+              event.preventDefault()
+              this.formaSelecionada = forma[0]
+              this.attemptToFillCondicaoPagto()
+            } 
           } else if (this.finalizandoVenda) {
             if (this.pressedKeys.has('ENTER')) await this.finalizarVenda()
           } else {
@@ -2754,7 +2761,11 @@ export default {
           })
           this.resetPagamento()
           this.updateValorPendente()
-          document.getElementById('selectFpg').focus()
+          if (this.valorPendente > 0)
+            document.getElementById('selectFpg').focus()
+          else
+            document.getElementById('btnProcessarVenda').disabled = false
+            document.getElementById('btnProcessarVenda').focus()
         }
       }
     },
