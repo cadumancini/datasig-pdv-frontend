@@ -26,6 +26,34 @@ var functions = {
       item.tabIndex = index
       index++
     })
+  },
+  getNomUsu() {
+    if (sessionStorage.getItem('paramsPDV')) {
+      const paramsPDV = JSON.parse(sessionStorage.getItem('paramsPDV'))
+      return paramsPDV.nomUsu
+    } else if (sessionStorage.getItem('token')) {
+      api.getUserParams()
+      .then((response) => {
+        const paramsPDV = {
+          codTpr: response.data.parametrosPDV.codTpr,
+          dscTot: response.data.parametrosPDV.dscTot,
+          depositos: response.data.parametrosPDV.depositos,
+          ramos: response.data.parametrosPDV.ramos,
+          depPad: response.data.parametrosPDV.codDep,
+          codEmp: response.data.parametrosPDV.codEmp,
+          codFil: response.data.parametrosPDV.codFil,
+          nomEmp: response.data.parametrosPDV.nomEmp,
+          nomFil: response.data.parametrosPDV.nomFil,
+          nomUsu: response.data.parametrosPDV.nomUsu,
+          base: process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção' 
+        }
+        sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
+        return paramsPDV.nomUsu
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
   }
 }
 
