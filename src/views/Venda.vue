@@ -2944,6 +2944,7 @@ export default {
       
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.setEverythingDisabled('disable-on-sale', true)
+      shared.toggleHeaderLinksDisabled(true)
 
       this.status = 'pedido'
       const operacao = this.pedidoSelected ? 'alterado' : 'criado'
@@ -2969,6 +2970,7 @@ export default {
         .finally(() => {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.setEverythingDisabled('disable-on-sale', false)
+          shared.toggleHeaderLinksDisabled(false)
           this.status = ''
         }) 
     },

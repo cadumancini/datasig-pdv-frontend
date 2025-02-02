@@ -54,6 +54,13 @@ var functions = {
         console.log(err)
       })
     }
+  },
+  toggleHeaderLinksDisabled(disable) {
+    const elements = document.getElementsByClassName('header-link')
+    if (disable)
+      for (var i = 0; i < elements.length; i++) elements[i].classList.add('disabled-image')
+    else
+      for (var i = 0; i < elements.length; i++) elements[i].classList.remove('disabled-image')
   }
 }
 
