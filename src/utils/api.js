@@ -53,7 +53,7 @@ var functions = {
     return axios.put(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
   },
   putNFCe(numPed) {
-    return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed, { responseType: 'multipart' })
+    return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
   deleteItem(pedido, item) {
     return axios.delete(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)

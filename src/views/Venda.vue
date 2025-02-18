@@ -1131,6 +1131,8 @@ export default {
     } else {
       this.initEverything()
       this.addEvents()
+      this.signQZConnection()
+      this.startQZConnection()
     }
   },
   methods: {
@@ -1411,6 +1413,40 @@ export default {
 
     toMoneyThenNumber(value) {
       return shared.toMoneyThenNumber(value)
+    },
+
+    signQZConnection() {
+      qz.security.setCertificatePromise(function(resolve, reject) {
+        resolve(CERT)
+      })
+
+      qz.security.setSignatureAlgorithm("SHA512")
+      qz.security.setSignaturePromise(function(toSign) {
+          return function(resolve, reject) {
+              try {
+                  var pk = KEYUTIL.getKey(PRIVATE_KEY)
+                  var sig = new KJUR.crypto.Signature({"alg": "SHA512withRSA"})
+                  sig.init(pk)
+                  sig.updateString(toSign)
+                  var hex = sig.sign()
+                  resolve(stob64(hextorstr(hex)))
+              } catch (err) {
+                  console.error(err)
+                  alert('Ocorreu um erro ao assinar conexão com o QZ Tray. Verifique! Erro: \n' + err)
+                  reject(err)
+              }
+          }
+      })
+    },
+
+    async startQZConnection() {
+      if (!qz.websocket.isActive()) {
+        try {
+          await qz.websocket.connect()
+        } catch (error) {
+          alert('Ocorreu uma falha ao conectar com o QZ Tray para impressões de NFCe. Verifique se a aplicação está aberta.')
+        }
+      }
     },
 
     /* Representantes */
@@ -2982,10 +3018,10 @@ export default {
     async gerarNFCe(numPed) {
       await api.putNFCe(numPed)
         .then((response) => {
-          const nfce = response.data['nfce']
-          alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + nfce)
+          const resposta = response.data
+          alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce)
           this.limparCamposAposVenda()
-          this.imprimirNfce(response.data['pdf'], response.data['printer']) // AQUI!
+          this.imprimirNfce(resposta.pdf, resposta.printer)
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
@@ -3011,66 +3047,24 @@ export default {
     },
     
     async imprimirNfce(pdf, printer) { // CONTINUAR AQUI
-      // Sign the request
-      qz.security.setCertificatePromise(function(resolve, reject) {
-        resolve(CERT);
-      });
+      console.log(pdf, printer)
+      // await this.startQZConnection()
 
-      qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
-      qz.security.setSignaturePromise(function(toSign) {
-          return function(resolve, reject) {
-              try {
-                  var pk = KEYUTIL.getKey(PRIVATE_KEY);
-                  var sig = new KJUR.crypto.Signature({"alg": "SHA512withRSA"});  // Use "SHA1withRSA" for QZ Tray 2.0 and older
-                  sig.init(pk); 
-                  sig.updateString(toSign);
-                  var hex = sig.sign();
-                  console.log("DEBUG: \n\n" + stob64(hextorstr(hex)));
-                  resolve(stob64(hextorstr(hex)));
-              } catch (err) {
-                  console.error(err);
-                  reject(err);
-              }
-          };
-      });
+      // // Convert Blob to Base64
+      // const reader = new FileReader()
+      // reader.readAsDataURL(pdf)
+      // reader.onloadend = async () => {
+      //     const base64PDF = reader.result.split(",")[1] // Strip metadata
 
-      // Start QZ Tray
-      if (!qz.websocket.isActive()) {
-        try {
-          await qz.websocket.connect();
-          console.log("QZ Tray connected!");
-        } catch (error) {
-          console.error("Failed to connect to QZ Tray:", error);
-        }
-      }
+      //     // Configure the printer
+      //     // const config = qz.configs.create(printer)
+      //     const config = qz.configs.create("PDFCreator")
 
-      qz.printers.find().then(function(data) {
-          var list = '';
-          for(var i = 0; i < data.length; i++) {
-            list += "&nbsp; " + data[i] + "<br/>";
-        }
-        alert("<strong>Available printers:</strong><br/>" + list);
-      }).catch(function(e) { console.error(e); });
+      //     // Send print job
+      //     await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
 
-      const response = await axios.get("/example.pdf", {
-        responseType: "blob", // Ensure we get the file as a binary blob
-      });
-      const blob = response.data;
-
-      // Convert Blob to Base64
-      const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = async () => {
-            const base64PDF = reader.result.split(",")[1]; // Strip metadata
-
-            // Configure the printer
-            const config = qz.configs.create("PDFCreator");
-
-            // Send print job
-            await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }]);
-
-            console.log("PDF sent to printer silently!");
-        };
+      //     console.log("PDF sent to printer silently!")
+      // }
     },
 
     isOnVenda() {
