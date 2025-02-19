@@ -3048,23 +3048,26 @@ export default {
     
     async imprimirNfce(pdf, printer) { // CONTINUAR AQUI
       console.log(pdf, printer)
-      // await this.startQZConnection()
+      await this.startQZConnection()
 
-      // // Convert Blob to Base64
-      // const reader = new FileReader()
-      // reader.readAsDataURL(pdf)
-      // reader.onloadend = async () => {
-      //     const base64PDF = reader.result.split(",")[1] // Strip metadata
+      const response = await api.getNFCe(pdf)
+      const blob = new Blob([response.data], { type: 'application/pdf' })
 
-      //     // Configure the printer
-      //     // const config = qz.configs.create(printer)
-      //     const config = qz.configs.create("PDFCreator")
+      // Convert Blob to Base64
+      const reader = new FileReader()
+      reader.readAsDataURL(blob)
+      reader.onloadend = async () => {
+          const base64PDF = reader.result.split(",")[1] // Strip metadata
 
-      //     // Send print job
-      //     await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+          // Configure the printer
+          // const config = qz.configs.create(printer)
+          const config = qz.configs.create("PDFCreator")
 
-      //     console.log("PDF sent to printer silently!")
-      // }
+          // Send print job
+          await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+
+          console.log("PDF sent to printer silently!")
+      }
     },
 
     isOnVenda() {

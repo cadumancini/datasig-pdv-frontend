@@ -55,6 +55,9 @@ var functions = {
   putNFCe(numPed) {
     return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
+  getNFCe(nfce) {
+    return axios.get(urlBase + '/nfce/pdf?token=' + sessionStorage.getItem('token') + '&nfce=' + nfce, { responseType: 'blob' })
+  },
   deleteItem(pedido, item) {
     return axios.delete(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)
   },
