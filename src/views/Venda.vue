@@ -3021,7 +3021,7 @@ export default {
           const resposta = response.data
           alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce)
           this.limparCamposAposVenda()
-          this.imprimirNfce(resposta.pdf, resposta.printer)
+          this.imprimirNfce(resposta.pdfFile, resposta.printer)
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
@@ -3046,8 +3046,7 @@ export default {
       this.focusProduto()
     },
     
-    async imprimirNfce(pdf, printer) { // CONTINUAR AQUI
-      console.log(pdf, printer)
+    async imprimirNfce(pdf, printer) {
       await this.startQZConnection()
 
       const response = await api.getNFCe(pdf)
@@ -3060,13 +3059,10 @@ export default {
           const base64PDF = reader.result.split(",")[1] // Strip metadata
 
           // Configure the printer
-          // const config = qz.configs.create(printer)
-          const config = qz.configs.create("PDFCreator")
+          const config = qz.configs.create(printer)
 
           // Send print job
           await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
-
-          console.log("PDF sent to printer silently!")
       }
     },
 
