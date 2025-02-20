@@ -900,7 +900,11 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
+import axios from 'axios'
 import vueMask from 'vue-jquery-mask'
+import qz from 'qz-tray'
+import { KEYUTIL, KJUR, stob64, hextorstr } from 'jsrsasign'
+import { CERT, PRIVATE_KEY } from '../utils/printCerts'
 
 export default {
   name: 'Venda',
@@ -1127,6 +1131,8 @@ export default {
     } else {
       this.initEverything()
       this.addEvents()
+      this.signQZConnection()
+      this.startQZConnection()
     }
   },
   methods: {
@@ -1407,6 +1413,40 @@ export default {
 
     toMoneyThenNumber(value) {
       return shared.toMoneyThenNumber(value)
+    },
+
+    signQZConnection() {
+      qz.security.setCertificatePromise(function(resolve, reject) {
+        resolve(CERT)
+      })
+
+      qz.security.setSignatureAlgorithm("SHA512")
+      qz.security.setSignaturePromise(function(toSign) {
+          return function(resolve, reject) {
+              try {
+                  var pk = KEYUTIL.getKey(PRIVATE_KEY)
+                  var sig = new KJUR.crypto.Signature({"alg": "SHA512withRSA"})
+                  sig.init(pk)
+                  sig.updateString(toSign)
+                  var hex = sig.sign()
+                  resolve(stob64(hextorstr(hex)))
+              } catch (err) {
+                  console.error(err)
+                  alert('Ocorreu um erro ao assinar conexão com o QZ Tray. Verifique! Erro: \n' + err)
+                  reject(err)
+              }
+          }
+      })
+    },
+
+    async startQZConnection() {
+      if (!qz.websocket.isActive()) {
+        try {
+          await qz.websocket.connect()
+        } catch (error) {
+          alert('Ocorreu uma falha ao conectar com o QZ Tray para impressões de NFCe. Verifique se a aplicação está aberta.')
+        }
+      }
     },
 
     /* Representantes */
@@ -2978,9 +3018,10 @@ export default {
     async gerarNFCe(numPed) {
       await api.putNFCe(numPed)
         .then((response) => {
-          const resposta = response.data.toString()
-          alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta)
+          const resposta = response.data
+          alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce)
           this.limparCamposAposVenda()
+          this.imprimirNfce(resposta.pdfFile, resposta.printer)
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
@@ -3003,6 +3044,26 @@ export default {
       this.limparDesconto(false)
       this.clearFocus()
       this.focusProduto()
+    },
+    
+    async imprimirNfce(pdf, printer) {
+      await this.startQZConnection()
+
+      const response = await api.getNFCe(pdf)
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+
+      // Convert Blob to Base64
+      const reader = new FileReader()
+      reader.readAsDataURL(blob)
+      reader.onloadend = async () => {
+          const base64PDF = reader.result.split(",")[1] // Strip metadata
+
+          // Configure the printer
+          const config = qz.configs.create(printer)
+
+          // Send print job
+          await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+      }
     },
 
     isOnVenda() {
