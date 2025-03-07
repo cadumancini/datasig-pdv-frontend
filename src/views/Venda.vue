@@ -1114,6 +1114,7 @@ export default {
         { codAta: 13, tecAta: 'Delete', desAta: 'Remover Item' }
       ],
       pressedKeys: null,
+      print: false,
 
       //Pedidos
       idePedPrv: '',
@@ -1129,10 +1130,14 @@ export default {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
     } else {
+      this.print = process.env.VUE_APP_IMPRESSAO
       this.initEverything()
       this.addEvents()
-      this.signQZConnection()
-      this.startQZConnection()
+
+      if (this.print) {
+        this.signQZConnection()
+        this.startQZConnection()
+      }
     }
   },
   methods: {
@@ -3021,7 +3026,7 @@ export default {
           const resposta = response.data
           alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce)
           this.limparCamposAposVenda()
-          this.imprimirNfce(resposta.pdfFile, resposta.printer)
+          if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
