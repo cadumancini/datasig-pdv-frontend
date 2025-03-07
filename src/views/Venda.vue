@@ -1130,10 +1130,10 @@ export default {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
     } else {
-      this.print = process.env.VUE_APP_IMPRESSAO
+      this.print = process.env.VUE_APP_IMPRESSAO == 'true'
       this.initEverything()
       this.addEvents()
-
+      
       if (this.print) {
         this.signQZConnection()
         this.startQZConnection()
