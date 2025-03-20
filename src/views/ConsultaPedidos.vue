@@ -336,6 +336,10 @@ export default {
       this.tipo = 'TODOS'
       this.datIni = ''
       this.datFim = ''
+      this.limparPedidoSelected()
+    },
+
+    limparPedidoSelected() {
       this.pedidoSelected = null
       this.pedidoSelectedNumPed = ''
       this.pedidoSelectedDatEmi = ''
@@ -358,6 +362,7 @@ export default {
 
     async buscarPedidos() {
       this.pedidos = null
+      this.limparPedidoSelected()
       this.setEverythingDisabled(true)
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       const filterNumPed = this.numPed !== '' ? this.numPed : null
