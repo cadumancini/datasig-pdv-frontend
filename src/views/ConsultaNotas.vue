@@ -474,11 +474,11 @@ export default {
       await api.cancelarNFCe(nota.codSnf, nota.numNfv, this.jusCan)
       .then((response) => {
         const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
-        } else {
+        if(resposta.includes('COM SUCESSO')) {
           alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso.')
           this.updateNotaCancelada(nota.numNfv)
+        } else {
+          alert(resposta)
         } 
       })
       .catch((err) => {
@@ -515,11 +515,11 @@ export default {
       await api.inutilizarNFCe(nota.codSnf, nota.numNfv, this.jusInu)
       .then((response) => {
         const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
-        } else {
+        if(resposta.includes('COM SUCESSO')) {
           alert('NFC-e ' + nota.numNfv + ' inutilizada com sucesso.')
           this.updateNotaInutilizada(nota.numNfv)
+        } else {
+          alert(resposta)
         } 
       })
       .catch((err) => {
