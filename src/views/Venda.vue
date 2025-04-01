@@ -2941,6 +2941,7 @@ export default {
           seqIpd: item.seqIpd,
           obsIpd: item.obsIpd,
           codDep: item.codDep,
+          tnsPed: item.tnsPed,
           excluir: false
         }
         if (item.tipOpeVlrIpd === 'acrescimo') {

@@ -474,11 +474,11 @@ export default {
       await api.cancelarNFCe(nota.codSnf, nota.numNfv, this.jusCan)
       .then((response) => {
         const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
+        if(resposta.includes('COM SUCESSO')) {
+          alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso.')
+          this.updateNotaCancelada(nota.numNfv)
         } else {
-          alert('NFC-e ' + nota.numNfv + ' cancelada com sucesso. Favor recarregar a busca para atualizar os valores.')
-          this.limpar()
+          alert(resposta)
         } 
       })
       .catch((err) => {
@@ -495,6 +495,18 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
+    updateNotaCancelada(numNfv) {
+      const nota = this.notas.find(nota => nota.numNfv === numNfv)
+      if (nota) {
+        nota.sitNfv = "3"
+        nota.desSitNfv = "Cancelada"
+        nota.sitDoe = "09"
+        nota.desSitDoe = "Cancelada"
+        nota.cancelavel = false
+        nota.inutilizavel = false
+      }
+    },
+
     async inutilizarNota(nota) {
       document.getElementById('closeModalConfirmaInutilizar').click()
       this.setEverythingDisabled(true)
@@ -503,11 +515,11 @@ export default {
       await api.inutilizarNFCe(nota.codSnf, nota.numNfv, this.jusInu)
       .then((response) => {
         const resposta = response.data
-        if(resposta !== 'OK') {
-          alert(resposta)
+        if(resposta.includes('COM SUCESSO')) {
+          alert('NFC-e ' + nota.numNfv + ' inutilizada com sucesso.')
+          this.updateNotaInutilizada(nota.numNfv)
         } else {
-          alert('NFC-e ' + nota.numNfv + ' inutilizada com sucesso. Favor recarregar a busca para atualizar os valores.')
-          this.limpar()
+          alert(resposta)
         } 
       })
       .catch((err) => {
@@ -517,6 +529,18 @@ export default {
 
       this.setEverythingDisabled(false)
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
+    },
+
+    updateNotaInutilizada(numNfv) {
+      const nota = this.notas.find(nota => nota.numNfv === numNfv)
+      if (nota) {
+        nota.sitNfv = "3"
+        nota.desSitNfv = "Cancelada"
+        nota.sitDoe = "08"
+        nota.desSitDoe = "Inutilizada"
+        nota.cancelavel = false
+        nota.inutilizavel = false
+      }
     },
 
     async consultarEDocs(nota) {
