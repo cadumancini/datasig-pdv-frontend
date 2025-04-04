@@ -1260,7 +1260,7 @@ export default {
       if (selectDesOpe) selectDesOpe.selectedIndex = "0"
       this.cartao.banOpe = ''
       this.cartao.cgcCpf = ''
-      this.cartao.catTef = ''
+      this.cartao.catTef = '0'
       this.cartao.nsuTef = ''
     },
     setEverythingDisabled(className, value) {
@@ -2734,6 +2734,8 @@ export default {
 
       if (this.condicaoSelecionada.operadoras.length === 1) {
           this.cartao.cgcCpf = this.condicaoSelecionada.operadoras[0].cgcCpf
+          const banOpe = this.condicaoSelecionada.operadoras[0].banOpe
+          this.cartao.banOpe = ((banOpe) && (banOpe.length > 0)) ? banOpe : ''
         }
     },
 
