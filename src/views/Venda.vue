@@ -1260,7 +1260,7 @@ export default {
       if (selectDesOpe) selectDesOpe.selectedIndex = "0"
       this.cartao.banOpe = ''
       this.cartao.cgcCpf = ''
-      this.cartao.catTef = '0'
+      this.cartao.catTef = ''
       this.cartao.nsuTef = ''
     },
     setEverythingDisabled(className, value) {
@@ -2733,10 +2733,13 @@ export default {
       this.focusValorPago()
 
       if (this.condicaoSelecionada.operadoras.length === 1) {
-          this.cartao.cgcCpf = this.condicaoSelecionada.operadoras[0].cgcCpf
-          const banOpe = this.condicaoSelecionada.operadoras[0].banOpe
-          this.cartao.banOpe = ((banOpe) && (banOpe.length > 0)) ? banOpe : ''
-        }
+        this.cartao.cgcCpf = this.condicaoSelecionada.operadoras[0].cgcCpf
+        const banOpe = this.condicaoSelecionada.operadoras[0].banOpe
+        this.cartao.banOpe = ((banOpe) && (banOpe.length > 0)) ? banOpe : ''
+      }
+
+      if (this.isPagamentoCartao()) this.cartao.catTef = '0'
+      else this.cartao.catTef = ''
     },
 
     focusValorPago() {
