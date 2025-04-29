@@ -7,14 +7,9 @@
       </div>
     </div>
     <div class="col align-self-center" v-if="paramsPDV">
-      <div class="row">
-        <small class="col">{{ paramsPDV.base }}</small>
-      </div>
-    </div>
-    <div class="col align-self-center" v-if="paramsPDV">
       <div class="float-end">
         <div class="row">
-          <small class="col">Usuário: {{ paramsPDV.nomUsu }}</small>
+          <small class="col">{{ paramsPDV.base }} - Usuário: {{ paramsPDV.nomUsu }} - IP: {{ paramsPDV.codIp }}</small>
         </div>
       </div>
     </div>
@@ -49,6 +44,7 @@ export default {
           nomEmp: response.data.parametrosPDV.nomEmp,
           nomFil: response.data.parametrosPDV.nomFil,
           nomUsu: response.data.parametrosPDV.nomUsu,
+          codIp: response.data.parametrosPDV.codIp,
           base: process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção' 
         }
         sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
