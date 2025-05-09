@@ -2888,15 +2888,15 @@ export default {
     },  
 
     confirmarDadosCartao() {
-      if (this.cartao.banOpe === '') {
+      if (this.cartao.banOpe.trim() === '') {
         alert('Selecione a bandeira do cartão!')
         return false
       }
-      else if (this.cartao.catTef === '') {
+      else if (this.cartao.catTef.trim() === '') {
         alert('Preencha o número da autorização!') 
         return false
       }
-      else if (this.cartao.nsuTef === '' && this.formaSelecionada.tipInt === '1') {
+      else if (this.cartao.nsuTef.trim() === '' && this.formaSelecionada.tipInt === '1') {
         alert('Preencha o número da transação (TEF)!') 
         return false
       }
