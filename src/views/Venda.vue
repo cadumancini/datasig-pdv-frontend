@@ -3032,9 +3032,16 @@ export default {
       await api.putNFCe(numPed)
         .then((response) => {
           const resposta = response.data
-          alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce)
-          this.limparCamposAposVenda()
-          if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
+          const msg = 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce
+          if (this.paramsPDV.indImp !== 'S') {
+            alert(msg)
+            this.limparCamposAposVenda()
+            if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
+          } else {
+            this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer)
+            // criar modal perguntando se quer imprimir a NFCe
+            // se resposta do modal for S, chamar impressao
+          }
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
@@ -3048,6 +3055,19 @@ export default {
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
         })
+    },
+
+    openImprimirNFCeModal(msg, pdfFile, printer) {
+      // Implementar aqui!
+      // document.getElementById('btnOpenFinalizarVendaModal').click()
+      
+      // const modalElement = document.getElementById('confirmaVendaModal')
+      // modalElement.addEventListener('shown.bs.modal', () => {
+      //   document.getElementById('selectFpg').focus()
+      // })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.limparCamposAposVenda()
+      })
     },
 
     limparCamposAposVenda() {
