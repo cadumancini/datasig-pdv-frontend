@@ -2658,7 +2658,8 @@ export default {
             nomEmp: response.data.parametrosPDV.nomEmp,
             nomFil: response.data.parametrosPDV.nomFil,
             nomUsu: response.data.parametrosPDV.nomUsu,
-            codIp: response.data.parametrosPDV.codIp
+            codIp: response.data.parametrosPDV.codIp,
+            indImp: response.data.parametrosPDV.indImp
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
