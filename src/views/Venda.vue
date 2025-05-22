@@ -618,7 +618,7 @@
 
   <!-- Modal Confirmar Impressao NFCe -->
   <div class="modal fade" id="confirmaImpressaoModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirmação de Impressão</h5>
@@ -3060,7 +3060,6 @@ export default {
           const resposta = response.data
           const msg = 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
           if (this.paramsPDV.indImp !== 'S') {
-            alert(msg)
             this.limparCamposAposVenda()
             if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
           } else {
