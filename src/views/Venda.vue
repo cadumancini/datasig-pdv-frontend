@@ -2685,7 +2685,8 @@ export default {
             nomFil: response.data.parametrosPDV.nomFil,
             nomUsu: response.data.parametrosPDV.nomUsu,
             codIp: response.data.parametrosPDV.codIp,
-            indImp: response.data.parametrosPDV.indImp
+            indImp: response.data.parametrosPDV.indImp,
+            qtdImp: response.data.parametrosPDV.qtdImp
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
@@ -3121,9 +3122,10 @@ export default {
       reader.readAsDataURL(blob)
       reader.onloadend = async () => {
           const base64PDF = reader.result.split(",")[1] // Strip metadata
-
+          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? this.paramsPDV.qtdImp : 1
+          
           // Configure the printer
-          const config = qz.configs.create(printer)
+          const config = qz.configs.create(printer, { copies: copies})
 
           // Send print job
           await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
