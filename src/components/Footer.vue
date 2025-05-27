@@ -46,6 +46,7 @@ export default {
           nomUsu: response.data.parametrosPDV.nomUsu,
           codIp: response.data.parametrosPDV.codIp,
           indImp: response.data.parametrosPDV.indImp,
+          qtdImp: response.data.parametrosPDV.qtdImp,
           base: process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção' 
         }
         sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
