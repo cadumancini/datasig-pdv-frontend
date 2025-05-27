@@ -3122,10 +3122,10 @@ export default {
       reader.readAsDataURL(blob)
       reader.onloadend = async () => {
           const base64PDF = reader.result.split(",")[1] // Strip metadata
-          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? this.paramsPDV.qtdImp : 1
+          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
           
           // Configure the printer
-          const config = qz.configs.create(printer, { copies: copies})
+          const config = qz.configs.create(printer, {copies: copies})
 
           // Send print job
           await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
