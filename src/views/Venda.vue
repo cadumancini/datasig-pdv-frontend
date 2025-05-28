@@ -205,6 +205,7 @@
               <div class="float-end mx-2">
                 <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
               </div>
               <div class="float-end mx-2">
                 <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)" :disabled="!this.itensCarrinho.length">Gerar Pedido (F9)</button>
@@ -610,6 +611,26 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" @click="alterarQuantidadeItem" data-bs-dismiss="modal">Confirmar</button>
           <button type="button" class="btn btn-dismiss btn-sm" data-bs-dismiss="modal">(ESC) Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Impressao NFCe -->
+  <div class="modal fade" id="confirmaImpressaoModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmação de Impressão</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaImpressao"></button>
+        </div>
+        <div class="modal-body">
+          <p>{{ this.paramsConfirmacaoImpressao.msg }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnConfirmaImpressao"
+            @click="callImpressao()">Sim</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
     </div>
@@ -1084,6 +1105,11 @@ export default {
       valorPendente: 0,
       valorPago: 0,
       vlrTroco: 'R$ 0,00',
+      paramsConfirmacaoImpressao: {
+        msg: '',
+        pdfFile: '',
+        printer: '',
+      },
 
       //geral
       status: '',
@@ -2658,7 +2684,9 @@ export default {
             nomEmp: response.data.parametrosPDV.nomEmp,
             nomFil: response.data.parametrosPDV.nomFil,
             nomUsu: response.data.parametrosPDV.nomUsu,
-            codIp: response.data.parametrosPDV.codIp
+            codIp: response.data.parametrosPDV.codIp,
+            indImp: response.data.parametrosPDV.indImp,
+            qtdImp: response.data.parametrosPDV.qtdImp
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
@@ -3031,9 +3059,13 @@ export default {
       await api.putNFCe(numPed)
         .then((response) => {
           const resposta = response.data
-          alert('Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce)
-          this.limparCamposAposVenda()
-          if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
+          const msg = 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
+          if (this.paramsPDV.indImp !== 'S') {
+            this.limparCamposAposVenda()
+            if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
+          } else {
+            this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer)
+          }
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
@@ -3047,6 +3079,27 @@ export default {
         .finally(() => {
           document.getElementById('closeModalConfirmaVenda').click()
         })
+    },
+
+    openImprimirNFCeModal(msg, pdfFile, printer) {
+      this.paramsConfirmacaoImpressao.msg = msg + ' Deseja imprimir a NFC-e?'
+      this.paramsConfirmacaoImpressao.pdfFile = pdfFile
+      this.paramsConfirmacaoImpressao.printer = printer
+      
+      document.getElementById('btnOpenConfirmarImpressaoModal').click()
+      
+      const modalElement = document.getElementById('confirmaImpressaoModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('btnConfirmaImpressao').focus()
+      })
+      modalElement.addEventListener('hidden.bs.modal', () => {
+        this.limparCamposAposVenda()
+      })
+    },
+
+    callImpressao() {
+      document.getElementById('closeModalConfirmaImpressao').click()
+      this.imprimirNfce(this.paramsConfirmacaoImpressao.pdfFile, this.paramsConfirmacaoImpressao.printer)
     },
 
     limparCamposAposVenda() {
@@ -3069,9 +3122,10 @@ export default {
       reader.readAsDataURL(blob)
       reader.onloadend = async () => {
           const base64PDF = reader.result.split(",")[1] // Strip metadata
-
+          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+          
           // Configure the printer
-          const config = qz.configs.create(printer)
+          const config = qz.configs.create(printer, {copies: copies})
 
           // Send print job
           await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
