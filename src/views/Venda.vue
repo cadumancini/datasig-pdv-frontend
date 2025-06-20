@@ -1026,6 +1026,7 @@ export default {
       vlrDscIpd: '',
       perDscIpd: '',
       itemEditando: null,
+      buscandoProdutos: false,
       
       //tabelas preco
       ideTpr: '',
@@ -2530,29 +2531,34 @@ export default {
     },
 
     async selectTabelaPreco(row, atualizar) {
-      let seguir = true
-      if (this.pedidoSelected && atualizar) {
-        seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
-      }
-
-      document.getElementById('closeModalTabelasPreco').click()
-      if (seguir) {
-        this.ideTpr = row.codTpr
-        this.codTpr = row.codTpr
-        document.getElementsByTagName('body')[0].style.cursor = 'wait'
-        this.status = 'b_produtos'
-        await this.buscarProdutosTabela()
-        this.status = ''
-        this.focusProduto()
-        document.getElementsByTagName('body')[0].style.cursor = 'auto'
-        
+      if (this.buscandoProdutos) {
+        alert('Existe uma busca de produtos em andamento. Aguarde alguns segundos e tente novamente.')
+        document.getElementById('closeModalTabelasPreco').click()
+      } else {
+        let seguir = true
         if (this.pedidoSelected && atualizar) {
-          this.status = 'a_precos'
-          this.atualizarPrecosCarrinho()
+          seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
+        }
+
+        document.getElementById('closeModalTabelasPreco').click()
+        if (seguir) {
+          this.ideTpr = row.codTpr
+          this.codTpr = row.codTpr
+          document.getElementsByTagName('body')[0].style.cursor = 'wait'
+          this.status = 'b_produtos'
+          await this.buscarProdutosTabela()
           this.status = ''
-          this.fecharVenda = false
-          this.gerarPedido = false
-          await this.enviarVenda(false)
+          this.focusProduto()
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          
+          if (this.pedidoSelected && atualizar) {
+            this.status = 'a_precos'
+            this.atualizarPrecosCarrinho()
+            this.status = ''
+            this.fecharVenda = false
+            this.gerarPedido = false
+            await this.enviarVenda(false)
+          }
         }
       }
     },
@@ -2585,15 +2591,18 @@ export default {
     },
 
     async buscarProdutosTabela() {
+      this.buscandoProdutos = true
       this.produtosTabelaPreco = []
-      await api.getProdutosTabelaPreco(this.codTpr)
-      .then((response) => {
+      const codTpr = this.codTpr
+      await api.getProdutosTabelaPreco(codTpr)
+      .then(async (response) => {
         this.produtosTabelaPreco = response.data
       })
       .catch((err) => {
         console.log(err)
         shared.handleRequestError(err)
       })
+      .finally(() => this.buscandoProdutos = false)
     },
 
     filtrarTabelasPreco(filter) {
