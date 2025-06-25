@@ -1888,7 +1888,7 @@ export default {
     },  
 
     cliListHit() {
-      const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli)
+      const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli && cliFil.numPag === this.numPagCli)
       this.selectCliente(cli, true)
     },
 
@@ -2352,7 +2352,7 @@ export default {
     },  
 
     proListHit() {
-      const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro)
+      const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro && proFil.numPag === this.numPagPro)
       this.selectProduto(pro, 1, 0, '', 'desconto', '', '', '', true, this.codDep)
     },
 
