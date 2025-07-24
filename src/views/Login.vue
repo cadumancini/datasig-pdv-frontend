@@ -13,6 +13,7 @@
 
 <script>
 import api from '../utils/api'
+import tef from '../utils/tef'
 export default {
   name: 'Login',
   data () {
@@ -26,6 +27,13 @@ export default {
   created () {
     this.api_url = process.env.VUE_APP_API_URL
     this.base = process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : ''
+      // .then(() => {
+      //   console.log('TEF authenticated successfully')
+      // })
+      // .catch((error) => {
+      //   console.error('Error authenticating TEF:', error)
+      //   this.base = 'Erro ao autenticar TEF'
+      // })
   },
   mounted () {
     if (sessionStorage.getItem('token')) {
@@ -35,6 +43,8 @@ export default {
       sessionStorage.setItem('form', 'login')
       this.$refs.inputUser.focus()
     }
+    console.log('Authenticate TEF')
+    tef.authenticatePaykit('34711662000191')
   },
   methods: {
     handleSubmit () {
