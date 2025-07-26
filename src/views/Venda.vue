@@ -1048,7 +1048,7 @@ export default {
       //venda
       confirmaVendaTitle: '',
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '', codEmp: '', codFil: '', nomUsu: '' },
+      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '', codEmp: '', codFil: '', nomUsu: '', codCli: '' },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
@@ -2717,7 +2717,8 @@ export default {
             nomUsu: response.data.parametrosPDV.nomUsu,
             codIp: response.data.parametrosPDV.codIp,
             indImp: response.data.parametrosPDV.indImp,
-            qtdImp: response.data.parametrosPDV.qtdImp
+            qtdImp: response.data.parametrosPDV.qtdImp,
+            codCli: response.data.parametrosPDV.codCli
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
@@ -3289,7 +3290,9 @@ export default {
 
     /* Pedidos */
     async initPedidos() {
-      await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', null, null, null, 'ASC')
+      const codCli = this.codCli === '' ? this.paramsPDV.codCli : this.codCli
+      const codRep = this.codRep === '' ? null : this.codRep
+      await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', null, null, null, 'ASC', codCli, codRep)
       .then((response) => {
         this.pedidos = response.data
         this.preencherRepresentanteCliente()
@@ -3322,7 +3325,7 @@ export default {
       this.pedPrv = ''
       this.pedidosFiltro = ''
 
-      this.clearAllInputs()
+      // this.clearAllInputs()
       this.clearInputsCadCli()
       this.clearInputsCartao()
     },
