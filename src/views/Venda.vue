@@ -2136,7 +2136,7 @@ export default {
         itemDoCarrinho.vlrDsc = vlrDsc
         itemDoCarrinho.perDsc = perDsc
         itemDoCarrinho.codDep = codDep
-        this.definirPreco(itemDoCarrinho)
+        await this.definirPreco(itemDoCarrinho)
       }
       else {
         newItem.qtdPed = qtde
@@ -2147,7 +2147,7 @@ export default {
         newItem.vlrDsc = vlrDsc
         newItem.perDsc = perDsc
         newItem.codDep = codDep
-        this.definirPreco(newItem)
+        await this.definirPreco(newItem)
         if (newItem.preBas > 0) {
           this.itensCarrinho.push(newItem)
         }
@@ -2156,7 +2156,7 @@ export default {
       this.codBar = ''
       document.getElementById('inputProduto').focus()
       shared.populateTabIndex(this.itensCarrinho)
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
 
       if (this.pedidoSelected && atualizar) {
         this.fecharVenda = false
