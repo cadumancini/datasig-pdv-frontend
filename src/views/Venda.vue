@@ -825,14 +825,33 @@
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="pedidos != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
+            <div class="input-group input-group-sm mb-3">
+              <span class="input-group-text">Pedido</span>
+              <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Cliente</span>
+                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroCliente" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroCliente" placeholder="Digite para filtrar por cliente">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Representante</span>
+                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroRepresentante" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroRepresentante" placeholder="Digite para filtrar por representante">
+                </div>
+              </div>
+            </div>
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
-                  <th class="sm-header" scope="col" style="width: 15%;">Número</th>
-                  <th class="sm-header" scope="col" style="width: 15%;">Data de Emissão</th>
-                  <th class="sm-header" scope="col" style="width: 35%;">Representante</th>
-                  <th class="sm-header" scope="col" style="width: 35%;">Cliente</th>
+                  <th class="sm-header" scope="col" style="width: 13%;">Número</th>
+                  <th class="sm-header" scope="col" style="width: 13%;">Data de Emissão</th>
+                  <th class="sm-header" scope="col" style="width: 32%;">Representante</th>
+                  <th class="sm-header" scope="col" style="width: 32%;">Cliente</th>
+                  <th class="sm-header" scope="col" style="width: 5%;">Tipo</th>
+                  <th class="sm-header" scope="col" style="width: 5%;">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -841,6 +860,8 @@
                   <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.datEmi }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.tipPed }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.staPed }}</th>
                 </tr>
               </tbody>
             </table>
@@ -1151,6 +1172,8 @@ export default {
       pedPrv: '',
       pedidos: [],
       pedidosFiltro: '',
+      pedidosFiltroCliente: '',
+      pedidosFiltroRepresentante: '',
       pedidosFiltrados: [],
       tableIndexPed: 0,
       pedidoSelected: null,
@@ -1221,6 +1244,8 @@ export default {
       this.pedidoSelected = null
       this.staPedSelected = ''
       this.pedidosFiltro = ''
+      this.pedidosFiltroCliente = ''
+      this.pedidosFiltroRepresentante = ''
       this.ideRep = ''
       this.codRep = ''
       this.representantesFiltro = ''
@@ -1251,6 +1276,8 @@ export default {
       this.pedidoSelected = null
       this.staPedSelected = ''
       this.pedidosFiltro = ''
+      this.pedidosFiltroCliente = ''
+      this.pedidosFiltroRepresentante = ''
       this.representantesFiltro = ''
       this.ideCli = ''
       this.codCli = ''
@@ -3324,10 +3351,15 @@ export default {
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidosFiltro = ''
+      this.pedidosFiltroCliente = ''
+      this.pedidosFiltroRepresentante = ''
 
-      // this.clearAllInputs()
       this.clearInputsCadCli()
       this.clearInputsCartao()
+    },
+
+    clearPedido() {
+      this.clearInputsPedidos()
     },
 
     async searchPedidos() {
@@ -3337,7 +3369,7 @@ export default {
       await this.initPedidos()
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
       this.status = ''
-      this.filtrarPedidos(this.idePedPrv)
+      this.filtrarPedidos(this.idePedPrv, '', '')
       if (this.pedidosFiltrados.length === 1) { // encontramos, selecionar
         this.selectPedido(this.pedidosFiltrados[0])
       } else { // nao encontramos, abrir modal
@@ -3401,8 +3433,10 @@ export default {
       }
     },
 
-    filtrarPedidos(filter) {
-      this.pedidosFiltrados = filter !== '' ? this.pedidos.filter(ped => (ped.numPed === filter)) : this.pedidos
+    filtrarPedidos(filterPed, filterCli, filterRep) {
+      this.pedidosFiltrados = filterPed !== '' ? this.pedidos.filter(ped => (ped.numPed === filterPed)) : this.pedidos
+      this.pedidosFiltrados = filterCli !== '' ? this.pedidosFiltrados.filter(ped => (ped.codCli === filterCli)) : this.pedidosFiltrados
+      this.pedidosFiltrados = filterRep !== '' ? this.pedidosFiltrados.filter(ped => (ped.codRep === filterRep)) : this.pedidosFiltrados
       this.tableIndexPed = 0
 
       shared.populateTabIndex(this.pedidosFiltrados)
@@ -3432,7 +3466,7 @@ export default {
 
     filtrarModalPedidos(key) {
       if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarPedidos(this.pedidosFiltro)
+        this.filtrarPedidos(this.pedidosFiltro, this.pedidosFiltroCliente, this.pedidosFiltroRepresentante)
     },
 
     focusTablePed(value) {
