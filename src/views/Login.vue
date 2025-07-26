@@ -43,8 +43,15 @@ export default {
       sessionStorage.setItem('form', 'login')
       this.$refs.inputUser.focus()
     }
-    console.log('Authenticate TEF')
-    tef.authenticatePaykit('34711662000191')
+    console.log('Teste débito TEF')
+    tef.payDebit('34711662000191', 1)
+      .then((response) => {
+        console.log('TEF debit payment successful:', response)
+      })
+      .catch((error) => {
+        console.error('Error processing TEF debit payment:', error)
+        this.base = 'Erro ao processar pagamento TEF'
+      })
   },
   methods: {
     handleSubmit () {
