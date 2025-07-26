@@ -3294,7 +3294,6 @@ export default {
       this.pedidosFiltro = ''
 
       this.clearAllInputs()
-      this.initEverything()
       this.clearInputsCadCli()
       this.clearInputsCartao()
     },
