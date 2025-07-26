@@ -106,29 +106,29 @@
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
                   <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">
-                    <button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                    <button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" :disabled="this.pedidoSelected && this.staPedSelected === 'FECHADO'" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
                       <font-awesome-icon class="icon-cart" icon="fa-trash"/>
                     </button>
                     <small>&nbsp;{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small>
                   </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
                     <small>{{ row.qtdPed }}</small>
-                    <button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                    <button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" :disabled="this.pedidoSelected && this.staPedSelected === 'FECHADO'" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
                       <font-awesome-icon class="icon-cart" icon="fa-refresh"/>
                     </button>
                   </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
-                    <button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                    <button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" :disabled="this.pedidoSelected && this.staPedSelected === 'FECHADO'"  data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
                       <font-awesome-icon class="icon-cart" icon="fa-circle-info"/>
                     </button>
                   </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
-                    <button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                    <button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" :disabled="this.pedidoSelected && this.staPedSelected === 'FECHADO'"  data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
                       <font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/>
                     </button>
                   </th>
                   <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
-                    <button :id="'btnDep' + row.tabIndex" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button :id="'btnDep' + row.tabIndex" :disabled="this.pedidoSelected && this.staPedSelected === 'FECHADO'"  class="btn btn-secondary btn-sm sm edit-cart disable-on-sale" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <font-awesome-icon class="icon-cart" icon="fa-warehouse"/>
                     </button>
                     <div class="dropdown-menu">
@@ -168,7 +168,7 @@
                   <option value="acrescimo">Acréscimo</option>
                 </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
                 <span class="input-group-text">Desconto</span> <!-- TODO: remover quando resolver acrescimo -->
-                <select :disabled="!this.itensCarrinho.length" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
+                <select :disabled="!this.itensCarrinho.length || (this.pedidoSelected && this.staPedSelected === 'FECHADO')" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
@@ -203,15 +203,18 @@
           <div class="row margin-y-fields">
             <div class="col">
               <div class="float-end mx-2">
-                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
+                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" 
+                  :disabled="!this.itensCarrinho.length || (this.pedidoSelected && this.staPedSelected === 'FECHADO')">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
                 <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)" :disabled="!this.itensCarrinho.length">Gerar Pedido (F9)</button>
+                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)"
+                  :disabled="!this.itensCarrinho.length || (this.pedidoSelected && this.staPedSelected === 'FECHADO')">Gerar Pedido (F9)</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected" :disabled="!this.itensCarrinho.length">Gerar Orçamento (F4)</button>
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected"
+                  :disabled="!this.itensCarrinho.length || (this.pedidoSelected && this.staPedSelected === 'FECHADO')">Gerar Orçamento (F4)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -1150,7 +1153,9 @@ export default {
       pedidosFiltro: '',
       pedidosFiltrados: [],
       tableIndexPed: 0,
-      pedidoSelected: null
+      pedidoSelected: null,
+      staPedSelected: '',
+      msgPedidoFechado: 'Pedido já está fechado, não é possível realizar alterações pelo PDV. Para reabilitar o pedido, acesse o ERP Senior.'
     }
   },
   mounted () {
@@ -1214,6 +1219,7 @@ export default {
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidoSelected = null
+      this.staPedSelected = ''
       this.pedidosFiltro = ''
       this.ideRep = ''
       this.codRep = ''
@@ -1243,6 +1249,7 @@ export default {
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidoSelected = null
+      this.staPedSelected = ''
       this.pedidosFiltro = ''
       this.representantesFiltro = ''
       this.ideCli = ''
@@ -1533,7 +1540,7 @@ export default {
         else if (tabelaPadrao) {
           this.selectTabelaPreco(tabelaPadrao, true)
         }
-        else if (this.pedidoSelected) alert('Para atualizar o pedido de orçamento, selecione uma tabela de preços')
+        else if (this.pedidoSelected && this.staPedSelected !== 'FECHADO') alert('Para atualizar o pedido de orçamento, selecione uma tabela de preços')
       } else {
         if (this.paramsPDV.codTpr !== '') {
           this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr}, true)
@@ -1645,14 +1652,18 @@ export default {
     },
 
     async selectDeposito(row, atualizar) {
-      this.ideDep = row.desDep
-      this.codDep = row.codDep
-      sessionStorage.setItem('depositoSelected', JSON.stringify(row))
-      document.getElementById('closeModalDepositos').click()
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        this.gerarPedido = false
-        await this.enviarVenda(false)
+      if (this.pedidoSelected && this.staPedSelected === 'FECHADO' && atualizar) {
+        this.showMsgPedidoFechado()
+      } else {
+        this.ideDep = row.desDep
+        this.codDep = row.codDep
+        sessionStorage.setItem('depositoSelected', JSON.stringify(row))
+        document.getElementById('closeModalDepositos').click()
+        if (this.pedidoSelected && atualizar) {
+          this.fecharVenda = false
+          this.gerarPedido = false
+          await this.enviarVenda(false)
+        }
       }
     },
 
@@ -1776,7 +1787,10 @@ export default {
     },
 
     async selectCliente(row, applyCheck) {
-      if (applyCheck && !await this.dadosClientePreenchidos(row)) {
+      if (this.pedidoSelected && this.staPedSelected === 'FECHADO') {
+        this.showMsgPedidoFechado()
+      } 
+      else if (applyCheck && !await this.dadosClientePreenchidos(row)) {
         if (this.erroCliente) alert('O cliente possui dados incompletos!')
         else this.erroCliente = true
       } else {
@@ -2126,43 +2140,47 @@ export default {
 
     async selectProduto(row, qtde, seqIpd, obsIpd, tipOpeVlrIpd, tipDsc, vlrDsc, perDsc, atualizar, codDep) {
       document.getElementById('closeModalProdutos').click()
-      const newItem = Object.create(row)
-      const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
-      if (itemDoCarrinho)  {
-        itemDoCarrinho.qtdPed += qtde
-        itemDoCarrinho.obsIpd = obsIpd
-        itemDoCarrinho.tipOpeVlrIpd = tipOpeVlrIpd
-        itemDoCarrinho.tipDsc = tipDsc
-        itemDoCarrinho.vlrDsc = vlrDsc
-        itemDoCarrinho.perDsc = perDsc
-        itemDoCarrinho.codDep = codDep
-        await this.definirPreco(itemDoCarrinho)
-      }
-      else {
-        newItem.qtdPed = qtde
-        newItem.seqIpd = seqIpd
-        newItem.obsIpd = obsIpd
-        newItem.tipOpeVlrIpd = tipOpeVlrIpd
-        newItem.tipDsc = tipDsc
-        newItem.vlrDsc = vlrDsc
-        newItem.perDsc = perDsc
-        newItem.codDep = codDep
-        await this.definirPreco(newItem)
-        if (newItem.preBas > 0) {
-          this.itensCarrinho.push(newItem)
+      if (this.pedidoSelected && this.staPedSelected === 'FECHADO' && atualizar) {
+        this.showMsgPedidoFechado()
+      } else {
+        const newItem = Object.create(row)
+        const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
+        if (itemDoCarrinho)  {
+          itemDoCarrinho.qtdPed += qtde
+          itemDoCarrinho.obsIpd = obsIpd
+          itemDoCarrinho.tipOpeVlrIpd = tipOpeVlrIpd
+          itemDoCarrinho.tipDsc = tipDsc
+          itemDoCarrinho.vlrDsc = vlrDsc
+          itemDoCarrinho.perDsc = perDsc
+          itemDoCarrinho.codDep = codDep
+          await this.definirPreco(itemDoCarrinho)
         }
-      }
+        else {
+          newItem.qtdPed = qtde
+          newItem.seqIpd = seqIpd
+          newItem.obsIpd = obsIpd
+          newItem.tipOpeVlrIpd = tipOpeVlrIpd
+          newItem.tipDsc = tipDsc
+          newItem.vlrDsc = vlrDsc
+          newItem.perDsc = perDsc
+          newItem.codDep = codDep
+          await this.definirPreco(newItem)
+          if (newItem.preBas > 0) {
+            this.itensCarrinho.push(newItem)
+          }
+        }
 
-      this.codBar = ''
-      document.getElementById('inputProduto').focus()
-      shared.populateTabIndex(this.itensCarrinho)
-      await this.atualizarValorTotalCompra()
+        this.codBar = ''
+        document.getElementById('inputProduto').focus()
+        shared.populateTabIndex(this.itensCarrinho)
+        await this.atualizarValorTotalCompra()
 
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        this.gerarPedido = false
-        await this.enviarVenda(false)
-        this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
+        if (this.pedidoSelected && atualizar) {
+          this.fecharVenda = false
+          this.gerarPedido = false
+          await this.enviarVenda(false)
+          this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
+        }
       }
     },
 
@@ -2535,29 +2553,33 @@ export default {
         alert('Existe uma busca de produtos em andamento. Aguarde alguns segundos e tente novamente.')
         document.getElementById('closeModalTabelasPreco').click()
       } else {
-        let seguir = true
-        if (this.pedidoSelected && atualizar) {
-          seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
-        }
-
-        document.getElementById('closeModalTabelasPreco').click()
-        if (seguir) {
-          this.ideTpr = row.codTpr
-          this.codTpr = row.codTpr
-          document.getElementsByTagName('body')[0].style.cursor = 'wait'
-          this.status = 'b_produtos'
-          await this.buscarProdutosTabela()
-          this.status = ''
-          this.focusProduto()
-          document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          
+        if (this.pedidoSelected && this.staPedSelected === 'FECHADO' && atualizar) {
+          this.showMsgPedidoFechado()
+        } else {
+          let seguir = true
           if (this.pedidoSelected && atualizar) {
-            this.status = 'a_precos'
-            this.atualizarPrecosCarrinho()
+            seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
+          }
+
+          document.getElementById('closeModalTabelasPreco').click()
+          if (seguir) {
+            this.ideTpr = row.codTpr
+            this.codTpr = row.codTpr
+            document.getElementsByTagName('body')[0].style.cursor = 'wait'
+            this.status = 'b_produtos'
+            await this.buscarProdutosTabela()
             this.status = ''
-            this.fecharVenda = false
-            this.gerarPedido = false
-            await this.enviarVenda(false)
+            this.focusProduto()
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            
+            if (this.pedidoSelected && atualizar) {
+              this.status = 'a_precos'
+              this.atualizarPrecosCarrinho()
+              this.status = ''
+              this.fecharVenda = false
+              this.gerarPedido = false
+              await this.enviarVenda(false)
+            }
           }
         }
       }
@@ -3172,7 +3194,9 @@ export default {
     },
 
     async aplicarDesconto(atualizar) {
-      if(this.tipDesc !== '') {
+      if (this.pedidoSelected && this.staPedSelected === 'FECHADO' && atualizar) {
+        this.showMsgPedidoFechado()
+      } else if(this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
         this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : await this.calcularDescontoAPI(valorTmp, Number(this.vlrDesc.replace(',', '.')) / 100)
 
@@ -3244,24 +3268,28 @@ export default {
     },
 
     limparDesconto(atualizar) {
-      this.tipOpeVlr = 'desconto'
-      this.vlrDesc = ''
-      this.vlrComDesconto = ''
-      this.vlrDescPedido = 0
-      this.tipDesc = ''
-      this.atualizarValorTotalCompra()
+      if (this.pedidoSelected && this.staPedSelected === 'FECHADO' && atualizar) {
+        this.showMsgPedidoFechado()
+      } else {
+        this.tipOpeVlr = 'desconto'
+        this.vlrDesc = ''
+        this.vlrComDesconto = ''
+        this.vlrDescPedido = 0
+        this.tipDesc = ''
+        this.atualizarValorTotalCompra()
 
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        this.gerarPedido = false
-        const itens = []
-        this.enviarPedido(itens, false)
+        if (this.pedidoSelected && atualizar) {
+          this.fecharVenda = false
+          this.gerarPedido = false
+          const itens = []
+          this.enviarPedido(itens, false)
+        }
       }
     },
 
     /* Pedidos */
     async initPedidos() {
-      await api.getPedidos('TODOS', 'ABERTOS', null, null, null, 'ASC')
+      await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', null, null, null, 'ASC')
       .then((response) => {
         this.pedidos = response.data
         this.preencherRepresentanteCliente()
@@ -3289,6 +3317,7 @@ export default {
 
     async beginPedido() {
       this.pedidoSelected = null
+      this.staPedSelected = ''
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidosFiltro = ''
@@ -3317,10 +3346,15 @@ export default {
       this.idePedPrv = row.numPed
       this.pedPrv = row.numPed
       this.pedidoSelected = row
+      this.staPedSelected = row.staPed
 
       this.carregarInfoPedido(row)
 
       document.getElementById('closeModalPedidos').click()
+    },
+
+    showMsgPedidoFechado() {
+      alert(this.msgPedidoFechado)
     },
 
     async carregarInfoPedido(pedido) {
