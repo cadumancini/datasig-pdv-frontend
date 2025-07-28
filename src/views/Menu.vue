@@ -151,8 +151,7 @@ export default {
             nomUsu: response.data.parametrosPDV.nomUsu,
             codIp: response.data.parametrosPDV.codIp,
             indImp: response.data.parametrosPDV.indImp,
-            qtdImp: response.data.parametrosPDV.qtdImp,
-            codCli: response.data.parametrosPDV.codCli
+            qtdImp: response.data.parametrosPDV.qtdImp
           }
           sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
         })

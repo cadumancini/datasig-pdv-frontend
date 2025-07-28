@@ -48,8 +48,7 @@ var functions = {
           codIp: response.data.parametrosPDV.codIp,
           indImp: response.data.parametrosPDV.indImp,
           qtdImp: response.data.parametrosPDV.qtdImp,
-          base: process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção',
-          codCli: response.data.parametrosPDV.codCli
+          base: process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : 'Base Produção' 
         }
         sessionStorage.setItem('paramsPDV', JSON.stringify(paramsPDV))
         return paramsPDV.nomUsu
