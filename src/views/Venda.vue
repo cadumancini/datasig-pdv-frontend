@@ -2164,6 +2164,7 @@ export default {
             this.itensCarrinho.push(newItem)
           }
         }
+      }
 
       this.codBar = ''
       document.getElementById('inputProduto').focus()
