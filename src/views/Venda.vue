@@ -58,7 +58,7 @@
               <input autocomplete="off" id="inputIdeDep" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
                 :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
                 :class="{searching: (!this.depositos.length && this.codDep === '')}">
-              <button id="btnSearchDep" :disabled="ideDep !== '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="searchDepositos"><font-awesome-icon icon="fa-search"/></button>
+              <button id="btnSearchDep" :disabled="ideDep !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchDepositos"><font-awesome-icon icon="fa-search"/></button>
               <button id="btnClearDep" :disabled="this.codDep === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#depositosModal">...</button>
             </div>
@@ -825,14 +825,33 @@
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="pedidos != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
+            <div class="input-group input-group-sm mb-3">
+              <span class="input-group-text">Pedido</span>
+              <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Cliente</span>
+                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroCliente" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroCliente" placeholder="Digite para filtrar por cliente">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Representante</span>
+                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroRepresentante" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroRepresentante" placeholder="Digite para filtrar por representante">
+                </div>
+              </div>
+            </div>
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
-                  <th class="sm-header" scope="col" style="width: 15%;">Número</th>
-                  <th class="sm-header" scope="col" style="width: 15%;">Data de Emissão</th>
-                  <th class="sm-header" scope="col" style="width: 35%;">Representante</th>
-                  <th class="sm-header" scope="col" style="width: 35%;">Cliente</th>
+                  <th class="sm-header" scope="col" style="width: 13%;">Número</th>
+                  <th class="sm-header" scope="col" style="width: 13%;">Data de Emissão</th>
+                  <th class="sm-header" scope="col" style="width: 32%;">Representante</th>
+                  <th class="sm-header" scope="col" style="width: 32%;">Cliente</th>
+                  <th class="sm-header" scope="col" style="width: 5%;">Tipo</th>
+                  <th class="sm-header" scope="col" style="width: 5%;">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -841,6 +860,8 @@
                   <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.datEmi }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideRep }}</th>
                   <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideCli }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.tipPed }}</th>
+                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.staPed }}</th>
                 </tr>
               </tbody>
             </table>
@@ -1047,7 +1068,7 @@ export default {
       //venda
       confirmaVendaTitle: '',
       finalizandoVenda: false,
-      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '', codEmp: '', codFil: '', nomUsu: '' },
+      paramsPDV: { codTpr: '', dscTot: '', depositos: [], depPad: '', codEmp: '', codFil: '', nomUsu: '', codCli: '' },
       vlrTot: 'R$ 0,00',
       qtdTot: 0,
       vlrPagoDin: '',
@@ -1150,9 +1171,13 @@ export default {
       pedPrv: '',
       pedidos: [],
       pedidosFiltro: '',
+      pedidosFiltroCliente: '',
+      pedidosFiltroRepresentante: '',
       pedidosFiltrados: [],
       tableIndexPed: 0,
-      pedidoSelected: null
+      pedidoSelected: null,
+      staPedSelected: '',
+      msgPedidoFechado: 'Pedido já está fechado, não é possível realizar alterações pelo PDV. Para reabilitar o pedido, acesse o ERP Senior.'
     }
   },
   mounted () {
@@ -1216,7 +1241,10 @@ export default {
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidoSelected = null
+      this.staPedSelected = ''
       this.pedidosFiltro = ''
+      this.pedidosFiltroCliente = ''
+      this.pedidosFiltroRepresentante = ''
       this.ideRep = ''
       this.codRep = ''
       this.representantesFiltro = ''
@@ -1245,7 +1273,10 @@ export default {
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidoSelected = null
+      this.staPedSelected = ''
       this.pedidosFiltro = ''
+      this.pedidosFiltroCliente = ''
+      this.pedidosFiltroRepresentante = ''
       this.representantesFiltro = ''
       this.ideCli = ''
       this.codCli = ''
@@ -2164,18 +2195,18 @@ export default {
             this.itensCarrinho.push(newItem)
           }
         }
-      }
 
-      this.codBar = ''
-      document.getElementById('inputProduto').focus()
-      shared.populateTabIndex(this.itensCarrinho)
-      this.atualizarValorTotalCompra()
+        this.codBar = ''
+        document.getElementById('inputProduto').focus()
+        shared.populateTabIndex(this.itensCarrinho)
+        await this.atualizarValorTotalCompra()
 
-      if (this.pedidoSelected && atualizar) {
-        this.fecharVenda = false
-        this.gerarPedido = false
-        await this.enviarVenda(false)
-        this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
+        if (this.pedidoSelected && atualizar) {
+          this.fecharVenda = false
+          this.gerarPedido = false
+          await this.enviarVenda(false)
+          this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
+        }
       }
     },
 
@@ -2555,6 +2586,7 @@ export default {
           if (this.pedidoSelected && atualizar) {
             seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
           }
+
           document.getElementById('closeModalTabelasPreco').click()
           if (seguir) {
             this.ideTpr = row.codTpr
@@ -2711,7 +2743,8 @@ export default {
             nomUsu: response.data.parametrosPDV.nomUsu,
             codIp: response.data.parametrosPDV.codIp,
             indImp: response.data.parametrosPDV.indImp,
-            qtdImp: response.data.parametrosPDV.qtdImp
+            qtdImp: response.data.parametrosPDV.qtdImp,
+            codCli: response.data.parametrosPDV.codCli
           }
           this.initDepositos()
           sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
@@ -3271,6 +3304,7 @@ export default {
         this.vlrDescPedido = 0
         this.tipDesc = ''
         this.atualizarValorTotalCompra()
+
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
           this.gerarPedido = false
@@ -3318,15 +3352,16 @@ export default {
 
     async beginPedido() {
       this.pedidoSelected = null
+      this.staPedSelected = ''
       this.idePedPrv = ''
       this.pedPrv = ''
       this.pedidosFiltro = ''
+      this.pedidosFiltroCliente = ''
+      this.pedidosFiltroRepresentante = ''
 
-      this.clearAllInputs()
-      this.initEverything()
       this.clearInputsCadCli()
       this.clearInputsCartao()
-
+      
       this.clearAfterVenda()
     },
 
@@ -3337,7 +3372,7 @@ export default {
       await this.initPedidos()
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
       this.status = ''
-      this.filtrarPedidos(this.idePedPrv)
+      this.filtrarPedidos(this.idePedPrv, '', '')
       if (this.pedidosFiltrados.length === 1) { // encontramos, selecionar
         this.selectPedido(this.pedidosFiltrados[0])
       } else { // nao encontramos, abrir modal
@@ -3349,10 +3384,15 @@ export default {
       this.idePedPrv = row.numPed
       this.pedPrv = row.numPed
       this.pedidoSelected = row
+      this.staPedSelected = row.staPed
 
       this.carregarInfoPedido(row)
 
       document.getElementById('closeModalPedidos').click()
+    },
+
+    showMsgPedidoFechado() {
+      alert(this.msgPedidoFechado)
     },
 
     async carregarInfoPedido(pedido) {
@@ -3396,8 +3436,10 @@ export default {
       }
     },
 
-    filtrarPedidos(filter) {
-      this.pedidosFiltrados = filter !== '' ? this.pedidos.filter(ped => (ped.numPed === filter)) : this.pedidos
+    filtrarPedidos(filterPed, filterCli, filterRep) {
+      this.pedidosFiltrados = filterPed !== '' ? this.pedidos.filter(ped => (ped.numPed === filterPed)) : this.pedidos
+      this.pedidosFiltrados = filterCli !== '' ? this.pedidosFiltrados.filter(ped => (ped.codCli === filterCli)) : this.pedidosFiltrados
+      this.pedidosFiltrados = filterRep !== '' ? this.pedidosFiltrados.filter(ped => (ped.codRep === filterRep)) : this.pedidosFiltrados
       this.tableIndexPed = 0
 
       shared.populateTabIndex(this.pedidosFiltrados)
@@ -3427,7 +3469,7 @@ export default {
 
     filtrarModalPedidos(key) {
       if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
-        this.filtrarPedidos(this.pedidosFiltro)
+        this.filtrarPedidos(this.pedidosFiltro, this.pedidosFiltroCliente, this.pedidosFiltroRepresentante)
     },
 
     focusTablePed(value) {
