@@ -3080,7 +3080,8 @@ export default {
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
           vlrTro: vlrTro,
-          pagamentos: this.pagamentos
+          pagamentos: this.pagamentos,
+          tnsPed: this.pedidoSelected ? this.pedidoSelected.codTns : ''
         }
       }
       
