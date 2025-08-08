@@ -3447,7 +3447,7 @@ export default {
 
     preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
-        this.tipOpeVlr = pedido.vlrDar.endsWith('-') ? 'desconto' : 'acrescimo'
+        this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
         const vlrDarTmp = pedido.vlrDar.replace('-', '')
         this.tipDesc = 'valor'
         this.vlrDesc = vlrDarTmp
