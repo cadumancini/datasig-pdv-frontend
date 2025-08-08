@@ -72,17 +72,21 @@ var functions = {
     url += nomUsu !== null ? '&nomUsu=' + nomUsu : ''
     return axios.get(url)
   },
-  getPedidos(tipo, situacao, numPed, datIni, datFim, order, codCli, codRep) {
+  getPedidos(tipo, situacao, numPed, datIni, datFim, order, codCli, codRep, detalhado) {
     let url = urlBase + '/pedidos?token=' + sessionStorage.getItem('token')
     url += '&tipo=' + tipo
     url += '&situacao=' + situacao
     url += '&order=' + order
+    url += '&detalhado=' + detalhado
     url += numPed !== null ? '&numPed=' + numPed : ''
     url += datIni !== null ? '&datIni=' + datIni : ''
     url += datFim !== null ? '&datFim=' + datFim : ''
     url += codCli !== null ? '&codCli=' + codCli : ''
     url += codRep !== null ? '&codRep=' + codRep : ''
     return axios.get(url)
+  },
+  getPedidoDetalhes(numPed) {
+    return axios.get(urlBase + '/pedidos/' + numPed + '?token=' + sessionStorage.getItem('token'))
   },
   getTitulos(numNfv, sitTit, sitDoe, datIni, datFim, codRep, codFpg, nomUsu) {
     let url = urlBase + '/titulo?token=' + sessionStorage.getItem('token')

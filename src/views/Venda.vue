@@ -2589,14 +2589,7 @@ export default {
 
           document.getElementById('closeModalTabelasPreco').click()
           if (seguir) {
-            this.ideTpr = row.codTpr
-            this.codTpr = row.codTpr
-            document.getElementsByTagName('body')[0].style.cursor = 'wait'
-            this.status = 'b_produtos'
-            await this.buscarProdutosTabela()
-            this.status = ''
-            this.focusProduto()
-            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
             
             if (this.pedidoSelected && atualizar) {
               this.status = 'a_precos'
@@ -2609,6 +2602,17 @@ export default {
           }
         }
       }
+    },
+
+    async preencherTabelaPrecoECarregarProdutos(codTpr) {
+      this.ideTpr = codTpr
+      this.codTpr = codTpr
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      this.status = 'b_produtos'
+      await this.buscarProdutosTabela()
+      this.status = ''
+      this.focusProduto()
+      document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
     async checarItensCarrinhoNovaTabela(codTpr) {
@@ -3319,7 +3323,7 @@ export default {
       const numPed = this.idePedPrv === '' ? null : this.idePedPrv
       const codCli = this.codCli === '' ? this.paramsPDV.codCli : this.codCli
       const codRep = this.codRep === '' ? null : this.codRep
-      await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep)
+      await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep, false)
       .then((response) => {
         this.pedidos = response.data
         this.preencherRepresentanteCliente()
@@ -3401,12 +3405,28 @@ export default {
       this.codCli = pedido.codCli
       this.ideCli = pedido.ideCli
 
-      const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)  
-      if (depPad) this.selectDeposito(depPad, false)
+      await this.carregarItensPedido(pedido)
 
-      await this.selectTabelaPreco({codTpr: pedido.itens[0].codTpr}, false)
+      const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)  
+      if (this.depPad !== depPad) this.selectDeposito(depPad, false)
+
+      const codTpr = pedido.itens[0].codTpr
+      if (this.codTpr !== codTpr) await this.selectTabelaPreco({codTpr: codTpr}, false)
+      
       this.preencherItensPedido(pedido)
       this.preencherDadosDesconto(pedido)
+    },
+
+    async carregarItensPedido(pedido) {
+      await api.getPedidoDetalhes(pedido.numPed)
+      .then((response) => {
+        pedido.itens = response.data.itens
+        pedido.parcelas = response.data.parcelas
+      })
+      .catch((err) => { 
+        console.log(err)
+        shared.handleRequestError(err)
+      })
     },
 
     preencherItensPedido(pedido) {
@@ -3427,7 +3447,7 @@ export default {
 
     preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
-        this.tipOpeVlr = pedido.vlrDar.endsWith('-') ? 'desconto' : 'acrescimo'
+        this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
         const vlrDarTmp = pedido.vlrDar.replace('-', '')
         this.tipDesc = 'valor'
         this.vlrDesc = vlrDarTmp
