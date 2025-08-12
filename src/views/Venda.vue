@@ -93,8 +93,8 @@
             <table class="table table-striped table-hover table-sm table-responsive table-items">
               <thead>
                 <tr id="cart-head">
-                  <th class="sm-header" style="width: 50%;"><small>Produto</small></th>
-                  <th class="sm-header" style="width: 8%;"><small>Qtde.</small></th>
+                  <th class="sm-header" style="width: 48%;"><small>Produto</small></th>
+                  <th class="sm-header" style="width: 10%;"><small>Qtde.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Obs.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Desc.</small></th>
                   <th class="sm-header" style="width: 6%;"><small>Dep.</small></th>
@@ -204,9 +204,10 @@
             <div class="col">
               <div class="float-end mx-2">
                 <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" 
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar NFC (F8)</button>
+                  :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
                 <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
+                <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
               </div>
               <div class="float-end mx-2">
                 <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)"
@@ -633,6 +634,26 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btnConfirmaImpressao"
             @click="callImpressao()">Sim</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Confirmar Geração NFCe -->
+  <div class="modal fade" id="confirmaNFCeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmação de Geração de NFCe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaNFCe"></button>
+        </div>
+        <div class="modal-body">
+          <p>Confirma a geração de NFCe de pedido fechado?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnConfirmaNFCe"
+            @click="callNFCe(this.pedidoSelected.numPed)">Sim</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
         </div>
       </div>
@@ -1421,7 +1442,10 @@ export default {
               this.attemptToFillCondicaoPagto()
             } 
           } else if (this.finalizandoVenda) {
-            if (this.pressedKeys.has('ENTER')) await this.finalizarVenda()
+            if (this.pressedKeys.has('ENTER')) {
+              if (this.isPedidoSelectedAndFechado) await this.callNFCe(this.pedidoSelected.numPed)
+              else await this.finalizarVenda()
+            }
           } else {
             if (this.pressedKeys.has('F2')) this.focusProduto()
             else if (this.pressedKeys.has('F4')) document.getElementById('btnInserirPedido').click()
@@ -2426,7 +2450,7 @@ export default {
     async removerItem(item) {
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
       shared.populateTabIndex(this.itensCarrinho)
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.tableIndexCar = 0
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
       if (this.pedidoSelected) {
@@ -2764,14 +2788,23 @@ export default {
       }
     },
 
-    triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido) {
+    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido) {
       this.finalizandoVenda = finalizandoVenda
       this.fecharVenda = fechar
       this.gerarPedido = gerarPedido
-      if (this.finalizandoVenda) {
+      if (this.isPedidoSelectedAndFechado()) {
+        document.getElementById('btnOpenConfirmarNFCeModal').click()
+      }
+      else if (this.finalizandoVenda) {
         if (this.allFieldsArePopulated()) this.openFinalizarVendaModal()
         else this.finalizandoVenda = false
       }
+    },
+
+    async callNFCe(numPed) {
+      this.status = 'nfce'
+      await this.gerarNFCe(numPed)
+      document.getElementById('closeModalConfirmaNFCe').click()
     },
 
     openFinalizarVendaModal() {
@@ -3096,8 +3129,7 @@ export default {
         .then(async (response) => {
           const respostaPedido = response.data
           if (this.fecharVenda) {
-            this.status = 'nfce'
-            await this.gerarNFCe(respostaPedido.numPed)
+            await this.callNFCe(respostaPedido.numPed)
           } else {
             document.getElementById('closeModalConfirmaVenda').click()
             if (limpar) {
@@ -3122,7 +3154,7 @@ export default {
       await api.putNFCe(numPed)
         .then((response) => {
           const resposta = response.data
-          const msg = 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
+          const msg = this.isPedidoSelectedAndFechado() ? 'NFC-e gerada: ' + resposta.nfce + '.' : 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
           if (this.paramsPDV.indImp !== 'S') {
             this.limparCamposAposVenda()
             if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
@@ -3132,9 +3164,9 @@ export default {
         })
         .catch((err) => {
           if(err.response.data.message.startsWith('ERRO')) {
-            const msg = 'Pedido ' + numPed + 
-              ' fechado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' +
-              err.response.data.message
+            const msg = this.isPedidoSelectedAndFechado() ? 
+              'Geração de NFC-e retornou o seguinte erro: \n' + err.response.data.message : 
+              'Pedido ' + numPed + ' fechado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' + err.response.data.message
             alert(msg)
           } else shared.handleRequestError(err)
           console.log(err)
