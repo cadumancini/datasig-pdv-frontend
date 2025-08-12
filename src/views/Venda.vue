@@ -2426,7 +2426,7 @@ export default {
     async removerItem(item) {
       this.itensCarrinho = this.itensCarrinho.filter(itemCar => itemCar !== item)
       shared.populateTabIndex(this.itensCarrinho)
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.tableIndexCar = 0
       if (!this.itensCarrinho.length) this.editandoCarrinho = false
       if (this.pedidoSelected) {
