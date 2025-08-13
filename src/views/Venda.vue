@@ -3206,25 +3206,41 @@ export default {
       this.focusProduto()
     },
     
+    // <<< IF BASE64 WORKS, REMOVE THIS >>>
+    // async imprimirNfce(pdf, printer) {
+    //   await this.startQZConnection()
+
+    //   const response = await api.getNFCe(pdf)
+    //   const blob = new Blob([response.data], { type: 'application/pdf' })
+
+    //   // Convert Blob to Base64
+    //   const reader = new FileReader()
+    //   reader.readAsDataURL(blob)
+    //   reader.onloadend = async () => {
+    //       const base64PDF = reader.result.split(",")[1] // Strip metadata
+    //       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+          
+    //       // Configure the printer
+    //       const config = qz.configs.create(printer, {copies: copies})
+
+    //       // Send print job
+    //       await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+    //   }
+    // },
+    
     async imprimirNfce(pdf, printer) {
       await this.startQZConnection()
 
-      const response = await api.getNFCe(pdf)
-      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const response = await api.getNFCeBase64(pdf)
+      const base64 = response.data
 
-      // Convert Blob to Base64
-      const reader = new FileReader()
-      reader.readAsDataURL(blob)
-      reader.onloadend = async () => {
-          const base64PDF = reader.result.split(",")[1] // Strip metadata
-          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-          
-          // Configure the printer
-          const config = qz.configs.create(printer, {copies: copies})
+      const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+      
+      // Configure the printer
+      const config = qz.configs.create(printer, {copies: copies})
 
-          // Send print job
-          await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
-      }
+      // Send print job
+      await qz.print(config, [{ type: "raw", format: "command", flavor: "base64", data: base64 }])
     },
 
     isOnVenda() {
