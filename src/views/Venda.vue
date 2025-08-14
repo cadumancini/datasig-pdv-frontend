@@ -2802,9 +2802,9 @@ export default {
     },
 
     async callNFCe(numPed) {
+      document.getElementById('closeModalConfirmaNFCe').click()
       this.status = 'nfce'
       await this.gerarNFCe(numPed)
-      document.getElementById('closeModalConfirmaNFCe').click()
     },
 
     openFinalizarVendaModal() {
@@ -3206,7 +3206,7 @@ export default {
       this.focusProduto()
     },
     
-    // <<< IF BASE64 WORKS, REMOVE THIS >>>
+    // TODO: IF BASE64 WORKS, REMOVE THI
     // async imprimirNfce(pdf, printer) {
     //   await this.startQZConnection()
 
