@@ -2239,7 +2239,7 @@ export default {
       produto.faixasPreco.every(faixa => {
         if (produto.qtdPed <= faixa.qtdMax) {
           preBas = faixa.preBas
-          const vlrTot = Number(preBas) * Number(produto.qtdPed)
+          const vlrTot = this.roundUpIfThirdDecimalFiveOrMore(Number(preBas) * Number(produto.qtdPed))
           produto.preBas = preBas
           produto.vlrTot = vlrTot
           produto.vlrLiq = vlrTot
@@ -2253,6 +2253,20 @@ export default {
         produto.vlrTot = 0
         produto.vlrLiq = 0
         alert ('Preço não encontrado para quantidade comprada.')
+      }
+    },
+
+    roundUpIfThirdDecimalFiveOrMore(value) {
+      // Round to 3 decimals
+      let rounded = Math.round(value * 1000) / 1000;
+      // Get the third decimal digit
+      let thirdDecimal = Math.floor((rounded * 1000) % 10);
+      if (thirdDecimal >= 5) {
+        // Round up to next cent
+        return Math.ceil(rounded * 100) / 100;
+      } else {
+        // Round to 2 decimals normally
+        return Math.round(rounded * 100) / 100;
       }
     },
 
@@ -3232,7 +3246,7 @@ export default {
       await this.startQZConnection()
 
       const response = await api.getNFCeBase64(pdf)
-      const base64 = response.data
+      const base64 = this.base64ToByteArray(response.data)
 
       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
       
@@ -3240,7 +3254,17 @@ export default {
       const config = qz.configs.create(printer, {copies: copies})
 
       // Send print job
-      await qz.print(config, [{ type: "raw", format: "command", flavor: "base64", data: base64 }])
+      await qz.print(config, [{ type: "pdf", format: "base64", data: base64 }])
+    },
+
+    base64ToByteArray(base64) {
+        let binary = atob(base64)
+        let len = binary.length
+        let bytes = new Uint8Array(len)
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binary.charCodeAt(i)
+        }
+        return bytes
     },
 
     isOnVenda() {
