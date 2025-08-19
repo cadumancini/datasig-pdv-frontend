@@ -752,13 +752,13 @@
                 <div class="row mb-2" v-if="isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Autorização de Transação</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago" id="inputCatTef">  
                   </div>
                 </div>
                 <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1' && isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago" id="inputNsuTef">  
                   </div>
                 </div>
               </div>
@@ -1434,7 +1434,7 @@ export default {
         } else if (this.pressedKeys.size === 1) {
           if (this.editandoCarrinho) {
             if (this.pressedKeys.has('DELETE')) document.getElementById('btnDelete' + this.tableIndexCar).click()
-          } else if (document.activeElement === document.getElementById('selectFpg')) {
+          } else if (document.getElementById('confirmaVendaModal')?.classList.contains('show') && this.noOtherPaymentInputIsSelected()) {
             const forma = this.formasPagto.filter(fpg => ((fpg.codAta) && (fpg.codAta.toUpperCase() === event.key.toUpperCase())))
             if (forma[0]) {
               event.preventDefault()
@@ -1463,6 +1463,15 @@ export default {
           this.pressedKeys.clear()
         }
       }
+    },
+
+    noOtherPaymentInputIsSelected() {
+      return (document.activeElement !== document.getElementById('selectCpg') &&
+        document.activeElement !== document.getElementById('inputVlrPago') &&
+        document.activeElement !== document.getElementById('selectDesOpe') &&
+        document.activeElement !== document.getElementById('selectBanOpe') &&
+        document.activeElement !== document.getElementById('inputCatTef') &&
+        document.activeElement !== document.getElementById('inputNsuTef'))
     },
 
     handleNavigation(event) {
@@ -3221,51 +3230,51 @@ export default {
     },
     
     // TODO: IF BASE64 WORKS, REMOVE THI
-    async imprimirNfce(pdf, printer) {
-      await this.startQZConnection()
-
-      const response = await api.getNFCe(pdf)
-      const blob = new Blob([response.data], { type: 'application/pdf' })
-
-      // Convert Blob to Base64
-      const reader = new FileReader()
-      reader.readAsDataURL(blob)
-      reader.onloadend = async () => {
-          const base64PDF = reader.result.split(",")[1] // Strip metadata
-          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-          
-          // Configure the printer
-          const config = qz.configs.create(printer, {copies: copies})
-
-          // Send print job
-          await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
-      }
-    },
-    
     // async imprimirNfce(pdf, printer) {
     //   await this.startQZConnection()
 
-    //   const response = await api.getNFCeBase64(pdf)
-    //   const base64 = this.base64ToByteArray(response.data)
+    //   const response = await api.getNFCe(pdf)
+    //   const blob = new Blob([response.data], { type: 'application/pdf' })
 
-    //   const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+    //   // Convert Blob to Base64
+    //   const reader = new FileReader()
+    //   reader.readAsDataURL(blob)
+    //   reader.onloadend = async () => {
+    //       const base64PDF = reader.result.split(",")[1] // Strip metadata
+    //       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+          
+    //       // Configure the printer
+    //       const config = qz.configs.create(printer, {copies: copies})
+
+    //       // Send print job
+    //       await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+    //   }
+    // },
+    
+    async imprimirNfce(pdf, printer) {
+      await this.startQZConnection()
+
+      const response = await api.getNFCeBase64(pdf)
+      const base64 = this.base64ToByteArray(response.data)
+
+      const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
       
-    //   // Configure the printer
-    //   const config = qz.configs.create(printer, {copies: copies})
+      // Configure the printer
+      const config = qz.configs.create(printer, {copies: copies})
 
-    //   // Send print job
-    //   await qz.print(config, [{ type: "pdf", format: "base64", data: base64 }])
-    // },
+      // Send print job
+      await qz.print(config, [{ type: "raw", format: "command", flavor:"base64", data: base64 }])
+    },
 
-    // base64ToByteArray(base64) {
-    //     let binary = atob(base64)
-    //     let len = binary.length
-    //     let bytes = new Uint8Array(len)
-    //     for (let i = 0; i < len; i++) {
-    //         bytes[i] = binary.charCodeAt(i)
-    //     }
-    //     return bytes
-    // },
+    base64ToByteArray(base64) {
+        let binary = atob(base64)
+        let len = binary.length
+        let bytes = new Uint8Array(len)
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binary.charCodeAt(i)
+        }
+        return bytes
+    },
 
     isOnVenda() {
       return (this.status === 'pedido' || this.status === 'nfce')
