@@ -139,7 +139,7 @@ var functions = {
   calcularItemComDesconto(vlrPro, vlrDsc) {
     let url = urlBase + '/pedidos/calcularItemComDesconto?token=' + sessionStorage.getItem('token') + '&vlrPro=' + vlrPro + '&vlrDsc=' + vlrDsc
     return axios.get(url)
-  },
+  }
 }
 
 export default functions
