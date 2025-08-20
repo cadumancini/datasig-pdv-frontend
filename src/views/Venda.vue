@@ -2513,7 +2513,7 @@ export default {
         this.itemEditando.qtdPed = this.newValue
         this.definirPreco(this.itemEditando)
         document.getElementById('closeModalEditarItem').click()
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
         this.finalizarEdicaoItem()
       }
     },
@@ -2552,14 +2552,14 @@ export default {
       this.itemEditando.vlrDsc = this.vlrDscIpd
       this.itemEditando.perDsc = this.perDscIpd
       document.getElementById('closeModalDescItem').click()
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
     },
 
-    limparDescontoItemFromModal() {
+    async limparDescontoItemFromModal() {
       this.limparDescontoItem(this.itemEditando)
       document.getElementById('closeModalDescItem').click()
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
     },
 
@@ -3385,7 +3385,7 @@ export default {
       return false
     },
 
-    limparDesconto(atualizar) {
+    async limparDesconto(atualizar) {
       if (this.isPedidoSelectedAndFechado() && atualizar) {
         this.showMsgPedidoFechado()
       } else {
@@ -3394,7 +3394,7 @@ export default {
         this.vlrComDesconto = ''
         this.vlrDescPedido = 0
         this.tipDesc = ''
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
 
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
@@ -3532,14 +3532,14 @@ export default {
       })
     },
 
-    preencherDadosDesconto(pedido) {
+    async preencherDadosDesconto(pedido) {
       if(pedido.vlrDar !== '0,00') {
         this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
         const vlrDarTmp = pedido.vlrDar.replace('-', '')
         this.tipDesc = 'valor'
         this.vlrDesc = vlrDarTmp
      
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
       }
     },
 
