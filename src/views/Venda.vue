@@ -1021,6 +1021,7 @@ export default {
       cadCliBaiCli: '',
       cadCliCidCli: '',
       cadCliSigUfs: '',
+      cadCliCodRai: '',
       cadCliFonCli: '',
       cadCliEmaCli: '',
       estados: [
@@ -1331,6 +1332,7 @@ export default {
       this.cadCliBaiCli = ''
       this.cadCliCidCli = ''
       this.cadCliSigUfs = ''
+      this.cadCliCodRai = ''
       this.cadCliFonCli = ''
       this.cadCliEmaCli = ''
     },
@@ -2066,6 +2068,7 @@ export default {
               this.cadCliBaiCli = retornoCEP.bairro
               this.cadCliCidCli = retornoCEP.localidade
               this.cadCliSigUfs = retornoCEP.uf
+              this.cadCliCodRai = retornoCEP.ibge
             })
             .catch((err) => {
               console.log(err)
@@ -2095,6 +2098,7 @@ export default {
           baiCli: this.cadCliBaiCli,
           cidCli: this.cadCliCidCli,
           sigUfs: this.cadCliSigUfs,
+          codRai: this.cadCliCodRai,
           fonCli: this.cadCliFonCli,
           emaCli: this.cadCliEmaCli,
           codRep: this.codRep,
@@ -2121,6 +2125,7 @@ export default {
               baiCli: this.cadCliBaiCli,
               cidCli: this.cadCliCidCli,
               sigUfs: this.cadCliSigUfs,
+              codRai: this.cadCliCodRai,
               fonCli: this.cadCliFonCli,
               emaCli: this.cadCliEmaCli,
               codRep: this.codRep
@@ -2508,7 +2513,7 @@ export default {
         this.itemEditando.qtdPed = this.newValue
         this.definirPreco(this.itemEditando)
         document.getElementById('closeModalEditarItem').click()
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
         this.finalizarEdicaoItem()
       }
     },
@@ -2547,14 +2552,14 @@ export default {
       this.itemEditando.vlrDsc = this.vlrDscIpd
       this.itemEditando.perDsc = this.perDscIpd
       document.getElementById('closeModalDescItem').click()
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
     },
 
-    limparDescontoItemFromModal() {
+    async limparDescontoItemFromModal() {
       this.limparDescontoItem(this.itemEditando)
       document.getElementById('closeModalDescItem').click()
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
     },
 
@@ -3112,7 +3117,13 @@ export default {
 
     async enviarPedido(itens, limpar) {
       let pedido = null
-      const vlrDar = this.calcularVlrDar()
+      let vlrDar = 0
+      let perDs1 = 0
+      if (this.pedidoSelected && this.pedidoSelected.perDs1 !== '0,00') {
+        perDs1 = shared.toMoneyString(this.vlrDesc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
+      } else {
+        vlrDar = this.calcularVlrDar()
+      }
       const vlrTro = this.calcularVlrTro()
 
       if (this.pedidoSelected && (this.fecharVenda || this.gerarPedido)) {
@@ -3121,7 +3132,8 @@ export default {
           fechar: this.fecharVenda,
           gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
-          vlrDar: vlrDar,
+          vlrDar: perDs1,
+          perDs1: vlrDar,
           vlrTro: vlrTro,
           pagamentos: this.pagamentos
         }
@@ -3135,6 +3147,7 @@ export default {
           gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
+          perDs1: perDs1,
           vlrTro: vlrTro,
           pagamentos: this.pagamentos,
           tnsPed: this.pedidoSelected ? this.pedidoSelected.codTns : ''
@@ -3263,7 +3276,7 @@ export default {
       const config = qz.configs.create(printer, {copies: copies})
 
       // Send print job
-      await qz.print(config, [{ type: "raw", format: "command", flavor:"base64", data: base64 }])
+      await qz.print(config, [{ type: "pdf", data: base64 }])
     },
 
     base64ToByteArray(base64) {
@@ -3380,7 +3393,7 @@ export default {
       return false
     },
 
-    limparDesconto(atualizar) {
+    async limparDesconto(atualizar) {
       if (this.isPedidoSelectedAndFechado() && atualizar) {
         this.showMsgPedidoFechado()
       } else {
@@ -3389,7 +3402,7 @@ export default {
         this.vlrComDesconto = ''
         this.vlrDescPedido = 0
         this.tipDesc = ''
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
 
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
@@ -3527,14 +3540,21 @@ export default {
       })
     },
 
-    preencherDadosDesconto(pedido) {
-      if(pedido.vlrDar !== '0,00') {
-        this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
-        const vlrDarTmp = pedido.vlrDar.replace('-', '')
-        this.tipDesc = 'valor'
-        this.vlrDesc = vlrDarTmp
+    async preencherDadosDesconto(pedido) {
+      if(pedido.vlrDar !== '0,00' || pedido.perDs1 !== '0,00') {
+        if(pedido.vlrDar !== '0,00') {
+          this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
+          const vlrDarTmp = pedido.vlrDar.replace('-', '')
+          this.tipDesc = 'valor'
+          this.vlrDesc = vlrDarTmp
+        } else {
+          this.tipOpeVlr = 'desconto'
+          const vlrDarTmp = pedido.perDs1.replace('-', '')
+          this.tipDesc = 'porcentagem'
+          this.vlrDesc = vlrDarTmp
+        }
      
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
       }
     },
 
