@@ -1021,6 +1021,7 @@ export default {
       cadCliBaiCli: '',
       cadCliCidCli: '',
       cadCliSigUfs: '',
+      cadCliCodRai: '',
       cadCliFonCli: '',
       cadCliEmaCli: '',
       estados: [
@@ -1331,6 +1332,7 @@ export default {
       this.cadCliBaiCli = ''
       this.cadCliCidCli = ''
       this.cadCliSigUfs = ''
+      this.cadCliCodRai = ''
       this.cadCliFonCli = ''
       this.cadCliEmaCli = ''
     },
@@ -2066,6 +2068,7 @@ export default {
               this.cadCliBaiCli = retornoCEP.bairro
               this.cadCliCidCli = retornoCEP.localidade
               this.cadCliSigUfs = retornoCEP.uf
+              this.cadCliCodRai = retornoCEP.ibge
             })
             .catch((err) => {
               console.log(err)
@@ -2095,6 +2098,7 @@ export default {
           baiCli: this.cadCliBaiCli,
           cidCli: this.cadCliCidCli,
           sigUfs: this.cadCliSigUfs,
+          codRai: this.cadCliCodRai,
           fonCli: this.cadCliFonCli,
           emaCli: this.cadCliEmaCli,
           codRep: this.codRep,
@@ -2121,6 +2125,7 @@ export default {
               baiCli: this.cadCliBaiCli,
               cidCli: this.cadCliCidCli,
               sigUfs: this.cadCliSigUfs,
+              codRai: this.cadCliCodRai,
               fonCli: this.cadCliFonCli,
               emaCli: this.cadCliEmaCli,
               codRep: this.codRep
@@ -3263,7 +3268,7 @@ export default {
       const config = qz.configs.create(printer, {copies: copies})
 
       // Send print job
-      await qz.print(config, [{ type: "raw", format: "command", flavor:"base64", data: base64 }])
+      await qz.print(config, [{ type: "pdf", data: base64 }])
     },
 
     base64ToByteArray(base64) {
