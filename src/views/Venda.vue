@@ -3117,7 +3117,13 @@ export default {
 
     async enviarPedido(itens, limpar) {
       let pedido = null
-      const vlrDar = this.calcularVlrDar()
+      let vlrDar = 0
+      let perDs1 = 0
+      if (this.pedidoSelected && this.pedidoSelected.perDs1 !== '0,00') {
+        perDs1 = shared.toMoneyString(this.vlrDesc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
+      } else {
+        vlrDar = this.calcularVlrDar()
+      }
       const vlrTro = this.calcularVlrTro()
 
       if (this.pedidoSelected && (this.fecharVenda || this.gerarPedido)) {
@@ -3126,7 +3132,8 @@ export default {
           fechar: this.fecharVenda,
           gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
-          vlrDar: vlrDar,
+          vlrDar: perDs1,
+          perDs1: vlrDar,
           vlrTro: vlrTro,
           pagamentos: this.pagamentos
         }
@@ -3140,6 +3147,7 @@ export default {
           gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
+          perDs1: perDs1,
           vlrTro: vlrTro,
           pagamentos: this.pagamentos,
           tnsPed: this.pedidoSelected ? this.pedidoSelected.codTns : ''
@@ -3533,11 +3541,18 @@ export default {
     },
 
     async preencherDadosDesconto(pedido) {
-      if(pedido.vlrDar !== '0,00') {
-        this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
-        const vlrDarTmp = pedido.vlrDar.replace('-', '')
-        this.tipDesc = 'valor'
-        this.vlrDesc = vlrDarTmp
+      if(pedido.vlrDar !== '0,00' || pedido.perDs1 !== '0,00') {
+        if(pedido.vlrDar !== '0,00') {
+          this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
+          const vlrDarTmp = pedido.vlrDar.replace('-', '')
+          this.tipDesc = 'valor'
+          this.vlrDesc = vlrDarTmp
+        } else {
+          this.tipOpeVlr = 'desconto'
+          const vlrDarTmp = pedido.perDs1.replace('-', '')
+          this.tipDesc = 'porcentagem'
+          this.vlrDesc = vlrDarTmp
+        }
      
         await this.atualizarValorTotalCompra()
       }
