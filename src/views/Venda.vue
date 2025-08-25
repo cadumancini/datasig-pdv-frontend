@@ -46,8 +46,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
               <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale disable-on-sale" 
-                type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
-              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
+                type="text" v-on:keyup.enter="searchTabelasPreco(true)" v-model="ideTpr">
+              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco(true)"><font-awesome-icon icon="fa-search"/></button>
               <button id="btnClearTpr" :disabled="this.codTpr === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
             </div>
@@ -752,13 +752,13 @@
                 <div class="row mb-2" v-if="isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Autorização de Transação</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago" id="inputCatTef">  
                   </div>
                 </div>
                 <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1' && isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago" id="inputNsuTef">  
                   </div>
                 </div>
               </div>
@@ -1021,6 +1021,7 @@ export default {
       cadCliBaiCli: '',
       cadCliCidCli: '',
       cadCliSigUfs: '',
+      cadCliCodRai: '',
       cadCliFonCli: '',
       cadCliEmaCli: '',
       estados: [
@@ -1331,6 +1332,7 @@ export default {
       this.cadCliBaiCli = ''
       this.cadCliCidCli = ''
       this.cadCliSigUfs = ''
+      this.cadCliCodRai = ''
       this.cadCliFonCli = ''
       this.cadCliEmaCli = ''
     },
@@ -1434,7 +1436,7 @@ export default {
         } else if (this.pressedKeys.size === 1) {
           if (this.editandoCarrinho) {
             if (this.pressedKeys.has('DELETE')) document.getElementById('btnDelete' + this.tableIndexCar).click()
-          } else if (document.activeElement === document.getElementById('selectFpg')) {
+          } else if (document.getElementById('confirmaVendaModal')?.classList.contains('show') && this.noOtherPaymentInputIsSelected()) {
             const forma = this.formasPagto.filter(fpg => ((fpg.codAta) && (fpg.codAta.toUpperCase() === event.key.toUpperCase())))
             if (forma[0]) {
               event.preventDefault()
@@ -1463,6 +1465,15 @@ export default {
           this.pressedKeys.clear()
         }
       }
+    },
+
+    noOtherPaymentInputIsSelected() {
+      return (document.activeElement !== document.getElementById('selectCpg') &&
+        document.activeElement !== document.getElementById('inputVlrPago') &&
+        document.activeElement !== document.getElementById('selectDesOpe') &&
+        document.activeElement !== document.getElementById('selectBanOpe') &&
+        document.activeElement !== document.getElementById('inputCatTef') &&
+        document.activeElement !== document.getElementById('inputNsuTef'))
     },
 
     handleNavigation(event) {
@@ -2057,6 +2068,7 @@ export default {
               this.cadCliBaiCli = retornoCEP.bairro
               this.cadCliCidCli = retornoCEP.localidade
               this.cadCliSigUfs = retornoCEP.uf
+              this.cadCliCodRai = retornoCEP.ibge
             })
             .catch((err) => {
               console.log(err)
@@ -2086,6 +2098,7 @@ export default {
           baiCli: this.cadCliBaiCli,
           cidCli: this.cadCliCidCli,
           sigUfs: this.cadCliSigUfs,
+          codRai: this.cadCliCodRai,
           fonCli: this.cadCliFonCli,
           emaCli: this.cadCliEmaCli,
           codRep: this.codRep,
@@ -2112,6 +2125,7 @@ export default {
               baiCli: this.cadCliBaiCli,
               cidCli: this.cadCliCidCli,
               sigUfs: this.cadCliSigUfs,
+              codRai: this.cadCliCodRai,
               fonCli: this.cadCliFonCli,
               emaCli: this.cadCliEmaCli,
               codRep: this.codRep
@@ -2499,7 +2513,7 @@ export default {
         this.itemEditando.qtdPed = this.newValue
         this.definirPreco(this.itemEditando)
         document.getElementById('closeModalEditarItem').click()
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
         this.finalizarEdicaoItem()
       }
     },
@@ -2538,14 +2552,14 @@ export default {
       this.itemEditando.vlrDsc = this.vlrDscIpd
       this.itemEditando.perDsc = this.perDscIpd
       document.getElementById('closeModalDescItem').click()
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
     },
 
-    limparDescontoItemFromModal() {
+    async limparDescontoItemFromModal() {
       this.limparDescontoItem(this.itemEditando)
       document.getElementById('closeModalDescItem').click()
-      this.atualizarValorTotalCompra()
+      await this.atualizarValorTotalCompra()
       this.finalizarEdicaoItem()
     },
 
@@ -2593,13 +2607,13 @@ export default {
       }
     },
 
-    async searchTabelasPreco() {
+    async searchTabelasPreco(openModal) {
       await this.initTabelasPreco()
       if (this.tabelasPreco.length > 0) {
         this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
           this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], true)
-        } else { // nao encontramos, abrir modal
+        } else if (openModal) { // nao encontramos, abrir modal
           this.openTabelasPrecoModal()
         }
       } else {
@@ -2627,7 +2641,7 @@ export default {
 
           document.getElementById('closeModalTabelasPreco').click()
           if (seguir) {
-            this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
+            await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
             
             if (this.pedidoSelected && atualizar) {
               this.status = 'a_precos'
@@ -3103,7 +3117,13 @@ export default {
 
     async enviarPedido(itens, limpar) {
       let pedido = null
-      const vlrDar = this.calcularVlrDar()
+      let vlrDar = 0
+      let perDs1 = 0
+      if (this.pedidoSelected && this.pedidoSelected.perDs1 !== '0,00') {
+        perDs1 = shared.toMoneyString(this.vlrDesc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
+      } else {
+        vlrDar = this.calcularVlrDar()
+      }
       const vlrTro = this.calcularVlrTro()
 
       if (this.pedidoSelected && (this.fecharVenda || this.gerarPedido)) {
@@ -3112,7 +3132,8 @@ export default {
           fechar: this.fecharVenda,
           gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
-          vlrDar: vlrDar,
+          vlrDar: perDs1,
+          perDs1: vlrDar,
           vlrTro: vlrTro,
           pagamentos: this.pagamentos
         }
@@ -3126,6 +3147,7 @@ export default {
           gerar: this.gerarPedido,
           vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
           vlrDar: vlrDar,
+          perDs1: perDs1,
           vlrTro: vlrTro,
           pagamentos: this.pagamentos,
           tnsPed: this.pedidoSelected ? this.pedidoSelected.codTns : ''
@@ -3254,18 +3276,18 @@ export default {
     //   const config = qz.configs.create(printer, {copies: copies})
 
     //   // Send print job
-    //   await qz.print(config, [{ type: "pdf", format: "base64", data: base64 }])
+    //   await qz.print(config, [{ type: "pdf", data: base64 }])
     // },
 
-    // base64ToByteArray(base64) {
-    //     let binary = atob(base64)
-    //     let len = binary.length
-    //     let bytes = new Uint8Array(len)
-    //     for (let i = 0; i < len; i++) {
-    //         bytes[i] = binary.charCodeAt(i)
-    //     }
-    //     return bytes
-    // },
+    base64ToByteArray(base64) {
+        let binary = atob(base64)
+        let len = binary.length
+        let bytes = new Uint8Array(len)
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binary.charCodeAt(i)
+        }
+        return bytes
+    },
 
     isOnVenda() {
       return (this.status === 'pedido' || this.status === 'nfce')
@@ -3371,7 +3393,7 @@ export default {
       return false
     },
 
-    limparDesconto(atualizar) {
+    async limparDesconto(atualizar) {
       if (this.isPedidoSelectedAndFechado() && atualizar) {
         this.showMsgPedidoFechado()
       } else {
@@ -3380,7 +3402,7 @@ export default {
         this.vlrComDesconto = ''
         this.vlrDescPedido = 0
         this.tipDesc = ''
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
 
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
@@ -3393,9 +3415,18 @@ export default {
 
     /* Pedidos */
     async initPedidos() {
-      const numPed = this.idePedPrv === '' ? null : this.idePedPrv
-      const codCli = this.codCli === '' ? this.paramsPDV.codCli : this.codCli
-      const codRep = this.codRep === '' ? null : this.codRep
+      let numPed
+      let codCli
+      let codRep
+      if (this.idePedPrv !== '') {
+        numPed = this.idePedPrv
+        codCli = null
+        codRep = null
+      } else {
+        numPed = null
+        codCli = this.codCli === '' ? null : this.codCli
+        codRep = this.codRep === '' ? null : this.codRep
+      }
       await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep, false)
       .then((response) => {
         this.pedidos = response.data
@@ -3484,10 +3515,15 @@ export default {
       if (this.depPad !== depPad) this.selectDeposito(depPad, false)
 
       const codTpr = pedido.itens[0].codTpr
-      if (this.codTpr !== codTpr) await this.selectTabelaPreco({codTpr: codTpr}, false)
+      if (this.tabelasPreco.length === 0) {
+        await this.searchTabelasPreco(false)
+      }
+      if (this.codTpr !== codTpr) {
+        await this.selectTabelaPreco({codTpr: codTpr}, false)
+      }
       
       this.preencherItensPedido(pedido)
-      this.preencherDadosDesconto(pedido)
+      await this.preencherDadosDesconto(pedido)
     },
 
     async carregarItensPedido(pedido) {
@@ -3518,14 +3554,21 @@ export default {
       })
     },
 
-    preencherDadosDesconto(pedido) {
-      if(pedido.vlrDar !== '0,00') {
-        this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
-        const vlrDarTmp = pedido.vlrDar.replace('-', '')
-        this.tipDesc = 'valor'
-        this.vlrDesc = vlrDarTmp
+    async preencherDadosDesconto(pedido) {
+      if(pedido.vlrDar !== '0,00' || pedido.perDs1 !== '0,00') {
+        if(pedido.vlrDar !== '0,00') {
+          this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
+          const vlrDarTmp = pedido.vlrDar.replace('-', '')
+          this.tipDesc = 'valor'
+          this.vlrDesc = vlrDarTmp
+        } else {
+          this.tipOpeVlr = 'desconto'
+          const vlrDarTmp = pedido.perDs1.replace('-', '')
+          this.tipDesc = 'porcentagem'
+          this.vlrDesc = vlrDarTmp
+        }
      
-        this.atualizarValorTotalCompra()
+        await this.atualizarValorTotalCompra()
       }
     },
 
