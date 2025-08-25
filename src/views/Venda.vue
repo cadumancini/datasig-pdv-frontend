@@ -3243,41 +3243,41 @@ export default {
     },
     
     // TODO: IF BASE64 WORKS, REMOVE THI
-    // async imprimirNfce(pdf, printer) {
-    //   await this.startQZConnection()
-
-    //   const response = await api.getNFCe(pdf)
-    //   const blob = new Blob([response.data], { type: 'application/pdf' })
-
-    //   // Convert Blob to Base64
-    //   const reader = new FileReader()
-    //   reader.readAsDataURL(blob)
-    //   reader.onloadend = async () => {
-    //       const base64PDF = reader.result.split(",")[1] // Strip metadata
-    //       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-          
-    //       // Configure the printer
-    //       const config = qz.configs.create(printer, {copies: copies})
-
-    //       // Send print job
-    //       await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
-    //   }
-    // },
-    
     async imprimirNfce(pdf, printer) {
       await this.startQZConnection()
 
-      const response = await api.getNFCeBase64(pdf)
-      const base64 = this.base64ToByteArray(response.data)
+      const response = await api.getNFCe(pdf)
+      const blob = new Blob([response.data], { type: 'application/pdf' })
 
-      const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-      
-      // Configure the printer
-      const config = qz.configs.create(printer, {copies: copies})
+      // Convert Blob to Base64
+      const reader = new FileReader()
+      reader.readAsDataURL(blob)
+      reader.onloadend = async () => {
+          const base64PDF = reader.result.split(",")[1] // Strip metadata
+          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+          
+          // Configure the printer
+          const config = qz.configs.create(printer, {copies: copies})
 
-      // Send print job
-      await qz.print(config, [{ type: "pdf", data: base64 }])
+          // Send print job
+          await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+      }
     },
+    
+    // async imprimirNfce(pdf, printer) {
+    //   await this.startQZConnection()
+
+    //   const response = await api.getNFCeBase64(pdf)
+    //   const base64 = this.base64ToByteArray(response.data)
+
+    //   const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+      
+    //   // Configure the printer
+    //   const config = qz.configs.create(printer, {copies: copies})
+
+    //   // Send print job
+    //   await qz.print(config, [{ type: "pdf", data: base64 }])
+    // },
 
     base64ToByteArray(base64) {
         let binary = atob(base64)
