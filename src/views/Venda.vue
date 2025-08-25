@@ -46,8 +46,8 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Tabela de Preço</span> 
               <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale disable-on-sale" 
-                type="text" v-on:keyup.enter="searchTabelasPreco" v-model="ideTpr">
-              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco"><font-awesome-icon icon="fa-search"/></button>
+                type="text" v-on:keyup.enter="searchTabelasPreco(true)" v-model="ideTpr">
+              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco(true)"><font-awesome-icon icon="fa-search"/></button>
               <button id="btnClearTpr" :disabled="this.codTpr === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
               <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
             </div>
@@ -2607,13 +2607,13 @@ export default {
       }
     },
 
-    async searchTabelasPreco() {
+    async searchTabelasPreco(openModal) {
       await this.initTabelasPreco()
       if (this.tabelasPreco.length > 0) {
         this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
           this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], true)
-        } else { // nao encontramos, abrir modal
+        } else if (openModal) { // nao encontramos, abrir modal
           this.openTabelasPrecoModal()
         }
       } else {
@@ -2641,7 +2641,7 @@ export default {
 
           document.getElementById('closeModalTabelasPreco').click()
           if (seguir) {
-            this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
+            await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
             
             if (this.pedidoSelected && atualizar) {
               this.status = 'a_precos'
@@ -3415,9 +3415,18 @@ export default {
 
     /* Pedidos */
     async initPedidos() {
-      const numPed = this.idePedPrv === '' ? null : this.idePedPrv
-      const codCli = this.codCli === '' ? this.paramsPDV.codCli : this.codCli
-      const codRep = this.codRep === '' ? null : this.codRep
+      let numPed
+      let codCli
+      let codRep
+      if (this.idePedPrv !== '') {
+        numPed = this.idePedPrv
+        codCli = null
+        codRep = null
+      } else {
+        numPed = null
+        codCli = this.codCli === '' ? null : this.codCli
+        codRep = this.codRep === '' ? null : this.codRep
+      }
       await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep, false)
       .then((response) => {
         this.pedidos = response.data
@@ -3506,10 +3515,15 @@ export default {
       if (this.depPad !== depPad) this.selectDeposito(depPad, false)
 
       const codTpr = pedido.itens[0].codTpr
-      if (this.codTpr !== codTpr) await this.selectTabelaPreco({codTpr: codTpr}, false)
+      if (this.tabelasPreco.length === 0) {
+        await this.searchTabelasPreco(false)
+      }
+      if (this.codTpr !== codTpr) {
+        await this.selectTabelaPreco({codTpr: codTpr}, false)
+      }
       
       this.preencherItensPedido(pedido)
-      this.preencherDadosDesconto(pedido)
+      await this.preencherDadosDesconto(pedido)
     },
 
     async carregarItensPedido(pedido) {
