@@ -2612,7 +2612,8 @@ export default {
       if (this.tabelasPreco.length > 0) {
         this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
-          this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], true)
+          const atualizar = !openModal ? false : true
+          this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], atualizar)
         } else if (openModal) { // nao encontramos, abrir modal
           this.openTabelasPrecoModal()
         }
@@ -2635,7 +2636,7 @@ export default {
           this.showMsgPedidoFechado()
         } else {
           let seguir = true
-          if (this.pedidoSelected && atualizar) {
+          if (this.pedidoSelected) {
             seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
           }
 
@@ -2643,13 +2644,15 @@ export default {
           if (seguir) {
             await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
             
-            if (this.pedidoSelected && atualizar) {
+            if (this.pedidoSelected) {
               this.status = 'a_precos'
               this.atualizarPrecosCarrinho()
               this.status = ''
-              this.fecharVenda = false
-              this.gerarPedido = false
-              await this.enviarVenda(false)
+              if (atualizar) {
+                this.fecharVenda = false
+                this.gerarPedido = false
+                await this.enviarVenda(false)
+              }
             }
           }
         }
