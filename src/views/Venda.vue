@@ -2613,7 +2613,7 @@ export default {
         this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
           const atualizar = !openModal ? false : true
-          this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], atualizar)
+          await this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], atualizar)
         } else if (openModal) { // nao encontramos, abrir modal
           this.openTabelasPrecoModal()
         }
@@ -2635,20 +2635,16 @@ export default {
         if (this.isPedidoSelectedAndFechado() && atualizar) {
           this.showMsgPedidoFechado()
         } else {
-          let seguir = true
-          if (this.pedidoSelected) {
-            seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
-          }
-
           document.getElementById('closeModalTabelasPreco').click()
-          if (seguir) {
-            await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
-            
-            if (this.pedidoSelected) {
-              this.status = 'a_precos'
-              this.atualizarPrecosCarrinho()
-              this.status = ''
+          
+          await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
+          
+          if (this.pedidoSelected) {
+            if(this.checarItensCarrinhoNovaTabela()) {
               if (atualizar) {
+                this.status = 'a_precos'
+                this.atualizarPrecosCarrinho()
+                this.status = ''
                 this.fecharVenda = false
                 this.gerarPedido = false
                 await this.enviarVenda(false)
@@ -2670,25 +2666,15 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
-    async checarItensCarrinhoNovaTabela(codTpr) {
-      let allProductsPresent = true
-      await api.getProdutosTabelaPreco(codTpr)
-      .then((response) => {
-        const produtosTabela = response.data
-        for(let i = 0; i < this.itensCarrinho.length; i++) {
-          if (!produtosTabela.some(produto => produto.codPro === this.itensCarrinho[i].codPro 
-                                    && produto.codDer === this.itensCarrinho[i].codDer)) {
-            alert('Existem produtos no carrinho que não estão presentes na tabela de preço selecionada. Favor selecionar uma tabela válida!')
-            allProductsPresent = false
-            break
-          }
+    async checarItensCarrinhoNovaTabela() {
+      for(let i = 0; i < this.itensCarrinho.length; i++) {
+        if (!this.produtosTabelaPreco.some(produto => produto.codPro === this.itensCarrinho[i].codPro 
+                                  && produto.codDer === this.itensCarrinho[i].codDer)) {
+          alert('Existem produtos no carrinho que não estão presentes na tabela de preço selecionada. Favor selecionar uma tabela válida!')
+          return false
         }
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-      return allProductsPresent
+      }
+      return true
     },
 
     atualizarPrecosCarrinho() {
@@ -2702,7 +2688,7 @@ export default {
       this.produtosTabelaPreco = []
       const codTpr = this.codTpr
       await api.getProdutosTabelaPreco(codTpr)
-      .then(async (response) => {
+      .then((response) => {
         this.produtosTabelaPreco = response.data
       })
       .catch((err) => {
@@ -3524,10 +3510,14 @@ export default {
       }
       if (this.codTpr !== codTpr) {
         await this.selectTabelaPreco({codTpr: codTpr}, false)
+        .then(async () => {
+          this.preencherItensPedido(pedido)
+          await this.preencherDadosDesconto(pedido)
+        })
+      } else {
+        this.preencherItensPedido(pedido)
+        await this.preencherDadosDesconto(pedido)
       }
-      
-      this.preencherItensPedido(pedido)
-      await this.preencherDadosDesconto(pedido)
     },
 
     async carregarItensPedido(pedido) {
