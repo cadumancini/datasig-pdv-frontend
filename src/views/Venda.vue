@@ -2612,15 +2612,14 @@ export default {
       if (this.tabelasPreco.length > 0) {
         this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
-          const atualizar = !openModal ? false : true
-          await this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], atualizar)
+          await this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], openModal)
         } else if (openModal) { // nao encontramos, abrir modal
           this.openTabelasPrecoModal()
         }
       } else {
         if (this.paramsPDV.codTpr !== '') {
           alert('Nenhuma tabela encontrada para o representante. Utilizando tabela padrão.')
-          this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr}, true)
+          await this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr}, openModal)
         } else {
           alert('Nenhuma tabela encontrada para o representante!')
         }
