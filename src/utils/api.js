@@ -33,7 +33,7 @@ var functions = {
   putCliente(cliente) {
     const body = JSON.stringify(cliente)
     const headers = { headers: { 'Content-Type': 'application/json' } }
-    return axios.put(urlBase + '/clientes?token=' + sessionStorage.getItem('token'), body, headers)
+    return axios.post(urlBase + '/clientes?token=' + sessionStorage.getItem('token'), body, headers)
   },
   getTabelasPreco(codRep) {
     return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)
@@ -50,10 +50,10 @@ var functions = {
   putPedido(pedido) {
     const body = JSON.stringify(pedido)
     const headers = { headers: { 'Content-Type': 'application/json' } }
-    return axios.put(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
+    return axios.post(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
   },
   putNFCe(numPed) {
-    return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+    return axios.post(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
   getNFCe(nfce) {
     return axios.get(urlBase + '/nfce/' + nfce + '/pdf?token=' + sessionStorage.getItem('token'), { responseType: 'blob' })
@@ -104,10 +104,10 @@ var functions = {
     return axios.get(url)
   },
   cancelarNFCe(codSnf, numNfv, jusCan) {
-    return axios.put(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
+    return axios.post(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },
   inutilizarNFCe(codSnf, numNfv, jusCan) {
-    return axios.put(urlBase + '/nfce/inutilizar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
+    return axios.post(urlBase + '/nfce/inutilizar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },
   consultarEDocs(codSnf, numNfv) {
     return axios.get(urlBase + '/nfce/edocs?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv)

@@ -2612,7 +2612,8 @@ export default {
       if (this.tabelasPreco.length > 0) {
         this.filtrarTabelasPreco(this.ideTpr)
         if (this.tabelasPrecoFiltrados.length === 1) { // encontramos, selecionar
-          this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], true)
+          const atualizar = !openModal ? false : true
+          await this.selectTabelaPreco(this.tabelasPrecoFiltrados[0], atualizar)
         } else if (openModal) { // nao encontramos, abrir modal
           this.openTabelasPrecoModal()
         }
@@ -2634,22 +2635,20 @@ export default {
         if (this.isPedidoSelectedAndFechado() && atualizar) {
           this.showMsgPedidoFechado()
         } else {
-          let seguir = true
-          if (this.pedidoSelected && atualizar) {
-            seguir = await this.checarItensCarrinhoNovaTabela(row.codTpr)
-          }
-
           document.getElementById('closeModalTabelasPreco').click()
-          if (seguir) {
-            await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
-            
-            if (this.pedidoSelected && atualizar) {
-              this.status = 'a_precos'
-              this.atualizarPrecosCarrinho()
-              this.status = ''
-              this.fecharVenda = false
-              this.gerarPedido = false
-              await this.enviarVenda(false)
+          
+          await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
+          
+          if (this.pedidoSelected) {
+            if(this.checarItensCarrinhoNovaTabela()) {
+              if (atualizar) {
+                this.status = 'a_precos'
+                this.atualizarPrecosCarrinho()
+                this.status = ''
+                this.fecharVenda = false
+                this.gerarPedido = false
+                await this.enviarVenda(false)
+              }
             }
           }
         }
@@ -2667,25 +2666,15 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'auto'
     },
 
-    async checarItensCarrinhoNovaTabela(codTpr) {
-      let allProductsPresent = true
-      await api.getProdutosTabelaPreco(codTpr)
-      .then((response) => {
-        const produtosTabela = response.data
-        for(let i = 0; i < this.itensCarrinho.length; i++) {
-          if (!produtosTabela.some(produto => produto.codPro === this.itensCarrinho[i].codPro 
-                                    && produto.codDer === this.itensCarrinho[i].codDer)) {
-            alert('Existem produtos no carrinho que não estão presentes na tabela de preço selecionada. Favor selecionar uma tabela válida!')
-            allProductsPresent = false
-            break
-          }
+    async checarItensCarrinhoNovaTabela() {
+      for(let i = 0; i < this.itensCarrinho.length; i++) {
+        if (!this.produtosTabelaPreco.some(produto => produto.codPro === this.itensCarrinho[i].codPro 
+                                  && produto.codDer === this.itensCarrinho[i].codDer)) {
+          alert('Existem produtos no carrinho que não estão presentes na tabela de preço selecionada. Favor selecionar uma tabela válida!')
+          return false
         }
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-      return allProductsPresent
+      }
+      return true
     },
 
     atualizarPrecosCarrinho() {
@@ -2699,7 +2688,7 @@ export default {
       this.produtosTabelaPreco = []
       const codTpr = this.codTpr
       await api.getProdutosTabelaPreco(codTpr)
-      .then(async (response) => {
+      .then((response) => {
         this.produtosTabelaPreco = response.data
       })
       .catch((err) => {
@@ -3243,51 +3232,52 @@ export default {
     },
     
     // TODO: IF BASE64 WORKS, REMOVE THI
-    async imprimirNfce(pdf, printer) {
-      await this.startQZConnection()
-
-      const response = await api.getNFCe(pdf)
-      const blob = new Blob([response.data], { type: 'application/pdf' })
-
-      // Convert Blob to Base64
-      const reader = new FileReader()
-      reader.readAsDataURL(blob)
-      reader.onloadend = async () => {
-          const base64PDF = reader.result.split(",")[1] // Strip metadata
-          const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-          
-          // Configure the printer
-          const config = qz.configs.create(printer, {copies: copies})
-
-          // Send print job
-          await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
-      }
-    },
-    
     // async imprimirNfce(pdf, printer) {
     //   await this.startQZConnection()
 
-    //   const response = await api.getNFCeBase64(pdf)
-    //   const base64 = this.base64ToByteArray(response.data)
+    //   const response = await api.getNFCe(pdf)
+    //   const blob = new Blob([response.data], { type: 'application/pdf' })
 
-    //   const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-      
-    //   // Configure the printer
-    //   const config = qz.configs.create(printer, {copies: copies})
+    //   // Convert Blob to Base64
+    //   const reader = new FileReader()
+    //   reader.readAsDataURL(blob)
+    //   reader.onloadend = async () => {
+    //       const base64PDF = reader.result.split(",")[1] // Strip metadata
+    //       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+          
+    //       // Configure the printer
+    //       const config = qz.configs.create(printer, {copies: copies})
 
-    //   // Send print job
-    //   await qz.print(config, [{ type: "pdf", data: base64 }])
+    //       // Send print job
+    //       await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
+    //   }
     // },
+    
+    async imprimirNfce(pdf, printer) {
+      await this.startQZConnection()
 
-    base64ToByteArray(base64) {
-        let binary = atob(base64)
-        let len = binary.length
-        let bytes = new Uint8Array(len)
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binary.charCodeAt(i)
-        }
-        return bytes
+      const response = await api.getNFCeBase64(pdf)
+      // const base64 = this.base64ToByteArray(response.data)
+      const base64 = response.data
+
+      const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
+      
+      // Configure the printer
+      const config = qz.configs.create(printer, {copies: copies})
+
+      // Send print job
+      await qz.print(config, [{ type: 'pdf', format: 'base64', data: base64 }])
     },
+
+    // base64ToByteArray(base64) {
+    //     let binary = atob(base64)
+    //     let len = binary.length
+    //     let bytes = new Uint8Array(len)
+    //     for (let i = 0; i < len; i++) {
+    //         bytes[i] = binary.charCodeAt(i)
+    //     }
+    //     return bytes
+    // },
 
     isOnVenda() {
       return (this.status === 'pedido' || this.status === 'nfce')
@@ -3520,10 +3510,14 @@ export default {
       }
       if (this.codTpr !== codTpr) {
         await this.selectTabelaPreco({codTpr: codTpr}, false)
+        .then(async () => {
+          this.preencherItensPedido(pedido)
+          await this.preencherDadosDesconto(pedido)
+        })
+      } else {
+        this.preencherItensPedido(pedido)
+        await this.preencherDadosDesconto(pedido)
       }
-      
-      this.preencherItensPedido(pedido)
-      await this.preencherDadosDesconto(pedido)
     },
 
     async carregarItensPedido(pedido) {
