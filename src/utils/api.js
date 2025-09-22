@@ -30,7 +30,7 @@ var functions = {
     url += cgcCpf !== null ? '&cgcCpf=' + cgcCpf : ''
     return axios.get(url)
   },
-  putCliente(cliente) {
+  postCliente(cliente) {
     const body = JSON.stringify(cliente)
     const headers = { headers: { 'Content-Type': 'application/json' } }
     return axios.post(urlBase + '/clientes?token=' + sessionStorage.getItem('token'), body, headers)
@@ -47,12 +47,13 @@ var functions = {
   getFormasPagto() {
     return axios.get(urlBase + '/pagamentos/formas?token=' + sessionStorage.getItem('token'))
   },
-  putPedido(pedido) {
+  postPedido(pedido) {
     const body = JSON.stringify(pedido)
     const headers = { headers: { 'Content-Type': 'application/json' } }
-    return axios.post(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
+    // return axios.post(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
+    return axios.post(urlBase + '/nfce/no-order?token=' + sessionStorage.getItem('token'), body, headers)
   },
-  putNFCe(numPed) {
+  postNFCe(numPed) {
     return axios.post(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
   getNFCe(nfce) {

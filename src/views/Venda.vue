@@ -2105,7 +2105,7 @@ export default {
         }
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
         this.setEverythingDisabled('cadastro-cliente', true)
-        await api.putCliente(cliente)
+        await api.postCliente(cliente)
           .then((response) => {
             alert('Cliente cadastrado com sucesso.')    
             this.clientes = []
@@ -3087,6 +3087,7 @@ export default {
           obsIpd: item.obsIpd,
           codDep: item.codDep,
           tnsPed: item.tnsPed,
+          tnsNfv: item.tnsNfv,
           excluir: false
         }
         if (item.tipOpeVlrIpd === 'acrescimo') {
@@ -3149,7 +3150,7 @@ export default {
       this.status = 'pedido'
       const operacao = this.pedidoSelected ? 'alterado' : 'criado'
 
-      await api.putPedido(pedido)
+      await api.postPedido(pedido)
         .then(async (response) => {
           const respostaPedido = response.data
           if (this.fecharVenda) {
@@ -3175,7 +3176,7 @@ export default {
     },
 
     async gerarNFCe(numPed) {
-      await api.putNFCe(numPed)
+      await api.postNFCe(numPed)
         .then((response) => {
           const resposta = response.data
           const msg = this.isPedidoSelectedAndFechado() ? 'NFC-e gerada: ' + resposta.nfce + '.' : 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
