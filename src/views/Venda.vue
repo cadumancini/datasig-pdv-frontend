@@ -203,19 +203,26 @@
           <div class="row margin-y-fields">
             <div class="col">
               <div class="float-end mx-2">
-                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true)" 
+                <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, false)" 
                   :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
                 <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
                 <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true)"
+                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, true)" 
+                  :disabled="!this.itensCarrinho.length">Gerar Pedido com NFC (F4)</button>
+                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
+                <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
+              </div>
+              <div class="float-end mx-2">
+                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true, true)"
                   :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Pedido (F9)</button>
               </div>
               <div class="float-end mx-2">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false)" v-if="!this.pedidoSelected"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Orçamento (F4)</button>
+                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
+                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Orçamento (Alt + Z)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -1132,6 +1139,7 @@ export default {
       },
       fecharVenda: false,
       gerarPedido: false,
+      comPedido: false,
       msgConfirmacao: '',
       tipOpeVlr: 'desconto',
       tipDesc: '',
@@ -1171,19 +1179,20 @@ export default {
       },
       atalhos: [
         { codAta: 0, tecAta: 'F2', desAta: 'Produto' },
-        { codAta: 1, tecAta: 'F4', desAta: 'Gerar Orçamento' },
+        { codAta: 1, tecAta: 'Alt + Z', desAta: 'Gerar Orçamento' },
         { codAta: 2, tecAta: 'F9', desAta: 'Gerar Pedido' },
-        { codAta: 3, tecAta: 'F8', desAta: 'Gerar NFC' },
-        { codAta: 4, tecAta: 'Alt + A', desAta: 'Pedido' },
-        { codAta: 5, tecAta: 'Alt + R', desAta: 'Representante' },
-        { codAta: 6, tecAta: 'Alt + T', desAta: 'Tabela de Preço' },
-        { codAta: 7, tecAta: 'Alt + C', desAta: 'Cliente' },
-        { codAta: 8, tecAta: 'Alt + O', desAta: 'Depósito' },
-        { codAta: 9, tecAta: 'Alt + X', desAta: 'Editar carrinho' },
-        { codAta: 10, tecAta: 'Alt + Q', desAta: 'Alterar Quantidade do Item' },
-        { codAta: 11, tecAta: 'Alt + B', desAta: 'Observação do Item' },
-        { codAta: 12, tecAta: 'Alt + S', desAta: 'Desconto (se editando carrinho, vale pro item, se não, para o total)' },
-        { codAta: 13, tecAta: 'Delete', desAta: 'Remover Item' }
+        { codAta: 3, tecAta: 'F4', desAta: 'Gerar Pedido com NFC' },
+        { codAta: 4, tecAta: 'F8', desAta: 'Gerar NFC' },
+        { codAta: 5, tecAta: 'Alt + A', desAta: 'Pedido' },
+        { codAta: 6, tecAta: 'Alt + R', desAta: 'Representante' },
+        { codAta: 7, tecAta: 'Alt + T', desAta: 'Tabela de Preço' },
+        { codAta: 8, tecAta: 'Alt + C', desAta: 'Cliente' },
+        { codAta: 9, tecAta: 'Alt + O', desAta: 'Depósito' },
+        { codAta: 10, tecAta: 'Alt + X', desAta: 'Editar carrinho' },
+        { codAta: 11, tecAta: 'Alt + Q', desAta: 'Alterar Quantidade do Item' },
+        { codAta: 12, tecAta: 'Alt + B', desAta: 'Observação do Item' },
+        { codAta: 13, tecAta: 'Alt + S', desAta: 'Desconto (se editando carrinho, vale pro item, se não, para o total)' },
+        { codAta: 14, tecAta: 'Delete', desAta: 'Remover Item' }
       ],
       pressedKeys: null,
       print: false,
@@ -1398,7 +1407,7 @@ export default {
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
-        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido)
+        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido, this.comPedido)
       })
     },
 
@@ -1417,6 +1426,7 @@ export default {
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('S')) document.getElementById('btnDesc' + this.tableIndexCar).click()
           } else {
             if (this.pressedKeys.has('ALT') && this.pressedKeys.has('A')) this.focusPedido()
+            else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('Z')) document.getElementById('btnInserirPedido').click()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('R')) this.focusRepresentante()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('T')) this.focusTabelaPreco()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('C')) this.focusCliente()
@@ -1450,9 +1460,9 @@ export default {
             }
           } else {
             if (this.pressedKeys.has('F2')) this.focusProduto()
-            else if (this.pressedKeys.has('F4')) document.getElementById('btnInserirPedido').click()
-            else if (this.pressedKeys.has('F8')) document.getElementById('btnFinalizarVenda').click()
+            else if (this.pressedKeys.has('F4')) document.getElementById('btnFinalizarVenda').click()
             else if (this.pressedKeys.has('F9')) document.getElementById('btnGerarPedido').click()
+            else if (this.pressedKeys.has('F8')) document.getElementById('btnFinalizarVendaSemPedido').click()
           }
 
           if (this.pressedKeys.has('ESCAPE')) {
@@ -2804,10 +2814,11 @@ export default {
       }
     },
 
-    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido) {
+    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido, comPedido) {
       this.finalizandoVenda = finalizandoVenda
       this.fecharVenda = fechar
       this.gerarPedido = gerarPedido
+      this.comPedido = comPedido
       if (this.isPedidoSelectedAndFechado()) {
         document.getElementById('btnOpenConfirmarNFCeModal').click()
       }
@@ -3150,7 +3161,7 @@ export default {
       this.status = 'pedido'
       const operacao = this.pedidoSelected ? 'alterado' : 'criado'
 
-      await api.postPedido(pedido)
+      await api.postPedido(pedido, this.comPedido)
         .then(async (response) => {
           const respostaPedido = response.data
           if (this.fecharVenda) {
