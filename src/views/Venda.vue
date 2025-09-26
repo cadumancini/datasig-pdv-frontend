@@ -3158,19 +3158,29 @@ export default {
       this.setEverythingDisabled('disable-on-sale', true)
       shared.toggleHeaderLinksDisabled(true)
 
-      this.status = 'pedido'
+      this.status = this.comPedido ? 'pedido' : 'nfce'
       const operacao = this.pedidoSelected ? 'alterado' : 'criado'
 
       await api.postPedido(pedido, this.comPedido)
         .then(async (response) => {
           const respostaPedido = response.data
-          if (this.fecharVenda) {
-            await this.callNFCe(respostaPedido.numPed)
+          if (this.comPedido) {
+            if (this.fecharVenda) {
+              await this.callNFCe(respostaPedido.numPed)
+            } else {
+              document.getElementById('closeModalConfirmaVenda').click()
+              if (limpar) {
+                alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
+                this.limparCamposAposVenda()
+              }
+            }
           } else {
-            document.getElementById('closeModalConfirmaVenda').click()
-            if (limpar) {
-              alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
+            const msg = 'NFC-e gerada: ' + respostaPedido.nfce + '.'
+            if (this.paramsPDV.indImp !== 'S') {
               this.limparCamposAposVenda()
+              if(this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
+            } else {
+              this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer)
             }
           }
         })
@@ -3242,28 +3252,6 @@ export default {
       this.focusProduto()
     },
     
-    // TODO: IF BASE64 WORKS, REMOVE THI
-    // async imprimirNfce(pdf, printer) {
-    //   await this.startQZConnection()
-
-    //   const response = await api.getNFCe(pdf)
-    //   const blob = new Blob([response.data], { type: 'application/pdf' })
-
-    //   // Convert Blob to Base64
-    //   const reader = new FileReader()
-    //   reader.readAsDataURL(blob)
-    //   reader.onloadend = async () => {
-    //       const base64PDF = reader.result.split(",")[1] // Strip metadata
-    //       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-          
-    //       // Configure the printer
-    //       const config = qz.configs.create(printer, {copies: copies})
-
-    //       // Send print job
-    //       await qz.print(config, [{ type: "pdf", format: "base64", data: base64PDF }])
-    //   }
-    // },
-    
     async imprimirNfce(pdf, printer) {
       await this.startQZConnection()
 
@@ -3279,16 +3267,6 @@ export default {
       // Send print job
       await qz.print(config, [{ type: 'pdf', format: 'base64', data: base64 }])
     },
-
-    // base64ToByteArray(base64) {
-    //     let binary = atob(base64)
-    //     let len = binary.length
-    //     let bytes = new Uint8Array(len)
-    //     for (let i = 0; i < len; i++) {
-    //         bytes[i] = binary.charCodeAt(i)
-    //     }
-    //     return bytes
-    // },
 
     isOnVenda() {
       return (this.status === 'pedido' || this.status === 'nfce')
