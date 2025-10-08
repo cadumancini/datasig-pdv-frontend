@@ -613,8 +613,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <input type="number" maxLength="4"
-            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};"
+            <input type="text" min="0.0001" max="999.9999" step="0.0001" @input="validateQuantidade"
             autocomplete="off" class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue" placeholder="Digite para alterar o valor"
             v-on:keyup.enter="alterarQuantidadeItem">
           </div>
@@ -2517,6 +2516,7 @@ export default {
     },  
 
     async alterarQuantidadeItem() {
+      this.newValue = Number(this.newValue)
       if (this.newValue > 9999) this.newValue = 9999
       if (this.newValue === 0) alert('A quantidade não pode ser zero!')
       else {
@@ -2526,6 +2526,28 @@ export default {
         await this.atualizarValorTotalCompra()
         this.finalizarEdicaoItem()
       }
+    },
+
+    validateQuantidade(event) {
+      let value = event.target.value
+      value = value.replace(',', '.')
+      value = value.replace(/[^0-9.]/g, '')
+
+      const parts = value.split('.')
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('')
+      }
+
+      let [int, dec] = value.split('.')
+      if (int && int.length > 3) int = int.slice(0, 3)
+      if (dec) dec = dec.slice(0, 4)
+
+      value = dec !== undefined ? int + '.' + dec : int
+
+      if (Number(value) > 999.9999) value = '999.9999'
+
+      event.target.value = value
+      this.newValue = value
     },
 
     editarObsItem(item) {
