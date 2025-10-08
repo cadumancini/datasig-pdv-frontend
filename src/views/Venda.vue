@@ -204,7 +204,7 @@
             <div class="col">
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botNfc === 'S'">
                 <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, false)" 
-                  :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
                 <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
                 <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
@@ -3184,7 +3184,7 @@ export default {
               this.limparCamposAposVenda()
               if(this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
             } else {
-              this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer)
+              if(this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer)
             }
           }
         })
@@ -3205,11 +3205,12 @@ export default {
         .then((response) => {
           const resposta = response.data
           const msg = this.isPedidoSelectedAndFechado() ? 'NFC-e gerada: ' + resposta.nfce + '.' : 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
+          
           if (this.paramsPDV.indImp !== 'S') {
             this.limparCamposAposVenda()
             if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
           } else {
-            this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer)
+            if(this.print) this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer)
           }
         })
         .catch((err) => {
