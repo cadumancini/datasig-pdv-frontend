@@ -204,25 +204,24 @@
             <div class="col">
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botNfc === 'S'">
                 <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, false)" 
-                  :disabled="!this.itensCarrinho.length || this.pedidoSelected">Gerar NFC (F8)</button>
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
-                <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
-                <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModalSemPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPnf === 'S'">
                 <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, true)" 
-                  :disabled="!this.itensCarrinho.length">Gerar Pedido com NFC (F4)</button>
+                  :disabled="!this.itensCarrinho.length || isOnVenda()">Gerar Pedido com NFC (F4)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
-                <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModalComPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
                 <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
                 <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true, true)"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Pedido (F9)</button>
+                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado() || isOnVenda()">Gerar Pedido (F9)</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botOrc === 'S'">
                 <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Orçamento (Alt + Z)</button>
+                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado() || isOnVenda()">Gerar Orçamento (Alt + Z)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -2858,6 +2857,7 @@ export default {
       document.getElementById('closeModalConfirmaNFCe').click()
       this.status = 'nfce'
       await this.gerarNFCe(numPed)
+      this.status = ''
     },
 
     openFinalizarVendaModal() {
@@ -3206,7 +3206,7 @@ export default {
               this.limparCamposAposVenda()
               if(this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
             } else {
-              if(this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer)
+              if(this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer, false)
             }
           }
         })
@@ -3232,7 +3232,7 @@ export default {
             this.limparCamposAposVenda()
             if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
           } else {
-            if(this.print) this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer)
+            if(this.print) this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer, true)
           }
         })
         .catch((err) => {
@@ -3249,12 +3249,13 @@ export default {
         })
     },
 
-    openImprimirNFCeModal(msg, pdfFile, printer) {
+    openImprimirNFCeModal(msg, pdfFile, printer, comPedido) {
       this.paramsConfirmacaoImpressao.msg = msg + ' Deseja imprimir a NFC-e?'
       this.paramsConfirmacaoImpressao.pdfFile = pdfFile
       this.paramsConfirmacaoImpressao.printer = printer
       
-      document.getElementById('btnOpenConfirmarImpressaoModal').click()
+      const btnId = comPedido ? 'btnOpenConfirmarImpressaoModalComPedido' : 'btnOpenConfirmarImpressaoModalSemPedido'
+      document.getElementById(btnId).click()
       
       const modalElement = document.getElementById('confirmaImpressaoModal')
       modalElement.addEventListener('shown.bs.modal', () => {
