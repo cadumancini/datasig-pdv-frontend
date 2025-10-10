@@ -1731,6 +1731,7 @@ export default {
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
           this.gerarPedido = false
+          this.comPedido = true
           await this.enviarVenda(false)
         }
       }
@@ -1869,6 +1870,7 @@ export default {
         if (this.pedidoSelected) {
           this.fecharVenda = false
           this.gerarPedido = false
+          this.comPedido = true
           await this.enviarVenda(false)
         }
       }
@@ -2250,6 +2252,7 @@ export default {
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
           this.gerarPedido = false
+          this.comPedido = true
           await this.enviarVenda(false)
           this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
         }
@@ -2605,6 +2608,7 @@ export default {
       if (this.itemEditando.seqIpd > 0) {
         this.fecharVenda = false
         this.gerarPedido = false
+        this.comPedido = true
         await this.enviarVenda(false)
       }
       this.itemEditando = null  
@@ -2677,6 +2681,7 @@ export default {
                 this.status = ''
                 this.fecharVenda = false
                 this.gerarPedido = false
+                this.comPedido = true
                 await this.enviarVenda(false)
               }
             }
