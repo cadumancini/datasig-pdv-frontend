@@ -370,7 +370,7 @@ export default {
       const filterTipo = this.tipo !== '' ? this.tipo : null
       const filterDatIni = this.datIni !== '' ? this.datIni.toLocaleDateString('pt-BR') : null
       const filterDatFim = this.datFim !== '' ? this.datFim.toLocaleDateString('pt-BR') : null
-      await api.getPedidos(filterTipo, filterSituacao, filterNumPed, filterDatIni, filterDatFim, 'DESC')
+      await api.getPedidos(filterTipo, filterSituacao, filterNumPed, filterDatIni, filterDatFim, 'DESC', null, null, true)
       .then((response) => {
         this.pedidos = response.data
         if (!this.pedidos.length) {

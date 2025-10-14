@@ -30,10 +30,10 @@ var functions = {
     url += cgcCpf !== null ? '&cgcCpf=' + cgcCpf : ''
     return axios.get(url)
   },
-  putCliente(cliente) {
+  postCliente(cliente) {
     const body = JSON.stringify(cliente)
     const headers = { headers: { 'Content-Type': 'application/json' } }
-    return axios.put(urlBase + '/clientes?token=' + sessionStorage.getItem('token'), body, headers)
+    return axios.post(urlBase + '/clientes?token=' + sessionStorage.getItem('token'), body, headers)
   },
   getTabelasPreco(codRep) {
     return axios.get(urlBase + '/representantes/tabelasPreco?token=' + sessionStorage.getItem('token') + '&codRep=' + codRep)
@@ -47,16 +47,20 @@ var functions = {
   getFormasPagto() {
     return axios.get(urlBase + '/pagamentos/formas?token=' + sessionStorage.getItem('token'))
   },
-  putPedido(pedido) {
+  postPedido(pedido, comPedido) {
     const body = JSON.stringify(pedido)
     const headers = { headers: { 'Content-Type': 'application/json' } }
-    return axios.put(urlBase + '/pedidos?token=' + sessionStorage.getItem('token'), body, headers)
+    const endpoint = comPedido ? '/pedidos' : '/nfce/no-order'
+    return axios.post(urlBase + endpoint + '?token=' + sessionStorage.getItem('token'), body, headers)
   },
-  putNFCe(numPed) {
-    return axios.put(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
+  postNFCe(numPed) {
+    return axios.post(urlBase + '/nfce?token=' + sessionStorage.getItem('token') + '&numPed=' + numPed)
   },
   getNFCe(nfce) {
-    return axios.get(urlBase + '/nfce/pdf?token=' + sessionStorage.getItem('token') + '&nfce=' + nfce, { responseType: 'blob' })
+    return axios.get(urlBase + '/nfce/' + nfce + '/pdf?token=' + sessionStorage.getItem('token'), { responseType: 'blob' })
+  },
+  getNFCeBase64(nfce) {
+    return axios.get(urlBase + '/nfce/' + nfce + '/base64?token=' + sessionStorage.getItem('token'))
   },
   deleteItem(pedido, item) {
     return axios.delete(urlBase + '/pedidos/item?token=' + sessionStorage.getItem('token') + '&numPed=' + pedido + '&seqIpd=' + item)
@@ -72,15 +76,21 @@ var functions = {
     url += nomUsu !== null ? '&nomUsu=' + nomUsu : ''
     return axios.get(url)
   },
-  getPedidos(tipo, situacao, numPed, datIni, datFim, order) {
+  getPedidos(tipo, situacao, numPed, datIni, datFim, order, codCli, codRep, detalhado) {
     let url = urlBase + '/pedidos?token=' + sessionStorage.getItem('token')
     url += '&tipo=' + tipo
     url += '&situacao=' + situacao
     url += '&order=' + order
+    url += '&detalhado=' + detalhado
     url += numPed !== null ? '&numPed=' + numPed : ''
     url += datIni !== null ? '&datIni=' + datIni : ''
     url += datFim !== null ? '&datFim=' + datFim : ''
+    url += codCli !== null ? '&codCli=' + codCli : ''
+    url += codRep !== null ? '&codRep=' + codRep : ''
     return axios.get(url)
+  },
+  getPedidoDetalhes(numPed) {
+    return axios.get(urlBase + '/pedidos/' + numPed + '?token=' + sessionStorage.getItem('token'))
   },
   getTitulos(numNfv, sitTit, sitDoe, datIni, datFim, codRep, codFpg, nomUsu) {
     let url = urlBase + '/titulo?token=' + sessionStorage.getItem('token')
@@ -95,10 +105,10 @@ var functions = {
     return axios.get(url)
   },
   cancelarNFCe(codSnf, numNfv, jusCan) {
-    return axios.put(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
+    return axios.post(urlBase + '/nfce/cancelar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },
   inutilizarNFCe(codSnf, numNfv, jusCan) {
-    return axios.put(urlBase + '/nfce/inutilizar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
+    return axios.post(urlBase + '/nfce/inutilizar?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv + '&jusCan=' + jusCan)
   },
   consultarEDocs(codSnf, numNfv) {
     return axios.get(urlBase + '/nfce/edocs?token=' + sessionStorage.getItem('token') + '&codSnf=' + codSnf + '&numNfv=' + numNfv)
@@ -130,7 +140,7 @@ var functions = {
   calcularItemComDesconto(vlrPro, vlrDsc) {
     let url = urlBase + '/pedidos/calcularItemComDesconto?token=' + sessionStorage.getItem('token') + '&vlrPro=' + vlrPro + '&vlrDsc=' + vlrDsc
     return axios.get(url)
-  },
+  }
 }
 
 export default functions
