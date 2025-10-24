@@ -203,26 +203,25 @@
           <div class="row margin-y-fields">
             <div class="col">
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botNfc === 'S'">
-                <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, false)" 
-                  :disabled="!this.itensCarrinho.length">Gerar NFC (F8)</button>
+                <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, true, true, false)" 
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
-                <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
-                <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModalSemPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPnf === 'S'">
-                <button id="btnFinalizarVenda" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, true, true, true)" 
-                  :disabled="!this.itensCarrinho.length">Gerar Pedido com NFC (F4)</button>
+                <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, true, true, true)" 
+                  :disabled="!this.itensCarrinho.length || isOnVenda()">Gerar Pedido com NFC (F4)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
-                <button id="btnOpenConfirmarImpressaoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModalComPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
                 <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
-                <button id="btnGerarPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, true, true)"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Pedido (F9)</button>
+                <button id="btnGerarPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false, true, true)"
+                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado() || isOnVenda()">Gerar Pedido (F9)</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botOrc === 'S'">
-                <button id="btnInserirPedido" class="btn btn-secondary disable-on-sale" @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()">Gerar Orçamento (Alt + Z)</button>
+                <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
+                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado() || isOnVenda()">Gerar Orçamento (Alt + Z)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -613,8 +612,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <input type="number" maxLength="4"
-            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};"
+            <input type="text" min="0.0001" max="999.9999" step="0.0001" @input="validateQuantidade"
             autocomplete="off" class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue" placeholder="Digite para alterar o valor"
             v-on:keyup.enter="alterarQuantidadeItem">
           </div>
@@ -1733,6 +1731,7 @@ export default {
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
           this.gerarPedido = false
+          this.comPedido = true
           await this.enviarVenda(false)
         }
       }
@@ -1871,6 +1870,7 @@ export default {
         if (this.pedidoSelected) {
           this.fecharVenda = false
           this.gerarPedido = false
+          this.comPedido = true
           await this.enviarVenda(false)
         }
       }
@@ -2252,6 +2252,7 @@ export default {
         if (this.pedidoSelected && atualizar) {
           this.fecharVenda = false
           this.gerarPedido = false
+          this.comPedido = true
           await this.enviarVenda(false)
           this.itensCarrinho[this.itensCarrinho.length - 1].seqIpd = this.itensCarrinho.length
         }
@@ -2517,6 +2518,7 @@ export default {
     },  
 
     async alterarQuantidadeItem() {
+      this.newValue = Number(this.newValue)
       if (this.newValue > 9999) this.newValue = 9999
       if (this.newValue === 0) alert('A quantidade não pode ser zero!')
       else {
@@ -2526,6 +2528,28 @@ export default {
         await this.atualizarValorTotalCompra()
         this.finalizarEdicaoItem()
       }
+    },
+
+    validateQuantidade(event) {
+      let value = event.target.value
+      value = value.replace(',', '.')
+      value = value.replace(/[^0-9.]/g, '')
+
+      const parts = value.split('.')
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('')
+      }
+
+      let [int, dec] = value.split('.')
+      if (int && int.length > 3) int = int.slice(0, 3)
+      if (dec) dec = dec.slice(0, 4)
+
+      value = dec !== undefined ? int + '.' + dec : int
+
+      if (Number(value) > 999.9999) value = '999.9999'
+
+      event.target.value = value
+      this.newValue = value
     },
 
     editarObsItem(item) {
@@ -2584,6 +2608,7 @@ export default {
       if (this.itemEditando.seqIpd > 0) {
         this.fecharVenda = false
         this.gerarPedido = false
+        this.comPedido = true
         await this.enviarVenda(false)
       }
       this.itemEditando = null  
@@ -2656,6 +2681,7 @@ export default {
                 this.status = ''
                 this.fecharVenda = false
                 this.gerarPedido = false
+                this.comPedido = true
                 await this.enviarVenda(false)
               }
             }
@@ -2836,6 +2862,7 @@ export default {
       document.getElementById('closeModalConfirmaNFCe').click()
       this.status = 'nfce'
       await this.gerarNFCe(numPed)
+      this.status = ''
     },
 
     openFinalizarVendaModal() {
@@ -3184,7 +3211,7 @@ export default {
               this.limparCamposAposVenda()
               if(this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
             } else {
-              this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer)
+              if(this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer, false)
             }
           }
         })
@@ -3205,11 +3232,12 @@ export default {
         .then((response) => {
           const resposta = response.data
           const msg = this.isPedidoSelectedAndFechado() ? 'NFC-e gerada: ' + resposta.nfce + '.' : 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
+          
           if (this.paramsPDV.indImp !== 'S') {
             this.limparCamposAposVenda()
             if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
           } else {
-            this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer)
+            if(this.print) this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer, true)
           }
         })
         .catch((err) => {
@@ -3226,12 +3254,13 @@ export default {
         })
     },
 
-    openImprimirNFCeModal(msg, pdfFile, printer) {
+    openImprimirNFCeModal(msg, pdfFile, printer, comPedido) {
       this.paramsConfirmacaoImpressao.msg = msg + ' Deseja imprimir a NFC-e?'
       this.paramsConfirmacaoImpressao.pdfFile = pdfFile
       this.paramsConfirmacaoImpressao.printer = printer
       
-      document.getElementById('btnOpenConfirmarImpressaoModal').click()
+      const btnId = comPedido ? 'btnOpenConfirmarImpressaoModalComPedido' : 'btnOpenConfirmarImpressaoModalSemPedido'
+      document.getElementById(btnId).click()
       
       const modalElement = document.getElementById('confirmaImpressaoModal')
       modalElement.addEventListener('shown.bs.modal', () => {
