@@ -217,11 +217,11 @@
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
                 <button id="btnGerarPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false, true, true)"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado() || isOnVenda()">Gerar Pedido (F9)</button>
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Pedido (F9)</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botOrc === 'S'">
                 <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
-                  :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado() || isOnVenda()">Gerar Orçamento (Alt + Z)</button>
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Orçamento (Alt + Z)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
@@ -946,7 +946,7 @@
                 </select>
                 <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
                 <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
-                <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
+                <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,0000" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
                 <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
               </div>
             </div>
@@ -2244,6 +2244,8 @@ export default {
           }
         }
 
+        console.log(this.itensCarrinho)
+
         this.codBar = ''
         document.getElementById('inputProduto').focus()
         shared.populateTabIndex(this.itensCarrinho)
@@ -2504,6 +2506,7 @@ export default {
       const itens = []
       itens.push(item)
       
+      this.comPedido = true
       this.enviarPedido(itens, false)
     },
 
@@ -3362,6 +3365,7 @@ export default {
         this.fecharVenda = false
         this.gerarPedido = false
         const itens = []
+        this.comPedido = true
         this.enviarPedido(itens, false)
       }
     },
@@ -3420,6 +3424,7 @@ export default {
           this.fecharVenda = false
           this.gerarPedido = false
           const itens = []
+          this.comPedido = true
           this.enviarPedido(itens, false)
         }
       }
