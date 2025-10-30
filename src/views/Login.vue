@@ -8,6 +8,10 @@
       <button id="btnLogin" :disabled="this.user === '' || this.password === ''" class="btn btn-lg btn-block btn-secondary">Login</button>
       <h5 class="mt-3 text-danger" v-if="base !== ''"><em>{{ base }}</em></h5>
     </form>
+    <div class="form-signin mt-3">
+      <button id="btnAuth" @click="authenticateTEF" class="btn btn-lg btn-block btn-secondary mb-2">Auth</button>
+      <button id="btnDebit" @click="payDebitTEF" class="btn btn-lg btn-block btn-secondary">Debit</button>
+    </div>
   </div>
 </template>
 
@@ -21,7 +25,8 @@ export default {
       user: '',
       password: '',
       api_url: '',
-      base: ''
+      base: '',
+      checkout: null
     }
   },
   created () {
@@ -43,15 +48,6 @@ export default {
       sessionStorage.setItem('form', 'login')
       this.$refs.inputUser.focus()
     }
-    console.log('Teste débito TEF')
-    tef.payDebit('34711662000191', 1)
-      .then((response) => {
-        console.log('TEF debit payment successful:', response)
-      })
-      .catch((error) => {
-        console.error('Error processing TEF debit payment:', error)
-        this.base = 'Erro ao processar pagamento TEF'
-      })
   },
   methods: {
     handleSubmit () {
@@ -81,7 +77,29 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnLogin').disabled = false
         })
-    }
+    },
+    async authenticateTEF() {
+      try {
+        this.checkout = await tef.authenticatePaykit('34711662000191');
+        console.log('TEF authenticated successfully:', authResponse);
+
+        if (authResponse && authResponse.authenticated) {
+          document.getElementById('btnDebit').disabled = false;
+        }
+      } catch (error) {
+        console.error('TEF flow failed:', error);
+        this.base = 'Erro no fluxo TEF';
+      }
+    },
+    async payDebitTEF() {
+      // try {
+        // const response = await tef.payDebit(1, '34711662000191')
+        tef.payDebit(1, '34711662000191')
+        // console.log('TEF debit payment successful:', response)
+      // } catch (error) {
+      //   console.error('Error processing TEF debit payment:', error)
+      // }
+    },
   }
 }
 </script>
