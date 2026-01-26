@@ -24,7 +24,6 @@ function loadPaykitScript() {
     script.id = scriptId;
     script.type = 'text/javascript';
     script.src = 'https://linxpaykitapi-hmg.linx.com.br/LinxPaykitApi/paykit-checkout.js';
-    
     script.onload = () => {
       console.log('Paykit script loaded successfully.');
       setTimeout(() => {
@@ -72,7 +71,7 @@ var functions = {
       // capture the object returned by authenticate (if any)
       let checkoutInstance = null;
 
-      const success = function(response) {
+      const success = function (response) {
         console.log('Success auth:')
         console.log(response);
         // Resolve with the checkout instance if it was returned synchronously
@@ -81,13 +80,13 @@ var functions = {
         resolve(checkoutInstance || response);
       }
 
-      const error = function(response) {
+      const error = function (response) {
         console.log('Error auth:')
         console.log(response);
         reject(response);
       }
 
-      const handlePendingPayments = function(response) {
+      const handlePendingPayments = function (response) {
         console.log('Pending Payments:')
         console.log(response);
         // Resolve with the checkout instance when available; if not, provide
@@ -109,38 +108,132 @@ var functions = {
     })
   },
 
-  async payDebit(amount, authKey) {
+  async payDebit(amount, authKey, success, error) {
     // await loadPaykitScript();
 
     // Authenticate and get the checkout instance that exposes debitPayment
     var checkout = await this.authenticatePaykit(authKey);
-    console.log(checkout)
+    console.log(checkout);
 
     const request = {
       amount: amount,
       requestKey: this.generateSixDigitKey()
     };
 
-    // return new Promise((resolve, reject) => {
-      const success = function(response) {
-        console.log('Success debit:')
-        console.log(response);
-        // resolve(response);
+    // ✅ CONVERTE CALLBACK EM PROMISE PARA USAR AWAIT
+    //const response = await new Promise((resolve, reject) => {
+    checkout.debitPayment(
+      request,
+      (res) => success(res),
+      (err) => error(err)
+    );
+    // });
+
+    //return response; // ✅ agora essa função retorna os dados corretamente
+
+  },
+
+  async payCredit(amount, authKey, payAmount, instType, success, error) {
+    // await loadPaykitScript();
+    //alert('payCredit amount:' + amount + ' authKey:' + authKey + ' payAmount:' + payAmount + ' instType:' + instType);
+    // Authenticate and get the checkout instance that exposes debitPayment
+    var checkout = await this.authenticatePaykit(authKey);
+    console.log(checkout);
+
+    const request = {
+      amount: amount,
+      installments: payAmount,
+      installmentType: instType,
+      requestKey: this.generateSixDigitKey()
+    };
+
+    checkout.creditPayment(
+      request,
+      (res) => success(res),
+      (err) => error(err)
+    );
+
+    // ✅ TRANSFORMA CALLBACK EM PROMISE PARA USAR AWAIT
+    /*const response = await new Promise((resolve, reject) => {
+      checkout.creditPayment(
+        request,
+        (success) => resolve(success),
+        (error) => reject(error)
+      );
+    });
+
+    return response;*/
+
+  },
+
+  async payCancel(authKey, admCode, reqKey, amount, adate, atype, success, error) {
+
+    // Autentica e obtém a instância do checkout
+    const checkout = await this.authenticatePaykit(authKey);
+
+    /*const request = {
+      administrativeCode: admCode,
+      requestKey: reqKey,
+      amount: amount,
+      date: adate
+    };*/
+
+    if (atype === 'P') //PIX
+    {
+      const request = {
+        administrativeCode: admCode,
+        requestKey: reqKey,
+        paymentAmount: amount,
+        paymentDate: adate,
+        paymentType: 'Q'
       };
 
-      const error = function(response) {
-        console.log('Error debit:')
-        console.log(response);
-        // reject(response);
+    }
+    else //CARTÕES
+    {
+      const request = {
+        administrativeCode: admCode,
+        requestKey: reqKey,
+        amount: amount,
+        date: adate
       };
+    }
 
-      // try {
-        checkout.debitPayment(request, success, error);
-      // } catch (ex) {
-      //   reject(ex);
-      // }
-    // })
-  }
+    // Converte callback em Promise para poder usar await
+
+    checkout.paymentReversal(
+      request,
+      (res) => success(res),
+      (err) => error(err)
+    );
+
+
+  },
+  async payCrediario(amount, authKey, installpayments, success, error) {
+    // await loadPaykitScript();
+
+    // Authenticate and get the checkout instance that exposes debitPayment
+    var checkout = await this.authenticatePaykit(authKey);
+    console.log(checkout);
+
+    const request = {
+      amount: amount,
+      installments: installpayments,
+      requestKey: this.generateSixDigitKey()
+    };
+
+    // ✅ CONVERTE CALLBACK EM PROMISE PARA USAR AWAIT
+    //const response = await new Promise((resolve, reject) => {
+    checkout.splittedDebitPayment(
+      request,
+      (res) => success(res),
+      (err) => error(err)
+    );
+    // });
+
+    //return response; // ✅ agora essa função retorna os dados corretamente
+
+  },
 }
 
 export default functions;

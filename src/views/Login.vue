@@ -8,16 +8,13 @@
       <button id="btnLogin" :disabled="this.user === '' || this.password === ''" class="btn btn-lg btn-block btn-secondary">Login</button>
       <h5 class="mt-3 text-danger" v-if="base !== ''"><em>{{ base }}</em></h5>
     </form>
-    <div class="form-signin mt-3">
-      <button id="btnAuth" @click="authenticateTEF" class="btn btn-lg btn-block btn-secondary mb-2">Auth</button>
-      <button id="btnDebit" @click="payDebitTEF" class="btn btn-lg btn-block btn-secondary">Debit</button>
-    </div>
+    
   </div>
 </template>
 
 <script>
 import api from '../utils/api'
-import tef from '../utils/tef'
+
 export default {
   name: 'Login',
   data () {
@@ -32,13 +29,6 @@ export default {
   created () {
     this.api_url = process.env.VUE_APP_API_URL
     this.base = process.env.VUE_APP_BASE === 'teste' ? 'Base Homologação' : ''
-      // .then(() => {
-      //   console.log('TEF authenticated successfully')
-      // })
-      // .catch((error) => {
-      //   console.error('Error authenticating TEF:', error)
-      //   this.base = 'Erro ao autenticar TEF'
-      // })
   },
   mounted () {
     if (sessionStorage.getItem('token')) {
@@ -78,28 +68,7 @@ export default {
           document.getElementById('btnLogin').disabled = false
         })
     },
-    async authenticateTEF() {
-      try {
-        this.checkout = await tef.authenticatePaykit('34711662000191');
-        console.log('TEF authenticated successfully:', authResponse);
-
-        if (authResponse && authResponse.authenticated) {
-          document.getElementById('btnDebit').disabled = false;
-        }
-      } catch (error) {
-        console.error('TEF flow failed:', error);
-        this.base = 'Erro no fluxo TEF';
-      }
-    },
-    async payDebitTEF() {
-      // try {
-        // const response = await tef.payDebit(1, '34711662000191')
-        tef.payDebit(1, '34711662000191')
-        // console.log('TEF debit payment successful:', response)
-      // } catch (error) {
-      //   console.error('Error processing TEF debit payment:', error)
-      // }
-    },
+    
   }
 }
 </script>
