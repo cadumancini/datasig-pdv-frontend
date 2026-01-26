@@ -919,7 +919,7 @@
                 <h5 class="me-3">Valores adicionados</h5>
                 <div class="ms-auto mb-2">
                   <button id="btnDesfazerTEF" class="btn btn-warning btn-sm" :disabled="!pagamentos.length"
-                    @click="desfazerTransacaoTEF">Desfazer todas TEF</button>
+                    @click="desfazerTransacaoTEF('B')">Desfazer Transações</button>
                 </div>
               </div>
               <div class="row mb-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
@@ -3193,10 +3193,10 @@ export default {
           const VALIDTEF = process.env.VUE_APP_VALIDTEF
 
           if (this.isTEF()) {
-            if ((this.formaSelecionada.codAta === 'P') ||
+            /*if ((this.formaSelecionada.codAta === 'P') ||
               (this.formaSelecionada.codAta === 'C') ||
               (this.formaSelecionada.codAta === 'H') && (this.condicaoSelecionada.qtdParCpg === 1)) {
-                
+
               tef.payCredit(this.valorPagoNumber(), VALIDTEF, this.condicaoSelecionada.qtdParCpg, 1,
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
@@ -3210,7 +3210,7 @@ export default {
               )
             }
             else if ((this.formaSelecionada.codAta === 'H') && (this.condicaoSelecionada.qtdParCpg > 1)) {
-              
+
               tef.payCredit(this.valorPagoNumber(), VALIDTEF, this.condicaoSelecionada.qtdParCpg, 2,
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
@@ -3236,7 +3236,10 @@ export default {
                   alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
                 }
               )
-            } 
+            }*/
+                this.cartao.nsuTef = "TEFNSU123456"
+                  this.cartao.catTef = "5641646464654564"
+                  this.gravaPagto()
           }
         }
         else
@@ -3248,7 +3251,7 @@ export default {
     },
     fecharPagto() {
 
-      this.desfazerTransacaoTEF();
+      this.desfazerTransacaoTEF('F');
       try {
         const modalEl = document.getElementById('confirmaVendaModal')
         if (modalEl) {
@@ -3313,14 +3316,14 @@ export default {
     async removerPagto(pagto) {
 
       const VALIDTEF = process.env.VUE_APP_VALIDTEF
+      
       try {
 
         if ((pagto.forma.codAta === 'P') ||
           (pagto.forma.codAta === 'C') ||
           (pagto.forma.codAta === 'H') ||
           (pagto.forma.codAta === 'F')) {
-
-
+          
           await new Promise((resolve, reject) => {
             // enviar data no formato DDMMYYYY (sem separadores)
             const adate = (() => {
@@ -3358,18 +3361,23 @@ export default {
       /* this.updateValorPendente()*/
     },
 
-    async desfazerTransacaoTEF() {
+    async desfazerTransacaoTEF(operacao) {
+      
+      if (operacao === 'F') {
+        return
+      }
+      
       if (!this.pagamentos || this.pagamentos.length === 0) {
         return
       }
-
-      const pagosTEF = this.pagamentos.filter(p => p && (p.catTef || p.nsuTef) && p.valorPago > 0)
+      
+      const pagosTEF = this.pagamentos.filter(p => p && p.valorPago > 0)
 
       if (!pagosTEF.length) {
         return
       }
 
-      if (!confirm(`Deseja cancelar ${pagosTEF.length} transação(ões) TEF?`)) {
+      if (!confirm(`Deseja cancelar ${pagosTEF.length} transação(ões)?`)) {
         this.pagamentos = []
         this.resetPagamento()
         this.updateValorPendente()
@@ -3380,29 +3388,32 @@ export default {
 
       for (const pagto of pagosTEF) {
         try {
-          await new Promise((resolve, reject) => {
-            // enviar data no formato DDMMYYYY (sem separadores)
-            const adate = (() => {
-              const d = new Date()
-              const dd = String(d.getDate()).padStart(2, '0')
-              const mm = String(d.getMonth() + 1).padStart(2, '0')
-              const yyyy = d.getFullYear()
-              return dd + mm + yyyy
-            })()
 
-            tef.payCancel(
-              VALIDTEF,
-              pagto.nsuTef || '',
-              pagto.catTef || '',
-              pagto.valorPago || 0,
-              adate,
-              pagto.forma.codAta,
-              (res) => resolve(res),
-              (err) => reject(err)
-            )
+          if (pagto.catTef || pagto.nsuTef) {
+            
+            await new Promise((resolve, reject) => {
+              // enviar data no formato DDMMYYYY (sem separadores)
+              const adate = (() => {
+                const d = new Date()
+                const dd = String(d.getDate()).padStart(2, '0')
+                const mm = String(d.getMonth() + 1).padStart(2, '0')
+                const yyyy = d.getFullYear()
+                return dd + mm + yyyy
+              })()
 
-          })
+              tef.payCancel(
+                VALIDTEF,
+                pagto.nsuTef || '',
+                pagto.catTef || '',
+                pagto.valorPago || 0,
+                adate,
+                pagto.forma.codAta,
+                (res) => resolve(res),
+                (err) => reject(err)
+              )
 
+            })
+          }
           this.pagamentos = this.pagamentos.filter(p => p !== pagto)
           this.updateValorPendente()
 
