@@ -3181,20 +3181,18 @@ export default {
     },
     isTEF() {
       //return true
-      return this.formaSelecionada.tipInt === '1'
+      return this.formaSelecionada.tipInt === '1'
     },
     processarPagto() {
 
       if (!this.valorExcede()) {
-
-        if (((this.isPagamentoCartao() && this.confirmarDadosCartao()) ||
+        if ((((this.isPagamentoCartao() && this.confirmarDadosCartao()) ||
           (this.isPagamentoPIXQrCode() && this.confirmarDadosPIXQrCode()) ||
-          (this.isPagamentoCartao() === false && this.isPagamentoPIXQrCode() === false)) && (this.formaSelecionada.codAta !== 'D')) {
+          (this.isPagamentoCartao() === false && this.isPagamentoPIXQrCode() === false)) && (this.formaSelecionada.codAta !== 'D'))) {
 
           const VALIDTEF = process.env.VUE_APP_VALIDTEF
 
-          if (this.isTEF()) {            
-
+          if (this.isTEF()) {
             if ((this.formaSelecionada.codAta === 'P') ||
               (this.formaSelecionada.codAta === 'C') ||
               (this.formaSelecionada.codAta === 'H') && (this.condicaoSelecionada.qtdParCpg === 1)) {
@@ -3238,7 +3236,7 @@ export default {
                   alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
                 }
               )
-            }           
+            } 
           }
         }
         else
@@ -3271,15 +3269,17 @@ export default {
       }
     },
     gravaPagto() {
-      this.valorPendente -= this.valorPagoNumber()
+      const vlrPago = this.valorPagoNumber()
+
+      this.valorPendente -= vlrPago
 
       this.pagamentos.push({
         forma: this.formaSelecionada,
         condicao: this.condicaoSelecionada,
-        valorPago: this.valorPagoNumber(),
+        valorPago: vlrPago,
         valorTroco: this.valorTrocoNumber(),
         valorDesconto: Number(this.valorDescontoParcial),
-        valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial)),
+        valorTotalPago: shared.toMoneyThenNumber(vlrPago + Number(this.valorDescontoParcial)),
         banOpe: this.cartao.banOpe,
         cgcCre: this.cartao.cgcCpf,
         catTef: this.cartao.catTef,
@@ -3315,34 +3315,34 @@ export default {
       const VALIDTEF = process.env.VUE_APP_VALIDTEF
       try {
 
-        if (((this.isPagamentoCartao() && this.confirmarDadosCartao()) ||
-          (this.isPagamentoPIXQrCode() && this.confirmarDadosPIXQrCode()) ||
-          (this.isPagamentoCartao() === false && this.isPagamentoPIXQrCode() === false)) && (this.formaSelecionada.codAta !== 'D')) {
-
-          if (this.isTEF()) {
-            await new Promise((resolve, reject) => {
-              // enviar data no formato DDMMYYYY (sem separadores)
-              const adate = (() => {
-                const d = new Date()
-                const dd = String(d.getDate()).padStart(2, '0')
-                const mm = String(d.getMonth() + 1).padStart(2, '0')
-                const yyyy = d.getFullYear()
-                return dd + mm + yyyy
-              })()
+        if ((pagto.forma.codAta === 'P') ||
+          (pagto.forma.codAta === 'C') ||
+          (pagto.forma.codAta === 'H') ||
+          (pagto.forma.codAta === 'F')) {
 
 
-              tef.payCancel(
-                VALIDTEF,
-                pagto.nsuTef || '',
-                pagto.catTef || '',
-                pagto.valorPago || 0,
-                adate,
-                pagto.forma.codAta,
-                (res) => resolve(res),
-                (err) => reject(err)
-              )
-            })
-          }
+          await new Promise((resolve, reject) => {
+            // enviar data no formato DDMMYYYY (sem separadores)
+            const adate = (() => {
+              const d = new Date()
+              const dd = String(d.getDate()).padStart(2, '0')
+              const mm = String(d.getMonth() + 1).padStart(2, '0')
+              const yyyy = d.getFullYear()
+              return dd + mm + yyyy
+            })()
+
+
+            tef.payCancel(
+              VALIDTEF,
+              pagto.nsuTef || '',
+              pagto.catTef || '',
+              pagto.valorPago || 0,
+              adate,
+              pagto.forma.codAta,
+              (res) => resolve(res),
+              (err) => reject(err)
+            )
+          })
         }
 
         this.pagamentos = this.pagamentos.filter(p => p !== pagto)
@@ -3389,7 +3389,6 @@ export default {
               const yyyy = d.getFullYear()
               return dd + mm + yyyy
             })()
-
 
             tef.payCancel(
               VALIDTEF,
@@ -3458,7 +3457,7 @@ export default {
         alert('Favor informar o pagamento!')
       } else {
 
-        this.gravaPagto()
+        //this.gravaPagto()
         await this.enviarVenda(true)
       }
     },
