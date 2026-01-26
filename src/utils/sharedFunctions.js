@@ -14,11 +14,27 @@ var functions = {
     }
   },
   toMoneyString(value) {
-    return value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+    try {
+      if (value === null || value === undefined || value === '') return 'R$ 0,00'
+      const num = Number(value)
+      if (isNaN(num)) return 'R$ 0,00'
+      return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    } catch (ex) {
+      return 'R$ 0,00'
+    }
   },
   toMoneyThenNumber(value) {
-    return Number(this.toMoneyString(value)
-      .replace('R$', '').replace('.','').replace(',','.').trim())
+    try {
+      if (value === null || value === undefined || value === '') return 0
+      if (typeof value === 'number') return Number(Number(value).toFixed(2))
+      let str = String(value)
+      // remove currency symbol, white spaces; remove thousand separators (.) and convert decimal comma to dot
+      str = str.replace(/[R$\s]/g, '').replace(/\./g, '').replace(',', '.')
+      const num = Number(parseFloat(str))
+      return isNaN(num) ? 0 : Number(Number(num).toFixed(2))
+    } catch (ex) {
+      return 0
+    }
   },
   populateTabIndex(list) {
     let index = 0
