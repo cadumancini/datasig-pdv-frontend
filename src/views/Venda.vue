@@ -3193,7 +3193,7 @@ export default {
           const VALIDTEF = process.env.VUE_APP_VALIDTEF
 
           if (this.isTEF()) {
-            /*if ((this.formaSelecionada.codAta === 'P') ||
+            if ((this.formaSelecionada.codAta === 'P') ||
               (this.formaSelecionada.codAta === 'C') ||
               (this.formaSelecionada.codAta === 'H') && (this.condicaoSelecionada.qtdParCpg === 1)) {
 
@@ -3236,10 +3236,8 @@ export default {
                   alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
                 }
               )
-            }*/
-                this.cartao.nsuTef = "TEFNSU123456"
-                  this.cartao.catTef = "5641646464654564"
-                  this.gravaPagto()
+            }
+               
           }
         }
         else
