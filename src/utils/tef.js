@@ -177,6 +177,7 @@ var functions = {
       amount: amount,
       date: adate
     };*/
+    //alert('payCancel admCode:' + admCode + ' reqKey:' + reqKey + ' amount:' + amount + ' adate:' + adate + ' atype:' + atype);
 
     if (atype === 'P') //PIX
     {
@@ -195,7 +196,8 @@ var functions = {
         administrativeCode: admCode,
         requestKey: reqKey,
         amount: amount,
-        date: adate
+        date: adate,
+        paymentType: '0'
       };
     }
 
