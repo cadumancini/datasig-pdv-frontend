@@ -917,10 +917,10 @@
               <hr />
               <div class="d-flex align-items-center">
                 <h5 class="me-3">Valores adicionados</h5>
-                <div class="ms-auto mb-2">
+                <!--<div class="ms-auto mb-2">
                   <button id="btnDesfazerTEF" class="btn btn-warning btn-sm" :disabled="!pagamentos.length"
                     @click="desfazerTransacaoTEF('B')">Desfazer Transações</button>
-                </div>
+                </div>-->
               </div>
               <div class="row mb-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
                 <div class="col-12">
@@ -945,9 +945,9 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda"
-            id="btnProcessarVenda">Finalizar</button>
-          <button type="button" class="btn btn-secondary" @click="fecharPagto">Cancelar</button>
+          <button type="button" class="btn btn-secondary"            
+            @click="finalizarVenda" id="btnProcessarVenda">Finalizar</button>
+          <button type="button" class="btn btn-secondary" :disabled="!(valorPendente > 0)" @click="fecharPagto">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
