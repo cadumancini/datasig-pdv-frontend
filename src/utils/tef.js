@@ -179,20 +179,18 @@ var functions = {
     };*/
     //alert('payCancel admCode:' + admCode + ' reqKey:' + reqKey + ' amount:' + amount + ' adate:' + adate + ' atype:' + atype);
 
-    if (atype === 'P') //PIX
-    {
-      const request = {
+    // Prepare request object depending on payment type (PIX or card)
+    let request;
+    if (atype === 'P') { // PIX
+      request = {
         administrativeCode: admCode,
         requestKey: reqKey,
         paymentAmount: amount,
         paymentDate: adate,
         paymentType: 'Q'
       };
-
-    }
-    else //CARTÕES
-    {
-      const request = {
+    } else { // CARTÕES
+      request = {
         administrativeCode: admCode,
         requestKey: reqKey,
         amount: amount,
@@ -201,8 +199,7 @@ var functions = {
       };
     }
 
-    // Converte callback em Promise para poder usar await
-
+    // Call paymentReversal using the prepared request
     checkout.paymentReversal(
       request,
       (res) => success(res),
