@@ -945,8 +945,8 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary"            
-            @click="finalizarVenda" id="btnProcessarVenda">Finalizar</button>
+          <button type="button" class="btn btn-secondary"
+            @click="handleFinalizarClick" id="btnProcessarVenda">{{ autoCloseActive ? ('Finalizar (' + autoCloseCountdown + 's)') : 'Finalizar' }}</button>
           <button type="button" class="btn btn-secondary" :disabled="!(valorPendente > 0)" @click="fecharPagto">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
@@ -1329,6 +1329,11 @@ export default {
         pdfFile: '',
         printer: '',
       },
+      // auto-close countdown when everything is paid
+      autoCloseCountdown: 0,
+      autoCloseIntervalId: null,
+      autoCloseActive: false,
+      autoCloseCanceled: false,
 
       //geral
       status: '',
@@ -1385,6 +1390,15 @@ export default {
       this.initEverything()
       this.addEvents()
 
+      // attach handlers to the confirm modal show/hide to manage auto-close
+      const confirmaEl = document.getElementById('confirmaVendaModal')
+      if (confirmaEl) {
+        this._confirmaModalShownHandler = () => { this.onConfirmaModalShown() }
+        this._confirmaModalHiddenHandler = () => { this.onConfirmaModalHidden() }
+        confirmaEl.addEventListener('shown.bs.modal', this._confirmaModalShownHandler)
+        confirmaEl.addEventListener('hidden.bs.modal', this._confirmaModalHiddenHandler)
+      }
+
       if (this.print) {
         this.signQZConnection()
         this.startQZConnection()
@@ -1392,6 +1406,82 @@ export default {
     }
   },
   methods: {
+
+    // --- Auto-close / countdown handlers ---
+    isConfirmaModalShown() {
+      const el = document.getElementById('confirmaVendaModal')
+      return el && el.classList.contains('show')
+    },
+
+    onConfirmaModalShown() {
+      this.autoCloseCanceled = false
+      if (Number(this.valorPendente) <= 0) {
+        this.startAutoCloseCountdown()
+      }
+    },
+
+    onConfirmaModalHidden() {
+      this.cancelAutoCloseCountdown()
+      this.autoCloseCanceled = false
+    },
+
+    startAutoCloseCountdown() {
+      if (this.autoCloseActive || this.autoCloseCanceled) return
+      this.autoCloseCountdown = 5
+      this.autoCloseActive = true
+      // interval id stored so we can cancel
+      this.autoCloseIntervalId = setInterval(() => {
+        this.autoCloseCountdown -= 1
+        if (this.autoCloseCountdown <= 0) {
+          this.cancelAutoCloseCountdown()
+          // dispatch click on Finalizar button so existing handler runs
+          const btn = document.getElementById('btnProcessarVenda')
+          try {
+            if (btn) btn.click()
+          } catch (e) {
+            // ignore click errors
+          }
+          // programmatically hide the modal (in case handler didn't)
+          const modalEl = document.getElementById('confirmaVendaModal')
+          if (modalEl) {
+            try {
+              const bsModal = (window.bootstrap && window.bootstrap.Modal && window.bootstrap.Modal.getInstance(modalEl)) || (window.bootstrap && new window.bootstrap.Modal(modalEl))
+              if (bsModal && bsModal.hide) bsModal.hide()
+            } catch (e) {
+              // fallback: remove show class
+              modalEl.classList.remove('show')
+              modalEl.style.display = 'none'
+              document.body.classList.remove('modal-open')
+              const backdrop = document.querySelector('.modal-backdrop')
+              if (backdrop) backdrop.remove()
+            }
+          }
+        }
+      }, 1000)
+    },
+
+    cancelAutoCloseCountdown() {
+      if (this.autoCloseIntervalId) {
+        clearInterval(this.autoCloseIntervalId)
+        this.autoCloseIntervalId = null
+      }
+      this.autoCloseActive = false
+      this.autoCloseCountdown = 0
+    },
+
+    // Handler for the Finalizar button. If auto-close countdown is running,
+    // clicking cancels the countdown and keeps the modal open. Otherwise it
+    // proceeds to call the existing finalizarVenda() method.
+    handleFinalizarClick() {
+      if (this.autoCloseActive && !this.autoCloseCanceled) {
+        this.autoCloseCanceled = true
+        this.cancelAutoCloseCountdown()
+        // keep modal open and do not call finalizarVenda()
+        return
+      }
+      // no active countdown (or already canceled) -> proceed as before
+      this.finalizarVenda()
+    },
 
 
     async initEverything() {
@@ -3073,20 +3163,36 @@ export default {
         this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
         this.resetPagamento()
-        document.getElementById('btnOpenFinalizarVendaModal').click()
-
         const modalElement = document.getElementById('confirmaVendaModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('selectFpg').focus()
-        })
-        modalElement.addEventListener('hidden.bs.modal', () => {
-          this.focusProduto()
-        })
+        if (modalElement) {
+          try {
+            if (window.bootstrap && window.bootstrap.Modal) {
+              const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement)
+              modal.show()
+            } else {
+              modalElement.classList.add('show')
+              modalElement.style.display = 'block'
+              document.body.classList.add('modal-open')
+              // create backdrop
+              const backdrop = document.createElement('div')
+              backdrop.className = 'modal-backdrop fade show'
+              document.body.appendChild(backdrop)
+            }
+          } catch (ex) {
+            console.error('openFinalizarVendaModal show error', ex)
+          }
+          // focus handled by mounted listener or manually focus once shown
+          // if bootstrap isn't available, focus selectFpg immediately
+          if (!(window.bootstrap && window.bootstrap.Modal)) {
+            document.getElementById('selectFpg')?.focus()
+          }
+        }
       }
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
         this.msgConfirmacao = 'Tem certeza que deseja inserir o pedido de orçamento?'
-        document.getElementById('btnOpenInserirPedidoModal').click()
+        const btn = document.getElementById('btnOpenInserirPedidoModal')
+        if (btn) btn.click()
       }
     },
 
@@ -3247,7 +3353,7 @@ export default {
         this.gravaPagto()
       }
     },
-    fecharPagto() {
+    async fecharPagto() {
 
       this.desfazerTransacaoTEF('F');
       try {
@@ -3267,6 +3373,13 @@ export default {
         }
       } catch (ex) {
         console.error('fecharPagto error', ex)
+      }
+
+      // Ensure the current pedido is cleared from the UI/state.
+      try {
+        this.clearPedido()
+      } catch (err) {
+        console.error('Failed to call clearPedido after fecharPagto', err)
       }
     },
     gravaPagto() {
@@ -3629,6 +3742,7 @@ export default {
           shared.toggleHeaderLinksDisabled(false)
           this.status = ''
         })
+
     },
 
     async gerarNFCe(numPed) {
@@ -3703,6 +3817,8 @@ export default {
 
       // Send print job
       await qz.print(config, [{ type: 'pdf', format: 'base64', data: base64 }])
+
+    
     },
 
     isOnVenda() {
@@ -3847,7 +3963,7 @@ export default {
         codRep = this.codRep === '' ? null : this.codRep
       }
       await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep, false)
-        .then((response) => {
+        .then((response) => {          
           this.pedidos = response.data
           this.preencherRepresentanteCliente()
           this.pedidosFiltrados = this.pedidos
@@ -4055,6 +4171,31 @@ export default {
     isPedidoSelectedAndFechado() {
       return this.pedidoSelected && this.staPedSelected === 'FECHADO'
     },
+  },
+  watch: {
+    valorPendente(newVal) {
+      if (Number(newVal) <= 0 && this.isConfirmaModalShown() && !this.autoCloseCanceled) {
+        this.startAutoCloseCountdown()
+      } else if (Number(newVal) > 0) {
+        this.cancelAutoCloseCountdown()
+      }
+    }
+  },
+  beforeDestroy() {
+    const modalEl = document.getElementById('confirmaVendaModal')
+    if (modalEl) {
+      modalEl.removeEventListener('shown.bs.modal', this._confirmaModalShownHandler)
+      modalEl.removeEventListener('hidden.bs.modal', this._confirmaModalHiddenHandler)
+    }
+    this.cancelAutoCloseCountdown()
+  },
+  beforeUnmount() {
+    const modalEl = document.getElementById('confirmaVendaModal')
+    if (modalEl) {
+      modalEl.removeEventListener('shown.bs.modal', this._confirmaModalShownHandler)
+      modalEl.removeEventListener('hidden.bs.modal', this._confirmaModalHiddenHandler)
+    }
+    this.cancelAutoCloseCountdown()
   }
 }
 </script>
