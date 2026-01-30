@@ -3342,7 +3342,7 @@ export default {
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
                   this.cartao.catTef = resulcre.requestKey
-                  this.cartao.banOpe = resuldeb.cardBrandName
+                  //this.cartao.banOpe = resuldeb.cardBrandName
                   this.gravaPagto()
                 },
                 (erro) => {
@@ -3356,7 +3356,7 @@ export default {
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
                   this.cartao.catTef = resulcre.requestKey
-                  this.cartao.banOpe = resuldeb.cardBrandName  
+                  //this.cartao.banOpe = resuldeb.cardBrandName  
                   this.gravaPagto()
                 },
                 (erro) => {
@@ -3370,7 +3370,7 @@ export default {
 
                   this.cartao.nsuTef = resuldeb.administrativeCode
                   this.cartao.catTef = resuldeb.requestKey
-                  this.cartao.banOpe = resuldeb.cardBrandName
+                  //this.cartao.banOpe = resuldeb.cardBrandName
                   this.gravaPagto()
 
                 },
