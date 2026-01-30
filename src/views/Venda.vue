@@ -898,7 +898,7 @@
                       v-on:keyup="handleInputValorPago" id="inputCatTef">
                   </div>
                 </div>
-                <div class="row mb-2" v-if="formaSelecionada && this.isTEF() && isPagamentoCartao()">
+                <div class="row mb-2" v-if="isTEF()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
                     <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef"
@@ -945,9 +945,9 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary"
-            @click="handleFinalizarClick" id="btnProcessarVenda">{{ autoCloseActive ? ('Finalizar (' + autoCloseCountdown + 's)') : 'Finalizar' }}</button>
-          <button type="button" class="btn btn-secondary" :disabled="!(valorPendente > 0)" @click="fecharPagto">Cancelar</button>
+          <button type="button" class="btn btn-secondary" @click="handleFinalizarClick" id="btnProcessarVenda">{{
+            autoCloseActive ? ('Finalizar (' + autoCloseCountdown + 's)') : 'Finalizar' }}</button>
+          <button type="button" class="btn btn-secondary" @click="closeConfirmaVendaModal">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -1329,11 +1329,6 @@ export default {
         pdfFile: '',
         printer: '',
       },
-      // auto-close countdown when everything is paid
-      autoCloseCountdown: 0,
-      autoCloseIntervalId: null,
-      autoCloseActive: false,
-      autoCloseCanceled: false,
 
       //geral
       status: '',
@@ -1378,7 +1373,12 @@ export default {
       tableIndexPed: 0,
       pedidoSelected: null,
       staPedSelected: '',
-      msgPedidoFechado: 'Pedido já está fechado, não é possível realizar alterações pelo PDV. Para reabilitar o pedido, acesse o ERP Senior.'
+      msgPedidoFechado: 'Pedido já está fechado, não é possível realizar alterações pelo PDV. Para reabilitar o pedido, acesse o ERP Senior.',
+      // controle de auto-close do modal de confirmação (feature de 5s removida)
+      autoCloseCanceled: false,
+      autoCloseActive: false,
+      autoCloseCountdown: 0,
+      _autoCloseTimer: null
     }
   },
   mounted() {
@@ -1407,82 +1407,6 @@ export default {
   },
   methods: {
 
-    // --- Auto-close / countdown handlers ---
-    isConfirmaModalShown() {
-      const el = document.getElementById('confirmaVendaModal')
-      return el && el.classList.contains('show')
-    },
-
-    onConfirmaModalShown() {
-      this.autoCloseCanceled = false
-      if (Number(this.valorPendente) <= 0) {
-        this.startAutoCloseCountdown()
-      }
-    },
-
-    onConfirmaModalHidden() {
-      this.cancelAutoCloseCountdown()
-      this.autoCloseCanceled = false
-    },
-
-    startAutoCloseCountdown() {
-      if (this.autoCloseActive || this.autoCloseCanceled) return
-      this.autoCloseCountdown = 5
-      this.autoCloseActive = true
-      // interval id stored so we can cancel
-      this.autoCloseIntervalId = setInterval(() => {
-        this.autoCloseCountdown -= 1
-        if (this.autoCloseCountdown <= 0) {
-          this.cancelAutoCloseCountdown()
-          // dispatch click on Finalizar button so existing handler runs
-          const btn = document.getElementById('btnProcessarVenda')
-          try {
-            if (btn) btn.click()
-          } catch (e) {
-            // ignore click errors
-          }
-          // programmatically hide the modal (in case handler didn't)
-          const modalEl = document.getElementById('confirmaVendaModal')
-          if (modalEl) {
-            try {
-              const bsModal = (window.bootstrap && window.bootstrap.Modal && window.bootstrap.Modal.getInstance(modalEl)) || (window.bootstrap && new window.bootstrap.Modal(modalEl))
-              if (bsModal && bsModal.hide) bsModal.hide()
-            } catch (e) {
-              // fallback: remove show class
-              modalEl.classList.remove('show')
-              modalEl.style.display = 'none'
-              document.body.classList.remove('modal-open')
-              const backdrop = document.querySelector('.modal-backdrop')
-              if (backdrop) backdrop.remove()
-            }
-          }
-        }
-      }, 1000)
-    },
-
-    cancelAutoCloseCountdown() {
-      if (this.autoCloseIntervalId) {
-        clearInterval(this.autoCloseIntervalId)
-        this.autoCloseIntervalId = null
-      }
-      this.autoCloseActive = false
-      this.autoCloseCountdown = 0
-    },
-
-    // Handler for the Finalizar button. If auto-close countdown is running,
-    // clicking cancels the countdown and keeps the modal open. Otherwise it
-    // proceeds to call the existing finalizarVenda() method.
-    handleFinalizarClick() {
-      if (this.autoCloseActive && !this.autoCloseCanceled) {
-        this.autoCloseCanceled = true
-        this.cancelAutoCloseCountdown()
-        // keep modal open and do not call finalizarVenda()
-        return
-      }
-      // no active countdown (or already canceled) -> proceed as before
-      this.finalizarVenda()
-    },
-
 
     async initEverything() {
       this.pressedKeys = new Set()
@@ -1499,6 +1423,66 @@ export default {
     restartRecords() {
       this.clearEverything()
       this.initEverything()
+    },
+    isConfirmaModalShown() {
+      const modalEl = document.getElementById('confirmaVendaModal')
+      return modalEl ? modalEl.classList.contains('show') : false
+    },
+
+    onConfirmaModalShown() {
+      // A contagem automática foi removida; manter flag para compatibilidade
+      this.autoCloseCanceled = false
+      // anteriormente aqui havia um timer de 5 segundos; a funcionalidade foi desativada
+    },
+
+    onConfirmaModalHidden() {
+      this.cancelAutoCloseCountdown()
+      this.autoCloseCanceled = false
+    },
+
+    closeConfirmaVendaModal() {
+      // Only hide the modal; do not cancel payments or clear order data.
+      try {
+        const modalEl = document.getElementById('confirmaVendaModal')
+        if (modalEl) {
+          if (window.bootstrap && window.bootstrap.Modal) {
+            const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl)
+            modal.hide()
+          } else {
+            // fallback: manually hide
+            modalEl.classList.remove('show')
+            modalEl.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        }
+      } catch (ex) {
+        console.error('Error hiding confirmaVendaModal:', ex)
+      }
+
+      // Reset finalizing flags so UI returns to normal state
+      this.finalizandoVenda = false
+      this.fecharVenda = false
+      this.gerarPedido = false
+      this.comPedido = false
+
+      // Cancel any auto-close timers (no-op if none)
+      this.cancelAutoCloseCountdown()
+    },
+
+    startAutoCloseCountdown() {
+      // Auto-close intentionally disabled to remove 5s behavior.
+      // Keep method to avoid "not a function" errors from callers.
+      return
+    },
+
+    cancelAutoCloseCountdown() {
+      if (this._autoCloseTimer) {
+        clearTimeout(this._autoCloseTimer)
+        this._autoCloseTimer = null
+      }
+      this.autoCloseCanceled = true
     },
     clearEverything() {
       this.emptyStorage()
@@ -3250,6 +3234,44 @@ export default {
 
     },
 
+    handleFinalizarClick() {
+      // Hide the confirmation modal immediately so processing continues in background
+      try {
+        const modalEl = document.getElementById('confirmaVendaModal')
+        if (modalEl) {
+          if (window.bootstrap && window.bootstrap.Modal) {
+            const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl)
+            modal.hide()
+          } else {
+            // fallback: manually hide
+            modalEl.classList.remove('show')
+            modalEl.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        }
+      } catch (ex) {
+        console.error('Error hiding confirmaVendaModal before processing:', ex)
+      }
+
+      // If there is still an outstanding amount, try to process a payment
+      if (this.valorPendente > 0) {
+        // If a payment form and condition are selected, process it
+        if (this.formaSelecionada && this.condicaoSelecionada) {
+          this.processarPagto()
+        } else {
+          // Otherwise ask user to inform payment and focus the payment selector
+          alert('Favor informar o pagamento!')
+          const selectFpg = document.getElementById('selectFpg')
+          if (selectFpg) selectFpg.focus()
+        }
+      } else {
+        // No pending value: finalize the sale
+        this.finalizarVenda()
+      }
+    },
+
     calcularTroco() {
       try {
         const vlrPago = document.getElementById('inputVlrPago').value
@@ -3271,13 +3293,17 @@ export default {
     },
 
     isPagamentoCartao() {
-      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && !['30', '31'].includes(this.formaSelecionada.tipFpg)
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['4','6', '7', '17','18','19','20','22','23','24'].includes(this.formaSelecionada.tipFpg)
+    },   
+    isPagamentoCartaoCredito() {
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['6','18',].includes(this.formaSelecionada.tipFpg)
     },
-
+    isPagamentoCartaoDebito() {
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['7', '19'].includes(this.formaSelecionada.tipFpg)
+    },    
     isPagamentoPIXQrCode() {
-      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['31'].includes(this.formaSelecionada.tipFpg)
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['30', '31'].includes(this.formaSelecionada.tipFpg)
     },
-
     isPagamentoDifferentThanDinheiro() {
       return this.formaSelecionada && this.formaSelecionada.tipFpg !== '01'
     },
@@ -3286,22 +3312,20 @@ export default {
       return this.formaSelecionada && this.formaSelecionada.tipFpg === '01'
     },
     isTEF() {
-      //return true
+      //return true      
       return this.formaSelecionada.tipInt === '1'
     },
     processarPagto() {
 
       if (!this.valorExcede()) {
-        if ((((this.isPagamentoCartao() && this.confirmarDadosCartao()) ||
-          (this.isPagamentoPIXQrCode() && this.confirmarDadosPIXQrCode()) ||
-          (this.isPagamentoCartao() === false && this.isPagamentoPIXQrCode() === false)) && (this.formaSelecionada.codAta !== 'D'))) {
 
-          const VALIDTEF = process.env.VUE_APP_VALIDTEF
+        if (this.isTEF()) {
+          if (this.isPagamentoCartao() ) {
+            
+            const VALIDTEF = process.env.VUE_APP_VALIDTEF
 
-          if (this.isTEF()) {
-            if ((this.formaSelecionada.codAta === 'P') ||
-              (this.formaSelecionada.codAta === 'C') ||
-              (this.formaSelecionada.codAta === 'H') && (this.condicaoSelecionada.qtdParCpg === 1)) {
+            if (this.isPagamentoPIXQrCode() ||              
+              (this.isPagamentoCartaoCredito() && (this.condicaoSelecionada.qtdParCpg === 1))) {
 
               tef.payCredit(this.valorPagoNumber(), VALIDTEF, this.condicaoSelecionada.qtdParCpg, 1,
                 (resulcre) => {
@@ -3315,7 +3339,7 @@ export default {
                 }
               )
             }
-            else if ((this.formaSelecionada.codAta === 'H') && (this.condicaoSelecionada.qtdParCpg > 1)) {
+            else if ((this.isPagamentoCartaoCredito()) && (this.condicaoSelecionada.qtdParCpg > 1)) {
 
               tef.payCredit(this.valorPagoNumber(), VALIDTEF, this.condicaoSelecionada.qtdParCpg, 2,
                 (resulcre) => {
@@ -3329,7 +3353,7 @@ export default {
                 }
               )
             }
-            else if (this.formaSelecionada.codAta === 'F') {
+            else if (this.isPagamentoCartaoDebito()) {
               tef.payDebit(this.valorPagoNumber(), VALIDTEF,
                 (resuldeb) => {
 
@@ -3343,7 +3367,6 @@ export default {
                 }
               )
             }
-               
           }
         }
         else
@@ -3427,14 +3450,11 @@ export default {
     async removerPagto(pagto) {
 
       const VALIDTEF = process.env.VUE_APP_VALIDTEF
-      
-      try {
 
-        if ((pagto.forma.codAta === 'P') ||
-          (pagto.forma.codAta === 'C') ||
-          (pagto.forma.codAta === 'H') ||
-          (pagto.forma.codAta === 'F')) {
-          
+      try {
+                
+        if (this.isPagamentoCartao) {
+
           await new Promise((resolve, reject) => {
             // enviar data no formato DDMMYYYY (sem separadores)
             const adate = (() => {
@@ -3445,6 +3465,7 @@ export default {
               return dd + mm + yyyy
             })()
 
+            const isTipoPix = Boolean(['30','31'].includes(String(pagto?.forma?.tipFpg ?? '')));
 
             tef.payCancel(
               VALIDTEF,
@@ -3452,7 +3473,7 @@ export default {
               pagto.catTef || '',
               pagto.valorPago || 0,
               adate,
-              pagto.forma.codAta,
+              isTipoPix,
               (res) => resolve(res),
               (err) => reject(err)
             )
@@ -3473,15 +3494,15 @@ export default {
     },
 
     async desfazerTransacaoTEF(operacao) {
-      
+
       if (operacao === 'F') {
         return
       }
-      
+
       if (!this.pagamentos || this.pagamentos.length === 0) {
         return
       }
-      
+
       const pagosTEF = this.pagamentos.filter(p => p && p.valorPago > 0)
 
       if (!pagosTEF.length) {
@@ -3501,7 +3522,7 @@ export default {
         try {
 
           if (pagto.catTef || pagto.nsuTef) {
-            
+
             await new Promise((resolve, reject) => {
               // enviar data no formato DDMMYYYY (sem separadores)
               const adate = (() => {
@@ -3818,7 +3839,7 @@ export default {
       // Send print job
       await qz.print(config, [{ type: 'pdf', format: 'base64', data: base64 }])
 
-    
+
     },
 
     isOnVenda() {
@@ -3963,7 +3984,7 @@ export default {
         codRep = this.codRep === '' ? null : this.codRep
       }
       await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep, false)
-        .then((response) => {          
+        .then((response) => {
           this.pedidos = response.data
           this.preencherRepresentanteCliente()
           this.pedidosFiltrados = this.pedidos
