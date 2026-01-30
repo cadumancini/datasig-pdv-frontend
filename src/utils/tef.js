@@ -166,7 +166,7 @@ var functions = {
 
   },
 
-  async payCancel(authKey, admCode, reqKey, amount, adate, atype, success, error) {
+  async payCancel(authKey, admCode, reqKey, amount, adate, aisPix, success, error) {
 
     // Autentica e obtém a instância do checkout
     const checkout = await this.authenticatePaykit(authKey);
@@ -181,7 +181,7 @@ var functions = {
 
     // Prepare request object depending on payment type (PIX or card)
     let request;
-    if (atype === 'P') { // PIX
+    if (aisPix) { // PIX
       request = {
         administrativeCode: admCode,
         requestKey: reqKey,
