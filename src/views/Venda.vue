@@ -1,6 +1,6 @@
 <template>
   <div class="pdv-tela">
-    <Navbar title="Venda"/>
+    <Navbar title="Venda" />
     <div class="pdv-frame mx-4">
       <div class="row">
         <div class="col-4">
@@ -8,10 +8,12 @@
         </div>
         <div class="col">
           <div class="float-end">
-            <button id="btnAtalhos" class="btn btn-secondary mx-2 disable-on-sale" data-bs-toggle="modal" data-bs-target="#atalhosModal">Atalhos Teclado</button>
+            <button id="btnAtalhos" class="btn btn-secondary mx-2 disable-on-sale" data-bs-toggle="modal"
+              data-bs-target="#atalhosModal">Atalhos Teclado</button>
           </div>
           <div class="float-end">
-            <button id="btnRecarregar" class="btn btn-secondary disable-on-sale" @click="restartRecords">Recarregar Registros</button>
+            <button id="btnRecarregar" class="btn btn-secondary disable-on-sale" @click="restartRecords">Recarregar
+              Registros</button>
           </div>
         </div>
       </div>
@@ -21,57 +23,89 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Pedido</span>
-              <input autocomplete="off" id="inputPedPrv" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
+              <input autocomplete="off" id="inputPedPrv" class="form-control input-sale disable-on-sale" type="text"
+                v-on:keyup.enter="searchPedidos" v-model="idePedPrv"
                 :disabled="!this.representantes.length || !this.clientes.length || !this.formasPagto.length || this.pedidoSelected || this.status === 'b_pedidos'"
                 :placeholder="this.status === 'b_pedidos' ? 'Buscando pedidos ...' : ''">
-              <button id="btnSearchPed" :disabled="idePedPrv !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchPedidos"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearPed" :disabled="!this.pedidoSelected || isOnVenda()" class="btn btn-secondary input-group-btn" @click="clearPedido"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
+              <button id="btnSearchPed" :disabled="idePedPrv !== '' || isOnVenda()"
+                class="btn btn-secondary input-group-btn" @click="searchPedidos"><font-awesome-icon
+                  icon="fa-search" /></button>
+              <button id="btnClearPed" :disabled="!this.pedidoSelected || isOnVenda()"
+                class="btn btn-secondary input-group-btn" @click="clearPedido"><font-awesome-icon
+                  icon="fa-circle-xmark" /></button>
+              <button id="btnBuscaPedidos" class="btn-busca" data-bs-toggle="modal"
+                data-bs-target="#pedidosModal">...</button>
             </div>
           </div>
           <span class="fw-bold subtitle">Identificação</span>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Representante</span>
-              <input autocomplete="off" id="inputIdeRep" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
+              <input autocomplete="off" id="inputIdeRep" class="form-control input-sale disable-on-sale" type="text"
+                v-on:keyup.enter="searchRepresentantes" v-model="ideRep"
                 :disabled="!this.representantes.length || this.codRep !== ''"
                 :placeholder="!this.representantes.length ? 'Buscando representantes ...' : ''"
-                :class="{searching: !this.representantes.length}">
-              <button id="btnSearchRep" :disabled="ideRep !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchRepresentantes"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearRep" :disabled="this.codRep === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginRepresentante"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#representantesModal">...</button>
+                :class="{ searching: !this.representantes.length }">
+              <button id="btnSearchRep" :disabled="ideRep !== '' || isOnVenda()"
+                class="btn btn-secondary input-group-btn" @click="searchRepresentantes"><font-awesome-icon
+                  icon="fa-search" /></button>
+              <button id="btnClearRep" :disabled="this.codRep === '' || isOnVenda() || isPedidoSelectedAndFechado()"
+                class="btn btn-secondary input-group-btn" @click="beginRepresentante"><font-awesome-icon
+                  icon="fa-circle-xmark" /></button>
+              <button id="btnBuscaRepresentantes" class="btn-busca" data-bs-toggle="modal"
+                data-bs-target="#representantesModal">...</button>
             </div>
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Tabela de Preço</span> 
-              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr" class="form-control input-sale disable-on-sale" 
-                type="text" v-on:keyup.enter="searchTabelasPreco(true)" v-model="ideTpr">
-              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchTabelasPreco(true)"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearTpr" :disabled="this.codTpr === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal" data-bs-target="#tabelasPrecoModal">...</button>
+              <span class="input-group-text">Tabela de Preço</span>
+              <input :disabled="this.codTpr !== ''" autocomplete="off" id="inputIdeTpr"
+                class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchTabelasPreco(true)"
+                v-model="ideTpr">
+              <button id="btnSearchTpr" :disabled="ideTpr !== '' || isOnVenda()"
+                class="btn btn-secondary input-group-btn" @click="searchTabelasPreco(true)"><font-awesome-icon
+                  icon="fa-search" /></button>
+              <button id="btnClearTpr" :disabled="this.codTpr === '' || isOnVenda() || isPedidoSelectedAndFechado()"
+                class="btn btn-secondary input-group-btn" @click="beginTabelasPreco"><font-awesome-icon
+                  icon="fa-circle-xmark" /></button>
+              <button id="btnBuscaTabelasPreco" class="btn-busca" data-bs-toggle="modal"
+                data-bs-target="#tabelasPrecoModal">...</button>
             </div>
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Depósito</span>
-              <input autocomplete="off" id="inputIdeDep" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchDepositos" v-model="ideDep"
-                :disabled="!this.depositos.length || this.codDep !== ''" :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
-                :class="{searching: (!this.depositos.length && this.codDep === '')}">
-              <button id="btnSearchDep" :disabled="ideDep !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchDepositos"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearDep" :disabled="this.codDep === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginDeposito"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#depositosModal">...</button>
+              <input autocomplete="off" id="inputIdeDep" class="form-control input-sale disable-on-sale" type="text"
+                v-on:keyup.enter="searchDepositos" v-model="ideDep"
+                :disabled="!this.depositos.length || this.codDep !== ''"
+                :placeholder="(!this.depositos.length && this.codDep === '') ? 'Buscando depósitos ...' : ''"
+                :class="{ searching: (!this.depositos.length && this.codDep === '') }">
+              <button id="btnSearchDep" :disabled="ideDep !== '' || isOnVenda()"
+                class="btn btn-secondary input-group-btn" @click="searchDepositos"><font-awesome-icon
+                  icon="fa-search" /></button>
+              <button id="btnClearDep" :disabled="this.codDep === '' || isOnVenda() || isPedidoSelectedAndFechado()"
+                class="btn btn-secondary input-group-btn" @click="beginDeposito"><font-awesome-icon
+                  icon="fa-circle-xmark" /></button>
+              <button id="btnBuscaDepositos" class="btn-busca" data-bs-toggle="modal"
+                data-bs-target="#depositosModal">...</button>
             </div>
           </div>
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Cliente</span>
-              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchClientes" v-model="ideCli"
-                :disabled="!this.clientes.length || this.codCli !== ''" :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
-                :class="{searching: (!this.clientes.length && this.codCli === '')}">
-              <button id="btnSearchCli" :disabled="ideCli !== '' || isOnVenda()" class="btn btn-secondary input-group-btn" @click="searchClientes"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnClearCli" :disabled="this.codCli === '' || isOnVenda() || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon icon="fa-circle-xmark"/></button>
-              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal" data-bs-target="#clientesModal">...</button>
+              <input autocomplete="off" id="inputIdeCli" class="form-control input-sale disable-on-sale" type="text"
+                v-on:keyup.enter="searchClientes" v-model="ideCli"
+                :disabled="!this.clientes.length || this.codCli !== ''"
+                :placeholder="(!this.clientes.length && this.codCli === '') ? 'Buscando clientes ...' : ''"
+                :class="{ searching: (!this.clientes.length && this.codCli === '') }">
+              <button id="btnSearchCli" :disabled="ideCli !== '' || isOnVenda()"
+                class="btn btn-secondary input-group-btn" @click="searchClientes"><font-awesome-icon
+                  icon="fa-search" /></button>
+              <button id="btnClearCli" :disabled="this.codCli === '' || isOnVenda() || isPedidoSelectedAndFechado()"
+                class="btn btn-secondary input-group-btn" @click="beginCliente"><font-awesome-icon
+                  icon="fa-circle-xmark" /></button>
+              <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal"
+                data-bs-target="#clientesModal">...</button>
             </div>
           </div>
         </div>
@@ -80,13 +114,17 @@
           <div class="row margin-y-fields">
             <div class="input-group input-group-sm">
               <span class="input-group-text">Produto</span>
-              <input autocomplete="off" id="inputProduto" class="form-control input-sale disable-on-sale" type="text" v-on:keyup.enter="searchProdutos" v-model="codBar"
-                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === '' || isPedidoSelectedAndFechado()" :class="{searching: !this.produtosTabelaPreco.length}" 
-                :placeholder=" this.codTpr === '' ? 'Selecione a tabela de preço' : 
-                              !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' : 
-                              this.codDep === '' ? 'Selecione um depósito' : ''">
-              <button id="btnSearchProdutos" :disabled="codBar !== '' || isPedidoSelectedAndFechado()" class="btn btn-secondary input-group-btn disable-on-sale" @click="searchProdutos"><font-awesome-icon icon="fa-search"/></button>
-              <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal" data-bs-target="#produtosModal">...</button>
+              <input autocomplete="off" id="inputProduto" class="form-control input-sale disable-on-sale" type="text"
+                v-on:keyup.enter="searchProdutos" v-model="codBar"
+                :disabled="this.codTpr === '' || !this.produtosTabelaPreco.length || this.codDep === '' || isPedidoSelectedAndFechado()"
+                :class="{ searching: !this.produtosTabelaPreco.length }" :placeholder="this.codTpr === '' ? 'Selecione a tabela de preço' :
+                  !this.produtosTabelaPreco.length ? 'Buscando produtos da tabela de preço ...' :
+                    this.codDep === '' ? 'Selecione um depósito' : ''">
+              <button id="btnSearchProdutos" :disabled="codBar !== '' || isPedidoSelectedAndFechado()"
+                class="btn btn-secondary input-group-btn disable-on-sale" @click="searchProdutos"><font-awesome-icon
+                  icon="fa-search" /></button>
+              <button id="btnBuscaProdutos" class="btn-busca" data-bs-toggle="modal"
+                data-bs-target="#produtosModal">...</button>
             </div>
           </div>
           <div class="row table-wrapper border">
@@ -105,43 +143,63 @@
               </thead>
               <tbody>
                 <tr v-for="row in itensCarrinho" :key="row.codPro + row.codDer">
-                  <th :id="'tabCar' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm">
-                    <button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)" :disabled="isPedidoSelectedAndFechado()" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
-                      <font-awesome-icon class="icon-cart" icon="fa-trash"/>
+                  <th :id="'tabCar' + row.tabIndex"
+                    :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm">
+                    <button :id="'btnDelete' + row.tabIndex" @click="removerItem(row)"
+                      :disabled="isPedidoSelectedAndFechado()"
+                      class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-trash" />
                     </button>
                     <small>&nbsp;{{ row.codPro }} / {{ row.codDer }} - {{ row.desPro }}</small>
                   </th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle">
                     <small>{{ row.qtdPed }}</small>
-                    <button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)" :disabled="isPedidoSelectedAndFechado()" data-bs-toggle="modal" data-bs-target="#editarItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
-                      <font-awesome-icon class="icon-cart" icon="fa-refresh"/>
+                    <button :id="'btnEdit' + row.tabIndex" @click="editarItem(row)"
+                      :disabled="isPedidoSelectedAndFechado()" data-bs-toggle="modal" data-bs-target="#editarItemModal"
+                      class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-refresh" />
                     </button>
                   </th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
-                    <button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)" :disabled="isPedidoSelectedAndFechado()"  data-bs-toggle="modal" data-bs-target="#obsItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
-                      <font-awesome-icon class="icon-cart" icon="fa-circle-info"/>
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle">
+                    <button :id="'btnObs' + row.tabIndex" @click="editarObsItem(row)"
+                      :disabled="isPedidoSelectedAndFechado()" data-bs-toggle="modal" data-bs-target="#obsItemModal"
+                      class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-circle-info" />
                     </button>
                   </th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
-                    <button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)" :disabled="isPedidoSelectedAndFechado()"  data-bs-toggle="modal" data-bs-target="#descItemModal" class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
-                      <font-awesome-icon class="icon-cart" icon="fa-dollar-sign"/>
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle">
+                    <button :id="'btnDesc' + row.tabIndex" @click="editarDescItem(row)"
+                      :disabled="isPedidoSelectedAndFechado()" data-bs-toggle="modal" data-bs-target="#descItemModal"
+                      class="btn btn-secondary btn-sm sm edit-cart disable-on-sale">
+                      <font-awesome-icon class="icon-cart" icon="fa-dollar-sign" />
                     </button>
                   </th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle">
-                    <button :id="'btnDep' + row.tabIndex" :disabled="isPedidoSelectedAndFechado()"  class="btn btn-secondary btn-sm sm edit-cart disable-on-sale" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <font-awesome-icon class="icon-cart" icon="fa-warehouse"/>
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle">
+                    <button :id="'btnDep' + row.tabIndex" :disabled="isPedidoSelectedAndFechado()"
+                      class="btn btn-secondary btn-sm sm edit-cart disable-on-sale" data-bs-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <font-awesome-icon class="icon-cart" icon="fa-warehouse" />
                     </button>
                     <div class="dropdown-menu">
-                      <a v-for="dep in this.depositos" class="dropdown-item dep-item" :class="{'dep-active':row.codDep == dep.codDep}" @click="editDepItem(row, dep.codDep)">
+                      <a v-for="dep in this.depositos" class="dropdown-item dep-item"
+                        :class="{ 'dep-active': row.codDep == dep.codDep }" @click="editDepItem(row, dep.codDep)">
                         <div class="custom-control custom-checkbox sm">
                           <small>{{ dep.codDep }} - {{ dep.desDep }}</small>
                         </div>
                       </a>
                     </div>
                   </th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.preBas)) }}</small></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.vlrTot)) }}</small></th>
-                  <th :class="{active:row.tabIndex == this.tableIndexCar && this.editandoCarrinho}" class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.vlrLiq)) }}</small></th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.preBas)) }}</small></th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.vlrTot)) }}</small></th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexCar && this.editandoCarrinho }"
+                    class="fw-normal sm align-middle"><small>{{ toMoneyString(Number(row.vlrLiq)) }}</small></th>
                 </tr>
               </tbody>
             </table>
@@ -168,20 +226,26 @@
                   <option value="acrescimo">Acréscimo</option>
                 </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
                 <span class="input-group-text">Desconto</span> <!-- TODO: remover quando resolver acrescimo -->
-                <select :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()" @change="vlrDesc=''; vlrDescPedido = 0; atualizarValorTotalCompra()" class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
+                <select :disabled="!this.itensCarrinho.length || isPedidoSelectedAndFechado()"
+                  @change="vlrDesc = ''; vlrDescPedido = 0; atualizarValorTotalCompra()"
+                  class="form-select disable-on-sale" v-model="tipDesc" id="selectTipDesc">
                   <option selected value="">Nenhum</option>
                   <option value="valor">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
                 </select>
                 <span class="input-group-text" v-if="tipDesc === 'valor'">R$</span>
-                <vue-mask :disabled="tipDesc === ''" v-if="tipDesc === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDesc"></vue-mask>
-                <vue-mask :disabled="tipDesc === ''" v-else class="form-control" mask="00,00" :raw="false" :options="options" v-model="vlrDesc"></vue-mask>
+                <vue-mask :disabled="tipDesc === ''" v-if="tipDesc === 'valor'" class="form-control"
+                  mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDesc"></vue-mask>
+                <vue-mask :disabled="tipDesc === ''" v-else class="form-control" mask="00,00" :raw="false"
+                  :options="options" v-model="vlrDesc"></vue-mask>
                 <span class="input-group-text" v-if="tipDesc === 'porcentagem'">%</span>
               </div>
             </div>
             <div class="col" v-if="tipDesc !== ''">
-              <button id="btnAplicarDesconto" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="aplicarDesconto(true)">Aplicar</button>  
-              <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''" class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto(true)">Limpar</button>  
+              <button id="btnAplicarDesconto" class="btn btn-secondary btn-sm mx-2 disable-on-sale"
+                @click="aplicarDesconto(true)">Aplicar</button>
+              <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''"
+                class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto(true)">Limpar</button>
             </div>
           </div>
           <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
@@ -189,7 +253,7 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Valor com {{ tipOpeVlr }}</span>
                 <input class="form-control" disabled v-model="vlrComDesconto">
-              </div>  
+              </div>
             </div>
           </div>
           <div class="row margin-y-fields">
@@ -203,26 +267,38 @@
           <div class="row margin-y-fields">
             <div class="col">
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botNfc === 'S'">
-                <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, true, true, false)" 
+                <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary"
+                  @click="triggerFinalizandoVenda(true, true, true, false)"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar NFC (F8)</button>
-                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
-                <button id="btnOpenConfirmarImpressaoModalSemPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
+                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal"
+                  data-bs-target="#confirmaVendaModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModalSemPedido" class="btn-busca" data-bs-toggle="modal"
+                  data-bs-target="#confirmaImpressaoModal">.</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPnf === 'S'">
-                <button id="btnFinalizarVenda" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, true, true, true)" 
+                <button id="btnFinalizarVenda" class="btn btn-secondary"
+                  @click="triggerFinalizandoVenda(true, true, true, true)"
                   :disabled="!this.itensCarrinho.length || isOnVenda()">Gerar Pedido com NFC (F4)</button>
-                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
-                <button id="btnOpenConfirmarImpressaoModalComPedido" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaImpressaoModal">.</button>
-                <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaNFCeModal">.</button>
+                <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal"
+                  data-bs-target="#confirmaVendaModal">.</button>
+                <button id="btnOpenConfirmarImpressaoModalComPedido" class="btn-busca" data-bs-toggle="modal"
+                  data-bs-target="#confirmaImpressaoModal">.</button>
+                <button id="btnOpenConfirmarNFCeModal" class="btn-busca" data-bs-toggle="modal"
+                  data-bs-target="#confirmaNFCeModal">.</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
-                <button id="btnGerarPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false, true, true)"
-                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Pedido (F9)</button>
+                <button id="btnGerarPedido" class="btn btn-secondary"
+                  @click="triggerFinalizandoVenda(true, false, true, true)"
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Pedido
+                  (F9)</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botOrc === 'S'">
-                <button id="btnInserirPedido" class="btn btn-secondary" @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
-                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Orçamento (Alt + Z)</button>
-                <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal" data-bs-target="#confirmaVendaModal">.</button>
+                <button id="btnInserirPedido" class="btn btn-secondary"
+                  @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
+                  :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Orçamento (Alt +
+                  Z)</button>
+                <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal"
+                  data-bs-target="#confirmaVendaModal">.</button>
               </div>
             </div>
           </div>
@@ -248,16 +324,20 @@
   </div>
 
   <!-- Modal Representantes -->
-  <div class="modal fade" id="representantesModal" tabindex="-1" aria-labelledby="representantesModalLabel" aria-hidden="true">
+  <div class="modal fade" id="representantesModal" tabindex="-1" aria-labelledby="representantesModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="representantesModalLabel">Representantes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalRepresentantes"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalRepresentantes"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="representantes != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro" v-on:keydown="navegarModalRepresentantes" v-on:keyup="filtrarModalRepresentantes" v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputRepresentantesFiltro"
+              v-on:keydown="navegarModalRepresentantes" v-on:keyup="filtrarModalRepresentantes"
+              v-model="representantesFiltro" placeholder="Digite para buscar o representante abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
@@ -267,10 +347,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectRepresentante(row)">
-                  <th :id="'tabRep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm" scope="row">{{ row.codRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.nomRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexRep}" class="fw-normal sm">{{ row.apeRep }}</th>
+                <tr v-for="row in representantesFiltrados" :key="row.tabIndex" class="mouseHover row-modal"
+                  @click="selectRepresentante(row)">
+                  <th :id="'tabRep' + row.tabIndex" :class="{ active: row.tabIndex == this.tableIndexRep }"
+                    class="fw-normal sm" scope="row">{{ row.codRep }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexRep }" class="fw-normal sm">{{ row.nomRep }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexRep }" class="fw-normal sm">{{ row.apeRep }}</th>
                 </tr>
               </tbody>
             </table>
@@ -292,11 +374,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="clientesModalLabel">Clientes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalClientes"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalClientes"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="clientes != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro" v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro" placeholder="Digite para buscar o cliente abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputClientesFiltro"
+              v-on:keydown="navegarModalClientes" v-on:keyup="filtrarModalClientes" v-model="clientesFiltro"
+              placeholder="Digite para buscar o cliente abaixo">
             <div class="row">
               <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                 <thead>
@@ -311,12 +396,17 @@
                 <tbody>
                   <template v-for="row in clientesFiltrados" :key="row.tabIndex">
                     <tr v-if="row.numPag === this.numPagCli" class="mouseHover row-modal">
-                      <th :id="'tabCli' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" scope="row" @click="selectCliente(row, true)">{{ row.codCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.nomCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.apeCli }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm" @click="selectCliente(row, true)">{{ row.cgcCpf }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexCli}" class="fw-normal ssm">
-                        <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)" class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
+                      <th :id="'tabCli' + row.tabIndex" :class="{ active: row.tabIndex == this.tableIndexCli }"
+                        class="fw-normal ssm" scope="row" @click="selectCliente(row, true)">{{ row.codCli }}</th>
+                      <th :class="{ active: row.tabIndex == this.tableIndexCli }" class="fw-normal ssm"
+                        @click="selectCliente(row, true)">{{ row.nomCli }}</th>
+                      <th :class="{ active: row.tabIndex == this.tableIndexCli }" class="fw-normal ssm"
+                        @click="selectCliente(row, true)">{{ row.apeCli }}</th>
+                      <th :class="{ active: row.tabIndex == this.tableIndexCli }" class="fw-normal ssm"
+                        @click="selectCliente(row, true)">{{ row.cgcCpf }}</th>
+                      <th :class="{ active: row.tabIndex == this.tableIndexCli }" class="fw-normal ssm">
+                        <button :id="'btnDados' + row.codCli" @click="abrirDadosCliente(row)"
+                          class="btn btn-secondary btn-sm sm edit-nota disable-on-sale">Dados</button>
                       </th>
                     </tr>
                   </template>
@@ -325,9 +415,12 @@
             </div>
             <div class="row mb-2">
               <div class="col text-center">
-                <button class="btn btn-secondary btn-sm" @click="changePageCli(-1)" :disabled="this.numPagCli === 1"> &lt; </button>
+                <button class="btn btn-secondary btn-sm" @click="changePageCli(-1)" :disabled="this.numPagCli === 1">
+                  &lt; </button>
                 <span class="mx-2">{{ this.numPagCli }} de {{ this.numPagCliMax }}</span>
-                <button class="btn btn-secondary btn-sm"  @click="changePageCli(1)" :disabled="this.numPagCli === this.numPagCliMax"> &gt; </button>
+                <button class="btn btn-secondary btn-sm" @click="changePageCli(1)"
+                  :disabled="this.numPagCli === this.numPagCliMax">
+                  &gt; </button>
               </div>
             </div>
           </div>
@@ -338,7 +431,8 @@
         <div class="modal-footer">
           <span v-if="buscandoDadosCliente" class="mandatory">Buscando informações do cliente...</span>
           <button type="button" class="btn btn-secondary btn-sm" @click="habilitarCadastroCliente">Novo</button>
-          <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal" data-bs-target="#cadastroClientesModal">Novo</button>
+          <button type="button" id="btnCadastrarNovoCliente" class="btn-busca" data-bs-toggle="modal"
+            data-bs-target="#cadastroClientesModal">Novo</button>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
@@ -346,20 +440,23 @@
   </div>
 
   <!-- Modal Cadastro Clientes -->
-  <div class="modal fade" id="cadastroClientesModal" tabindex="-1" aria-labelledby="cadastroClientesModalLabel" aria-hidden="true">
+  <div class="modal fade" id="cadastroClientesModal" tabindex="-1" aria-labelledby="cadastroClientesModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="cadastroClientesModalLabel">Cadastro de Clientes</h5>
-          <button type="button" class="btn-close cadastro-cliente" data-bs-dismiss="modal" aria-label="Close" id="closeModalCadastroClientes"></button>
+          <button type="button" class="btn-close cadastro-cliente" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalCadastroClientes"></button>
         </div>
         <div class="modal-body">
           <div class="row mb-2">
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Tipo</span>
-                <select @change="cadCliCgcCpf=''" class="form-select cadastro-cliente" v-model="cadCliTipCli" id="selectTipCli">
-                  <option selected disabled value="" >Selecione</option>
+                <select @change="cadCliCgcCpf = ''" class="form-select cadastro-cliente" v-model="cadCliTipCli"
+                  id="selectTipCli">
+                  <option selected disabled value="">Selecione</option>
                   <option value="F">Física</option>
                   <option value="J">Jurídica</option>
                 </select>
@@ -369,8 +466,12 @@
             <div class="col-8">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CPF/CNPJ</span>
-                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli===''" v-if="cadCliTipCli !== 'J'" class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
-                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli===''" v-else class="form-control cadastro-cliente" mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli === ''" v-if="cadCliTipCli !== 'J'"
+                  class="form-control cadastro-cliente" mask="000.000.000-00" :raw="false" :options="options"
+                  v-model="cadCliCgcCpf" v-on:keyup="validarCgcCpf"></vue-mask>
+                <vue-mask id="inputCgcCpf" :disabled="cadCliTipCli === ''" v-else class="form-control cadastro-cliente"
+                  mask="00.000.000/0000-00" :raw="false" :options="options" v-model="cadCliCgcCpf"
+                  v-on:keyup="validarCgcCpf"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -382,13 +483,13 @@
                 <select class="form-select cadastro-cliente" v-model="cadCliCodRam" id="selectCodRam">
                   <option selected value=""> </option>
                   <option v-for="row in paramsPDV.ramos" :key="row.codRam" :value="row.codRam">{{ row.desRam }}</option>
-                </select> 
-              </div>  
+                </select>
+              </div>
             </div>
             <div class="col-8">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Nome</span>
-                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliNomCli">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliNomCli">
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -397,14 +498,15 @@
             <div class="col-3">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">CEP</span>
-                <vue-mask class="form-control cadastro-cliente" mask="00000-000" :raw="false" :options="options" v-model="cadCliCepCli" id="inputCadCliCepCli" v-on:keyup="consultarCep"></vue-mask>
+                <vue-mask class="form-control cadastro-cliente" mask="00000-000" :raw="false" :options="options"
+                  v-model="cadCliCepCli" id="inputCadCliCepCli" v-on:keyup="consultarCep"></vue-mask>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Endereço</span>
-                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliEndCli">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliEndCli">
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -415,12 +517,12 @@
                 <span class="input-group-text">Número</span>
                 <input autocomplete="off" class="form-control cadastro-cliente" v-model="cadCliNenCli" maxLength="5"
                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
-              </div> 
+              </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Complemento</span>
-                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliCplEnd">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliCplEnd">
               </div>
             </div>
           </div>
@@ -428,14 +530,14 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Bairro</span>
-                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliBaiCli"> 
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliBaiCli">
                 <span class="mandatory">&nbsp;&nbsp;*</span>
-              </div> 
+              </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cidade</span>
-                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliCidCli">  
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliCidCli">
                 <span class="mandatory">&nbsp;&nbsp;*</span>
               </div>
             </div>
@@ -445,9 +547,9 @@
                 <select class="form-select cadastro-cliente" v-model="cadCliSigUfs" id="selectSigUfs">
                   <option selected disabled value="">Selecione</option>
                   <option v-for="row in estados" :key="row.codUfs" :value="row.codUfs">{{ row.desUfs }}</option>
-                </select> 
+                </select>
                 <span class="mandatory">&nbsp;&nbsp;*</span>
-              </div> 
+              </div>
             </div>
           </div>
           <div class="row">
@@ -456,13 +558,13 @@
                 <span class="input-group-text">Telefone</span>
                 <input autocomplete="off" class="form-control cadastro-cliente" v-model="cadCliFonCli" maxLength="12"
                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength); if(event.key==='.' || event.key===','){event.preventDefault()};">
-              </div> 
+              </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">E-mail</span>
-                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliEmaCli"> 
-              </div> 
+                <input autocomplete="off" class="form-control cadastro-cliente" type="text" v-model="cadCliEmaCli">
+              </div>
             </div>
           </div>
         </div>
@@ -473,8 +575,10 @@
           <span v-if="clienteExistente" class="mandatory">Já existe um cliente com esse CPF/CNPJ!</span>
           <span v-if="buscandoCEP" class="mandatory">Buscando informações de endereço...</span>
           <span v-if="buscandoDadosCliente" class="mandatory">Buscando informações por CPF...</span>
-          <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" :disabled="clienteExistente" @click="cadastrarCliente">Cadastrar</button>
-          <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-secondary btn-sm cadastro-cliente" :disabled="clienteExistente"
+            @click="cadastrarCliente">Cadastrar</button>
+          <button type="button" class="btn btn-secondary btn-sm cadastro-cliente"
+            data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
     </div>
@@ -486,11 +590,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="depositosModalLabel">Depósitos</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDepositos"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalDepositos"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="depositos != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputDepositosFiltro" v-on:keydown="navegarModalDepositos" v-on:keyup="filtrarModalDepositos" v-model="depositosFiltro" placeholder="Digite para buscar o depósito abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputDepositosFiltro"
+              v-on:keydown="navegarModalDepositos" v-on:keyup="filtrarModalDepositos" v-model="depositosFiltro"
+              placeholder="Digite para buscar o depósito abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
@@ -499,9 +606,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in depositosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectDeposito(row, true)">
-                  <th :id="'tabDep' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm" scope="row">{{ row.codDep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexDep}" class="fw-normal sm">{{ row.desDep }}</th>
+                <tr v-for="row in depositosFiltrados" :key="row.tabIndex" class="mouseHover row-modal"
+                  @click="selectDeposito(row, true)">
+                  <th :id="'tabDep' + row.tabIndex" :class="{ active: row.tabIndex == this.tableIndexDep }"
+                    class="fw-normal sm" scope="row">{{ row.codDep }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexDep }" class="fw-normal sm">{{ row.desDep }}</th>
                 </tr>
               </tbody>
             </table>
@@ -523,11 +632,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="produtosModalLabel">Produtos</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalProdutos"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalProdutos"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="produtosTabelaPreco != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputProdutosFiltro" v-on:keydown="navegarModalProdutos" v-on:keyup="filtrarModalProdutos" v-model="produtosFiltro" placeholder="Digite para buscar o produto abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputProdutosFiltro"
+              v-on:keydown="navegarModalProdutos" v-on:keyup="filtrarModalProdutos" v-model="produtosFiltro"
+              placeholder="Digite para buscar o produto abaixo">
             <div class="row">
               <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                 <thead>
@@ -539,10 +651,14 @@
                 </thead>
                 <tbody>
                   <template v-for="row in produtosFiltrados" :key="row.tabIndex">
-                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal" @click="selectProduto(row, 1, 0, '', 'desconto', '', '', '', true, this.codDep)">
-                      <th :id="'tabPro' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm" scope="row">{{ row.codPro }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.codDer }}</th>
-                      <th :class="{active:row.tabIndex == this.tableIndexPro}" class="fw-normal sm">{{ row.desPro }}</th>
+                    <tr v-if="row.numPag === this.numPagPro" class="mouseHover row-modal"
+                      @click="selectProduto(row, 1, 0, '', 'desconto', '', '', '', true, this.codDep)">
+                      <th :id="'tabPro' + row.tabIndex" :class="{ active: row.tabIndex == this.tableIndexPro }"
+                        class="fw-normal sm" scope="row">{{ row.codPro }}</th>
+                      <th :class="{ active: row.tabIndex == this.tableIndexPro }" class="fw-normal sm">{{ row.codDer }}
+                      </th>
+                      <th :class="{ active: row.tabIndex == this.tableIndexPro }" class="fw-normal sm">{{ row.desPro }}
+                      </th>
                     </tr>
                   </template>
                 </tbody>
@@ -550,9 +666,12 @@
             </div>
             <div class="row mb-2">
               <div class="col text-center">
-                <button class="btn btn-secondary btn-sm" @click="changePagePro(-1)" :disabled="this.numPagPro === 1"> &lt; </button>
+                <button class="btn btn-secondary btn-sm" @click="changePagePro(-1)" :disabled="this.numPagPro === 1">
+                  &lt;
+                </button>
                 <span class="mx-2">{{ this.numPagPro }} de {{ this.numPagProMax }}</span>
-                <button class="btn btn-secondary btn-sm"  @click="changePagePro(1)" :disabled="this.numPagPro === this.numPagProMax"> &gt; </button>
+                <button class="btn btn-secondary btn-sm" @click="changePagePro(1)"
+                  :disabled="this.numPagPro === this.numPagProMax"> &gt; </button>
               </div>
             </div>
           </div>
@@ -568,16 +687,20 @@
   </div>
 
   <!-- Modal Tabelas Preco -->
-  <div class="modal fade" id="tabelasPrecoModal" tabindex="-1" aria-labelledby="tabelasPrecoModalLabel" aria-hidden="true">
+  <div class="modal fade" id="tabelasPrecoModal" tabindex="-1" aria-labelledby="tabelasPrecoModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="tabelasPrecoModalLabel">Tabelas de Preço</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalTabelasPreco"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalTabelasPreco"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="tabelasPreco != null">
-            <input type="text" autocomplete="off" class="form-control mb-3" id="inputTabelasPrecoFiltro" v-on:keydown="navegarModalTabelasPreco" v-on:keyup="filtrarModalTabelasPreco" v-model="tabelasPrecoFiltro" placeholder="Digite para buscar a tabela de preço abaixo">
+            <input type="text" autocomplete="off" class="form-control mb-3" id="inputTabelasPrecoFiltro"
+              v-on:keydown="navegarModalTabelasPreco" v-on:keyup="filtrarModalTabelasPreco" v-model="tabelasPrecoFiltro"
+              placeholder="Digite para buscar a tabela de preço abaixo">
             <table class="table table-striped table-hover table-bordered table-sm table-responsive">
               <thead>
                 <tr>
@@ -585,8 +708,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in tabelasPrecoFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectTabelaPreco(row, true)">
-                  <th :id="'tabTpr' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexTpr}" class="fw-normal sm" scope="row">{{ row.codTpr }}</th>
+                <tr v-for="row in tabelasPrecoFiltrados" :key="row.tabIndex" class="mouseHover row-modal"
+                  @click="selectTabelaPreco(row, true)">
+                  <th :id="'tabTpr' + row.tabIndex" :class="{ active: row.tabIndex == this.tableIndexTpr }"
+                    class="fw-normal sm" scope="row">{{ row.codTpr }}</th>
                 </tr>
               </tbody>
             </table>
@@ -608,17 +733,19 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="editarItemModalLabel">Editar quantidade</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalEditarItem"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalEditarItem"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <input type="text" min="0.0001" max="999.9999" step="0.0001" @input="validateQuantidade"
-            autocomplete="off" class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue" placeholder="Digite para alterar o valor"
-            v-on:keyup.enter="alterarQuantidadeItem">
+            <input type="text" min="0.0001" max="999.9999" step="0.0001" @input="validateQuantidade" autocomplete="off"
+              class="form-control mb-3" id="inputEditarCarrinho" v-model="newValue"
+              placeholder="Digite para alterar o valor" v-on:keyup.enter="alterarQuantidadeItem">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" @click="alterarQuantidadeItem" data-bs-dismiss="modal">Confirmar</button>
+          <button type="button" class="btn btn-secondary btn-sm" @click="alterarQuantidadeItem"
+            data-bs-dismiss="modal">Confirmar</button>
           <button type="button" class="btn btn-dismiss btn-sm" data-bs-dismiss="modal">(ESC) Cancelar</button>
         </div>
       </div>
@@ -631,7 +758,8 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirmação de Impressão</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaImpressao"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalConfirmaImpressao"></button>
         </div>
         <div class="modal-body">
           <p>{{ this.paramsConfirmacaoImpressao.msg }}</p>
@@ -651,7 +779,8 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirmação de Geração de NFCe</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaNFCe"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalConfirmaNFCe"></button>
         </div>
         <div class="modal-body">
           <p>Confirma a geração de NFCe de pedido fechado?</p>
@@ -666,12 +795,11 @@
   </div>
 
   <!-- Modal Gerar Pedido -->
-  <div class="modal fade" id="confirmaVendaModal" tabindex="-1">
+  <div class="modal fade" id="confirmaVendaModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ confirmaVendaTitle }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaVenda"></button>
         </div>
         <div class="modal-body">
           <div class="row mx-2" v-if="fecharVenda || gerarPedido">
@@ -690,24 +818,28 @@
               </div>
             </div>
             <div v-if="valorPendente > 0">
-              <hr/>
+              <hr />
               <h5>Adicionar pagamento</h5>
               <div class="row my-2">
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Forma</span>
-                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada" @change="attemptToFillCondicaoPagto" id="selectFpg" ref="selectFpgRef">
-                      <option selected disabled :value="null" >Selecione ...</option>
-                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.codAta ? '(' + forma.codAta + ') - ' : ''}}{{ forma.desFpg }}</option>
+                    <select class="form-select" :disabled="!formasPagto.length" v-model="formaSelecionada"
+                      @change="attemptToFillCondicaoPagto" id="selectFpg" ref="selectFpgRef">
+                      <option selected disabled :value="null">Selecione ...</option>
+                      <option v-for="forma in formasPagto" :key="forma.codFpg" :value="forma">{{ forma.codAta ? '(' +
+                        forma.codAta + ') - ' : '' }}{{ forma.desFpg }}</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Condição</span>
-                    <select class="form-select" :disabled="formaSelecionada === null" v-model="condicaoSelecionada" @change="calcValorPagto()" id="selectCpg">
-                      <option selected disabled :value="null" >Selecione ...</option>
-                      <option v-if="formaSelecionada !== null" v-for="condicao in formaSelecionada.condicoes" :key="condicao.codCpg" :value="condicao">{{ condicao.desCpg }}</option>
+                    <select class="form-select" :disabled="formaSelecionada === null" v-model="condicaoSelecionada"
+                      @change="calcValorPagto()" id="selectCpg">
+                      <option selected disabled :value="null">Selecione ...</option>
+                      <option v-if="formaSelecionada !== null" v-for="condicao in formaSelecionada.condicoes"
+                        :key="condicao.codCpg" :value="condicao">{{ condicao.desCpg }}</option>
                     </select>
                   </div>
                 </div>
@@ -717,31 +849,35 @@
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Desconto (forma de pagamento)</span>
                     <input class="form-control" disabled :value="prcDescontoForma + ' %'">
-                  </div>  
+                  </div>
                 </div>
                 <div class="col-6" v-if="isPagamentoDinheiro()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Troco</span>
                     <input class="form-control" disabled v-model="vlrTroco">
-                  </div>  
+                  </div>
                 </div>
               </div>
               <div class="row my-2">
                 <div class="col-6">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Valor pago (R$)</span>
-                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false" :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago" v-on:keyup="handleInputValorPago"></vue-mask>
+                    <vue-mask id="inputVlrPago" class="form-control" mask="000.000.000,00" :raw="false"
+                      :disabled="this.condicaoSelecionada === null" :options="options" v-model="vlrPago"
+                      v-on:keyup="handleInputValorPago"></vue-mask>
                   </div>
                 </div>
               </div>
               <div class="row my-2" v-if="isPagamentoCartao() || isPagamentoPIXQrCode()">
-                <span>Informações da transação</span>  
+                <span>Informações da transação</span>
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Operadora</span>
-                    <select class="form-select" v-model="cartao.cgcCpf" id="selectDesOpe" :disabled="!condicaoSelecionada">
-                      <option selected disabled value="" >Selecione</option>
-                      <option v-if="condicaoSelecionada" v-for="row in condicaoSelecionada.operadoras" :key="row.codOpe" :value="row.cgcCpf">{{ row.desOpe }}</option>
+                    <select class="form-select" v-model="cartao.cgcCpf" id="selectDesOpe"
+                      :disabled="!condicaoSelecionada">
+                      <option selected disabled value="">Selecione</option>
+                      <option v-if="condicaoSelecionada" v-for="row in condicaoSelecionada.operadoras" :key="row.codOpe"
+                        :value="row.cgcCpf">{{ row.desOpe }}</option>
                     </select>
                   </div>
                 </div>
@@ -749,33 +885,43 @@
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Bandeira</span>
                     <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
-                      <option selected disabled value="" >Selecione</option>
-                      <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{ row.desBan }}</option>
+                      <option selected disabled value="">Selecione</option>
+                      <option v-for="row in cartoes" :key="row.codBan" :value="row.codBan">{{ row.codBan }} - {{
+                        row.desBan }}</option>
                     </select>
                   </div>
                 </div>
                 <div class="row mb-2" v-if="isPagamentoCartao()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Autorização de Transação</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef" v-on:keyup="handleInputValorPago" id="inputCatTef">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef"
+                      v-on:keyup="handleInputValorPago" id="inputCatTef">
                   </div>
                 </div>
-                <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '1' && isPagamentoCartao()">
+                <div class="row mb-2" v-if="isTEF()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
-                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef" v-on:keyup="handleInputValorPago" id="inputNsuTef">  
+                    <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef"
+                      v-on:keyup="handleInputValorPago" id="inputNsuTef">
                   </div>
                 </div>
               </div>
               <div class="row my-2">
                 <div class="col">
-                  <button id="btnProcessarPagto" :disabled="!formaSelecionada || !condicaoSelecionada" class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar Pagamento</button>
+                  <button id="btnProcessarPagto" :disabled="!formaSelecionada || !condicaoSelecionada"
+                    class="btn btn-secondary btn-sm form-control" @click="processarPagto">Processar Pagamento</button>
                 </div>
               </div>
             </div>
             <div class="row" v-if="pagamentos.length">
-              <hr/>
-              <h5>Valores adicionados</h5>
+              <hr />
+              <div class="d-flex align-items-center">
+                <h5 class="me-3">Valores adicionados</h5>
+                <!--<div class="ms-auto mb-2">
+                  <button id="btnDesfazerTEF" class="btn btn-warning btn-sm" :disabled="!pagamentos.length"
+                    @click="desfazerTransacaoTEF('B')">Desfazer Transações</button>
+                </div>-->
+              </div>
               <div class="row mb-2" v-for="pagto in pagamentos" :key="pagto.tabIndex">
                 <div class="col-12">
                   <div class="input-group input-group-sm">
@@ -785,9 +931,11 @@
                     <span class="input-group-text" style="width: 5%;">Pago</span>
                     <input class="form-control" style="width: 11%;" disabled :value="toMoneyString(pagto.valorPago)">
                     <span class="input-group-text" style="width: 8%;">Desconto</span>
-                    <input class="form-control" style="width: 11%;" disabled :value="toMoneyString(pagto.valorDesconto)">
+                    <input class="form-control" style="width: 11%;" disabled
+                      :value="toMoneyString(pagto.valorDesconto)">
                     <span>
-                      <button class="btn btn-secondary btn-excl-pagto form-control" @click="removerPagto(pagto)"><font-awesome-icon class="icon-cart" icon="fa-trash"/></button>
+                      <button class="btn btn-secondary btn-excl-pagto form-control"
+                        @click="removerPagto(pagto)"><font-awesome-icon class="icon-cart" icon="fa-trash" /></button>
                     </span>
                   </div>
                 </div>
@@ -797,8 +945,9 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary" :disabled="valorPendente > 0" @click="finalizarVenda" id="btnProcessarVenda">Finalizar</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-secondary" @click="handleFinalizarClick" id="btnProcessarVenda">{{
+            autoCloseActive ? ('Finalizar (' + autoCloseCountdown + 's)') : 'Finalizar' }}</button>
+          <button type="button" class="btn btn-secondary" @click="closeConfirmaVendaModal">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -814,7 +963,8 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="atalhosModalLabel">Atalhos do Teclado</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalAtalhos"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalAtalhos"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
@@ -847,25 +997,32 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="pedidosModalLabel">Pedidos</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalPedidos"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalPedidos"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3" v-if="pedidos != null">
             <div class="input-group input-group-sm mb-3">
               <span class="input-group-text">Pedido</span>
-              <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltro" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido abaixo">
+              <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltro"
+                v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltro"
+                placeholder="Digite para buscar o pedido abaixo">
             </div>
             <div class="row mb-3">
               <div class="col-6">
                 <div class="input-group input-group-sm">
                   <span class="input-group-text">Cliente</span>
-                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroCliente" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroCliente" placeholder="Digite para filtrar por cliente">
+                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroCliente"
+                    v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroCliente"
+                    placeholder="Digite para filtrar por cliente">
                 </div>
               </div>
               <div class="col-6">
                 <div class="input-group input-group-sm">
                   <span class="input-group-text">Representante</span>
-                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroRepresentante" v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos" v-model="pedidosFiltroRepresentante" placeholder="Digite para filtrar por representante">
+                  <input type="text" autocomplete="off" class="form-control" id="inputPedidosFiltroRepresentante"
+                    v-on:keydown="navegarModalPedidos" v-on:keyup="filtrarModalPedidos"
+                    v-model="pedidosFiltroRepresentante" placeholder="Digite para filtrar por representante">
                 </div>
               </div>
             </div>
@@ -881,13 +1038,15 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in pedidosFiltrados" :key="row.tabIndex" class="mouseHover row-modal" @click="selectPedido(row)">
-                  <th :id="'tabPed' + row.tabIndex" :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm" scope="row">{{ row.numPed }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.datEmi }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideRep }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.ideCli }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.tipPed }}</th>
-                  <th :class="{active:row.tabIndex == this.tableIndexPed}" class="fw-normal sm">{{ row.staPed }}</th>
+                <tr v-for="row in pedidosFiltrados" :key="row.tabIndex" class="mouseHover row-modal"
+                  @click="selectPedido(row)">
+                  <th :id="'tabPed' + row.tabIndex" :class="{ active: row.tabIndex == this.tableIndexPed }"
+                    class="fw-normal sm" scope="row">{{ row.numPed }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexPed }" class="fw-normal sm">{{ row.datEmi }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexPed }" class="fw-normal sm">{{ row.ideRep }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexPed }" class="fw-normal sm">{{ row.ideCli }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexPed }" class="fw-normal sm">{{ row.tipPed }}</th>
+                  <th :class="{ active: row.tabIndex == this.tableIndexPed }" class="fw-normal sm">{{ row.staPed }}</th>
                 </tr>
               </tbody>
             </table>
@@ -909,10 +1068,12 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Observação do item</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalObsItem"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalObsItem"></button>
         </div>
         <div class="modal-body">
-          <textarea id="inputObsItem" class="form-control" maxlength="255" v-model="obsIpd" rows="5" placeholder="Informe a observação do item"></textarea>
+          <textarea id="inputObsItem" class="form-control" maxlength="255" v-model="obsIpd" rows="5"
+            placeholder="Informe a observação do item"></textarea>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="gravarObsIpd">Gravar</button>
@@ -928,7 +1089,8 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Desconto do item</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDescItem"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            id="closeModalDescItem"></button>
         </div>
         <div class="modal-body">
           <div class="row">
@@ -939,20 +1101,23 @@
                   <option value="acrescimo">Acréscimo</option>
                 </select> --> <!-- TODO: descomentar depois de resolver acrescimo -->
                 <span class="input-group-text">Desconto</span> <!-- TODO: remover depois de resolver acrescimo -->
-                <select @change="vlrDscIpd=''; perDscIpd=''" class="form-select" v-model="tipDescIpd" id="selectTipDescItem">
+                <select @change="vlrDscIpd = ''; perDscIpd = ''" class="form-select" v-model="tipDescIpd"
+                  id="selectTipDescItem">
                   <option selected value="">Nenhum</option>
                   <option value="valor" v-if="tipOpeVlrIpd === 'desconto'">Valor</option>
                   <option value="porcentagem">Porcentagem</option>
                 </select>
                 <span class="input-group-text" v-if="tipDescIpd === 'valor'">R$</span>
-                <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control" mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
-                <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,0000" :raw="false" :options="options" v-model="perDscIpd"></vue-mask>
+                <vue-mask :disabled="tipDescIpd === ''" v-if="tipDescIpd === 'valor'" class="form-control"
+                  mask="000.000.000,00" :raw="false" :options="options" v-model="vlrDscIpd"></vue-mask>
+                <vue-mask :disabled="tipDescIpd === ''" v-else class="form-control" mask="00,0000" :raw="false"
+                  :options="options" v-model="perDscIpd"></vue-mask>
                 <span class="input-group-text" v-if="tipDescIpd === 'porcentagem'">%</span>
               </div>
             </div>
             <div class="col-2">
               <button class="btn btn-secondary btn-sm" @click="limparDescontoItemFromModal">Limpar</button>
-            </div>  
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -962,7 +1127,7 @@
       </div>
     </div>
   </div>
-  <Footer/>
+  <Footer />
 
 </template>
 
@@ -971,15 +1136,17 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import api from '../utils/api'
 import shared from '../utils/sharedFunctions'
+import tef from '../utils/tef'
 import vueMask from 'vue-jquery-mask'
 import qz from 'qz-tray'
 import { KEYUTIL, KJUR, stob64, hextorstr } from 'jsrsasign'
 import { CERT, PRIVATE_KEY } from '../utils/printCerts'
 
+
 export default {
   name: 'Venda',
   components: { Navbar, Footer, vueMask },
-  data () {
+  data() {
     return {
       // representantes
       ideRep: '',
@@ -988,7 +1155,7 @@ export default {
       representantesFiltro: '',
       representantesFiltrados: [],
       tableIndexRep: 0,
-      
+
       //clientes
       ideCli: '',
       codCli: '',
@@ -999,7 +1166,7 @@ export default {
       numPagCli: 1,
       numPagCliMax: 0,
       ipp: 15,
-      
+
       //depositos
       ideDep: '',
       codDep: '',
@@ -1058,7 +1225,7 @@ export default {
         { codUfs: 'SE', desUfs: 'Sergipe' },
         { codUfs: 'TO', desUfs: 'Tocantins' },
       ],
-      
+
       //produtos
       codBar: '',
       produtos: [],
@@ -1077,7 +1244,7 @@ export default {
       perDscIpd: '',
       itemEditando: null,
       buscandoProdutos: false,
-      
+
       //tabelas preco
       ideTpr: '',
       codTpr: '',
@@ -1088,7 +1255,7 @@ export default {
       tableIndexTpr: 0,
       numPagPro: 1,
       numPagProMax: 0,
-      
+
       //formas de pagamento
       formasPagto: [],
 
@@ -1206,17 +1373,32 @@ export default {
       tableIndexPed: 0,
       pedidoSelected: null,
       staPedSelected: '',
-      msgPedidoFechado: 'Pedido já está fechado, não é possível realizar alterações pelo PDV. Para reabilitar o pedido, acesse o ERP Senior.'
+      msgPedidoFechado: 'Pedido já está fechado, não é possível realizar alterações pelo PDV. Para reabilitar o pedido, acesse o ERP Senior.',
+      // controle de auto-close do modal de confirmação (feature de 5s removida)
+      autoCloseCanceled: false,
+      autoCloseActive: false,
+      autoCloseCountdown: 0,
+      _autoCloseTimer: null
     }
   },
-  mounted () {
+  mounted() {
+
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
     } else {
       this.print = process.env.VUE_APP_IMPRESSAO == 'true'
       this.initEverything()
       this.addEvents()
-      
+
+      // attach handlers to the confirm modal show/hide to manage auto-close
+      const confirmaEl = document.getElementById('confirmaVendaModal')
+      if (confirmaEl) {
+        this._confirmaModalShownHandler = () => { this.onConfirmaModalShown() }
+        this._confirmaModalHiddenHandler = () => { this.onConfirmaModalHidden() }
+        confirmaEl.addEventListener('shown.bs.modal', this._confirmaModalShownHandler)
+        confirmaEl.addEventListener('hidden.bs.modal', this._confirmaModalHiddenHandler)
+      }
+
       if (this.print) {
         this.signQZConnection()
         this.startQZConnection()
@@ -1224,21 +1406,83 @@ export default {
     }
   },
   methods: {
+
+
     async initEverything() {
       this.pressedKeys = new Set()
-      this.status = 'b_params'   
-      await this.initParams()  
+      this.status = 'b_params'
+      await this.initParams()
       this.status = 'b_representantes'
-      await this.initRepresentantes()    
+      await this.initRepresentantes()
       this.status = 'b_clientes'
-      await this.initClientes()    
+      await this.initClientes()
       this.status = 'b_formas'
-      await this.initFormasPagto()  
-      this.status = ''  
+      await this.initFormasPagto()
+      this.status = ''
     },
     restartRecords() {
       this.clearEverything()
       this.initEverything()
+    },
+    isConfirmaModalShown() {
+      const modalEl = document.getElementById('confirmaVendaModal')
+      return modalEl ? modalEl.classList.contains('show') : false
+    },
+
+    onConfirmaModalShown() {
+      // A contagem automática foi removida; manter flag para compatibilidade
+      this.autoCloseCanceled = false
+      // anteriormente aqui havia um timer de 5 segundos; a funcionalidade foi desativada
+    },
+
+    onConfirmaModalHidden() {
+      this.cancelAutoCloseCountdown()
+      this.autoCloseCanceled = false
+    },
+
+    closeConfirmaVendaModal() {
+      // Only hide the modal; do not cancel payments or clear order data.
+      try {
+        const modalEl = document.getElementById('confirmaVendaModal')
+        if (modalEl) {
+          if (window.bootstrap && window.bootstrap.Modal) {
+            const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl)
+            modal.hide()
+          } else {
+            // fallback: manually hide
+            modalEl.classList.remove('show')
+            modalEl.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        }
+      } catch (ex) {
+        console.error('Error hiding confirmaVendaModal:', ex)
+      }
+
+      // Reset finalizing flags so UI returns to normal state
+      this.finalizandoVenda = false
+      this.fecharVenda = false
+      this.gerarPedido = false
+      this.comPedido = false
+
+      // Cancel any auto-close timers (no-op if none)
+      this.cancelAutoCloseCountdown()
+    },
+
+    startAutoCloseCountdown() {
+      // Auto-close intentionally disabled to remove 5s behavior.
+      // Keep method to avoid "not a function" errors from callers.
+      return
+    },
+
+    cancelAutoCloseCountdown() {
+      if (this._autoCloseTimer) {
+        clearTimeout(this._autoCloseTimer)
+        this._autoCloseTimer = null
+      }
+      this.autoCloseCanceled = true
     },
     clearEverything() {
       this.emptyStorage()
@@ -1359,12 +1603,12 @@ export default {
     },
     addEvents() {
       let self = this
-      document.addEventListener('keyup', function(ev) {
-          self.deleteKey(ev.key)
+      document.addEventListener('keyup', function (ev) {
+        self.deleteKey(ev.key)
       })
-      document.addEventListener('keydown', function(ev) {
-          self.handleNavigation(ev)
-          self.handleOption(ev)
+      document.addEventListener('keydown', function (ev) {
+        self.handleNavigation(ev)
+        self.handleOption(ev)
       })
 
       const inputIdeRep = document.getElementById('inputIdeRep')
@@ -1431,7 +1675,7 @@ export default {
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('O')) this.focusDeposito()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('S')) document.getElementById('selectTipDesc').focus()
             else if (this.pressedKeys.has('ALT') && this.pressedKeys.has('X')) {
-              if (this.itensCarrinho.length > 0) { 
+              if (this.itensCarrinho.length > 0) {
                 this.editarCarrinho()
               } else {
                 this.pressedKeys.clear()
@@ -1450,7 +1694,7 @@ export default {
               event.preventDefault()
               this.formaSelecionada = forma[0]
               this.attemptToFillCondicaoPagto()
-            } 
+            }
           } else if (this.finalizandoVenda) {
             if (this.pressedKeys.has('ENTER')) {
               if (this.isPedidoSelectedAndFechado) await this.callNFCe(this.pedidoSelected.numPed)
@@ -1486,7 +1730,7 @@ export default {
 
     handleNavigation(event) {
       if (sessionStorage.getItem('form') === 'Venda') {
-        if(this.itensCarrinho.length && this.editandoCarrinho) {
+        if (this.itensCarrinho.length && this.editandoCarrinho) {
           if (event.keyCode === 38) this.focusTableCar(-1)
           else if (event.keyCode === 40) this.focusTableCar(1)
         }
@@ -1500,11 +1744,39 @@ export default {
 
     noInputIsFocused() {
       const inputs = document.getElementsByClassName('form-control')
-      for(let i = 0; i < inputs.length; i++) {
-        if(document.activeElement === inputs[i])
+      for (let i = 0; i < inputs.length; i++) {
+        if (document.activeElement === inputs[i])
           return false
       }
       return true
+    },
+
+    handleCloseConfirmaVenda(event) {
+      // block user-initiated close (mouse click on X)
+      // allow programmatic close (element.click()), which is not a trusted event
+      try {
+        if (event && event.isTrusted) {
+          // user clicked the close button -> ignore
+          return
+        }
+
+        const modalEl = document.getElementById('confirmaVendaModal')
+        if (modalEl) {
+          if (window.bootstrap && window.bootstrap.Modal) {
+            const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl)
+            modal.hide()
+          } else {
+            // fallback: manually hide
+            modalEl.classList.remove('show')
+            modalEl.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        }
+      } catch (ex) {
+        console.error('handleCloseConfirmaVenda error', ex)
+      }
     },
 
     scrollToElement(element) {
@@ -1524,26 +1796,26 @@ export default {
     },
 
     signQZConnection() {
-      qz.security.setCertificatePromise(function(resolve, reject) {
+      qz.security.setCertificatePromise(function (resolve, reject) {
         resolve(CERT)
       })
 
       qz.security.setSignatureAlgorithm("SHA512")
-      qz.security.setSignaturePromise(function(toSign) {
-          return function(resolve, reject) {
-              try {
-                  var pk = KEYUTIL.getKey(PRIVATE_KEY)
-                  var sig = new KJUR.crypto.Signature({"alg": "SHA512withRSA"})
-                  sig.init(pk)
-                  sig.updateString(toSign)
-                  var hex = sig.sign()
-                  resolve(stob64(hextorstr(hex)))
-              } catch (err) {
-                  console.error(err)
-                  alert('Ocorreu um erro ao assinar conexão com o QZ Tray. Verifique! Erro: \n' + err)
-                  reject(err)
-              }
+      qz.security.setSignaturePromise(function (toSign) {
+        return function (resolve, reject) {
+          try {
+            var pk = KEYUTIL.getKey(PRIVATE_KEY)
+            var sig = new KJUR.crypto.Signature({ "alg": "SHA512withRSA" })
+            sig.init(pk)
+            sig.updateString(toSign)
+            var hex = sig.sign()
+            resolve(stob64(hextorstr(hex)))
+          } catch (err) {
+            console.error(err)
+            alert('Ocorreu um erro ao assinar conexão com o QZ Tray. Verifique! Erro: \n' + err)
+            reject(err)
           }
+        }
       })
     },
 
@@ -1561,20 +1833,20 @@ export default {
     async initRepresentantes() {
       if (!sessionStorage.getItem('representantes')) {
         await api.getRepresentantes()
-        .then((response) => {
-          this.representantes = response.data
-          this.representantesFiltrados = this.representantes
-          if(this.representantes.length === 1) this.selectRepresentante(this.representantes[0])
-          sessionStorage.setItem('representantes', JSON.stringify(this.representantes))
-        })
-        .catch((err) => {
-          console.log(err)
-          shared.handleRequestError(err)
-        })
+          .then((response) => {
+            this.representantes = response.data
+            this.representantesFiltrados = this.representantes
+            if (this.representantes.length === 1) this.selectRepresentante(this.representantes[0])
+            sessionStorage.setItem('representantes', JSON.stringify(this.representantes))
+          })
+          .catch((err) => {
+            console.log(err)
+            shared.handleRequestError(err)
+          })
       } else {
         this.representantes = JSON.parse(sessionStorage.getItem('representantes'))
         this.representantesFiltrados = this.representantes
-        if(this.representantes.length === 1) this.selectRepresentante(this.representantes[0])
+        if (this.representantes.length === 1) this.selectRepresentante(this.representantes[0])
       }
     },
 
@@ -1583,10 +1855,10 @@ export default {
       this.codRep = ''
       this.representantesFiltro = ''
 
-      if(!this.representantes.length) await this.initRepresentantes()
+      if (!this.representantes.length) await this.initRepresentantes()
     },
 
-    searchRepresentantes() {  
+    searchRepresentantes() {
       this.filtrarRepresentantes(this.ideRep)
       if (this.representantesFiltrados.length === 1) { // encontramos, selecionar
         this.selectRepresentante(this.representantesFiltrados[0])
@@ -1599,7 +1871,7 @@ export default {
       this.ideRep = row.nomRep
       this.codRep = row.codRep
       document.getElementById('closeModalRepresentantes').click()
-      
+
       this.tabelasPreco = []
 
       await this.initTabelasPreco()
@@ -1612,7 +1884,7 @@ export default {
         else if (this.isPedidoSelectedAndFechado()) alert('Para atualizar o pedido de orçamento, selecione uma tabela de preços')
       } else {
         if (this.paramsPDV.codTpr !== '') {
-          this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr}, true)
+          this.selectTabelaPreco({ codTpr: this.paramsPDV.codTpr }, true)
         } else {
           alert('Não existe nenhuma tabela de preço ligada a este representante e nenhuma tabela de preço cadastrada nos parâmetros do PDV. '
             + 'Por favor, contate o administrador do sistema.')
@@ -1622,8 +1894,8 @@ export default {
 
     filtrarRepresentantes(filter) {
       this.representantesFiltrados = this.representantes.filter(rep => (rep.codRep === filter ||
-                  rep.nomRep.toUpperCase().includes(filter.toUpperCase()) ||
-                  rep.apeRep.toUpperCase().includes(filter.toUpperCase())))
+        rep.nomRep.toUpperCase().includes(filter.toUpperCase()) ||
+        rep.apeRep.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexRep = 0
 
       shared.populateTabIndex(this.representantesFiltrados)
@@ -1652,13 +1924,13 @@ export default {
     },
 
     filtrarModalRepresentantes(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+      if (key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarRepresentantes(this.representantesFiltro)
     },
 
     focusTableRep(value) {
       this.tableIndexRep += value
-      if (this.tableIndexRep < 0) 
+      if (this.tableIndexRep < 0)
         this.tableIndexRep = 0
       else if (this.tableIndexRep >= this.representantesFiltrados.length)
         this.tableIndexRep = (this.representantesFiltrados.length - 1)
@@ -1666,11 +1938,11 @@ export default {
       let elementToScroll
       if (this.tableIndexRep > 0)
         elementToScroll = document.getElementById('tabRep' + this.tableIndexRep)
-      else 
+      else
         elementToScroll = document.getElementById('inputRepresentantesFiltro')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     repListHit() {
       const rep = this.representantesFiltrados.find(repFil => repFil.tabIndex === this.tableIndexRep)
@@ -1692,15 +1964,15 @@ export default {
     },
 
     tryDefinirDeposito() {
-      if(sessionStorage.getItem('depositoSelected')) {
+      if (sessionStorage.getItem('depositoSelected')) {
         const dep = JSON.parse(sessionStorage.getItem('depositoSelected'))
         this.selectDeposito(dep, true)
       }
-      else if(this.paramsPDV.depPad !== '') {
-        const depPad = this.depositos.find(dep => dep.codDep === this.paramsPDV.depPad)  
+      else if (this.paramsPDV.depPad !== '') {
+        const depPad = this.depositos.find(dep => dep.codDep === this.paramsPDV.depPad)
         if (depPad) this.selectDeposito(depPad, true)
       }
-      else if(this.depositos.length === 1) this.selectDeposito(this.depositos[0], true)
+      else if (this.depositos.length === 1) this.selectDeposito(this.depositos[0], true)
     },
 
     async beginDeposito() {
@@ -1708,10 +1980,10 @@ export default {
       this.codDep = ''
       this.depositosFiltro = ''
 
-      if(!this.depositos.length) await this.initDepositos()
+      if (!this.depositos.length) await this.initDepositos()
     },
 
-    searchDepositos() {  
+    searchDepositos() {
       this.filtrarDepositos(this.ideDep)
       if (this.depositosFiltrados.length === 1) { // encontramos, selecionar
         this.selectDeposito(this.depositosFiltrados[0], true)
@@ -1739,7 +2011,7 @@ export default {
 
     filtrarDepositos(filter) {
       this.depositosFiltrados = this.depositos.filter(dep => (dep.codDep === filter ||
-                  dep.desDep.toUpperCase().includes(filter.toUpperCase())))
+        dep.desDep.toUpperCase().includes(filter.toUpperCase())))
       this.tableIndexDep = 0
 
       shared.populateTabIndex(this.depositosFiltrados)
@@ -1768,13 +2040,13 @@ export default {
     },
 
     filtrarModalDepositos(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+      if (key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarDepositos(this.depositosFiltro)
     },
 
     focusTableDep(value) {
       this.tableIndexDep += value
-      if (this.tableIndexDep < 0) 
+      if (this.tableIndexDep < 0)
         this.tableIndexDep = 0
       else if (this.tableIndexDep >= this.depositosFiltrados.length)
         this.tableIndexDep = (this.depositosFiltrados.length - 1)
@@ -1782,11 +2054,11 @@ export default {
       let elementToScroll
       if (this.tableIndexDep > 0)
         elementToScroll = document.getElementById('tabDep' + this.tableIndexDep)
-      else 
+      else
         elementToScroll = document.getElementById('inputDepositosFiltro')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     depListHit() {
       const dep = this.depositosFiltrados.find(depFil => depFil.tabIndex === this.tableIndexDep)
@@ -1797,16 +2069,16 @@ export default {
     async initClientes() {
       if (!sessionStorage.getItem('clientes')) {
         await api.getClientesSimplified()
-        .then((response) => {
-          this.clientes = response.data
-          this.clientesFiltrados = this.clientes
-          this.paginarClientes()
-          sessionStorage.setItem('clientes', JSON.stringify(this.clientes))
-        })
-        .catch((err) => {
-          console.log(err)
-          shared.handleRequestError(err)
-        })
+          .then((response) => {
+            this.clientes = response.data
+            this.clientesFiltrados = this.clientes
+            this.paginarClientes()
+            sessionStorage.setItem('clientes', JSON.stringify(this.clientes))
+          })
+          .catch((err) => {
+            console.log(err)
+            shared.handleRequestError(err)
+          })
       } else {
         this.clientes = JSON.parse(sessionStorage.getItem('clientes'))
         this.clientesFiltrados = this.clientes
@@ -1844,7 +2116,7 @@ export default {
       this.codCli = ''
       this.clientesFiltro = ''
 
-      if(!this.clientes.length) await this.initClientes()
+      if (!this.clientes.length) await this.initClientes()
     },
 
     searchClientes() {
@@ -1859,7 +2131,7 @@ export default {
     async selectCliente(row, applyCheck) {
       if (this.isPedidoSelectedAndFechado()) {
         this.showMsgPedidoFechado()
-      } 
+      }
       else if (applyCheck && !await this.dadosClientePreenchidos(row)) {
         if (this.erroCliente) alert('O cliente possui dados incompletos!')
         else this.erroCliente = true
@@ -1889,7 +2161,7 @@ export default {
             clienteSearched.endCli.trim() === '' ||
             clienteSearched.baiCli.trim() === '' ||
             clienteSearched.cidCli.trim() === '' ||
-            clienteSearched.sigUfs.trim() === '' )
+            clienteSearched.sigUfs.trim() === '')
             return false
           else return true
         })
@@ -1901,15 +2173,15 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.buscandoDadosCliente = false
         })
-      
-        return dadosPreenchidos
+
+      return dadosPreenchidos
     },
 
     filtrarClientes(filter) {
       this.clientesFiltrados = this.clientes.filter(cli => (cli.codCli === filter ||
-                  cli.nomCli.toUpperCase().includes(filter.toUpperCase()) ||
-                  cli.apeCli.toUpperCase().includes(filter.toUpperCase()) ||
-                  cli.cgcCpf.startsWith(filter)))
+        cli.nomCli.toUpperCase().includes(filter.toUpperCase()) ||
+        cli.apeCli.toUpperCase().includes(filter.toUpperCase()) ||
+        cli.cgcCpf.startsWith(filter)))
       this.tableIndexCli = 0
 
       this.paginarClientes()
@@ -1932,10 +2204,10 @@ export default {
     },
 
     navegarModalClientes(key) {
-      if (key.keyCode === 37){
+      if (key.keyCode === 37) {
         this.changePageCli(-1)
         key.preventDefault()
-      } 
+      }
       else if (key.keyCode === 38) {
         this.focusTableCli(-1)
         key.preventDefault()
@@ -1952,13 +2224,13 @@ export default {
     },
 
     filtrarModalClientes(key) {
-      if(key.keyCode !== 37 && key.keyCode !== 38 && key.keyCode !== 39 && key.keyCode !== 40 && key.keyCode !== 13)
+      if (key.keyCode !== 37 && key.keyCode !== 38 && key.keyCode !== 39 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarClientes(this.clientesFiltro)
     },
 
     focusTableCli(value) {
       this.tableIndexCli += value
-      if (this.tableIndexCli < 0) 
+      if (this.tableIndexCli < 0)
         this.tableIndexCli = 0
       else if (this.tableIndexCli >= this.ipp)
         this.tableIndexCli = (this.ipp - 1)
@@ -1966,11 +2238,11 @@ export default {
       let elementToScroll
       if (this.tableIndexCli > 0)
         elementToScroll = document.getElementById('tabCli' + this.tableIndexCli)
-      else 
+      else
         elementToScroll = document.getElementById('inputClientesFiltro')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     cliListHit() {
       const cli = this.clientesFiltrados.find(cliFil => cliFil.tabIndex === this.tableIndexCli && cliFil.numPag === this.numPagCli)
@@ -1980,7 +2252,7 @@ export default {
     async abrirDadosCliente(cliente) {
       this.erroCliente = false
       this.buscandoDadosCliente = true
-      
+
       let clienteFull = await api.getCliente(cliente.codCli, null)
         .then((response) => {
           return response.data
@@ -1993,7 +2265,7 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.buscandoDadosCliente = false
         })
-      
+
       this.habilitarCadastroCliente()
       this.preencherDadosCadastroCliente(clienteFull)
     },
@@ -2019,7 +2291,7 @@ export default {
       document.getElementById('closeModalClientes').click()
       this.clearInputsCadCli()
 
-      if(this.isRepresentanteEmpty()) {
+      if (this.isRepresentanteEmpty()) {
         alert('Para cadastrar um novo cliente, é necessário informar o representante!')
         document.getElementById('inputIdeRep').focus()
       } else {
@@ -2033,27 +2305,27 @@ export default {
     },
 
     async validarCgcCpf() {
-      if(!this.validandoCPF) {
+      if (!this.validandoCPF) {
         this.validandoCPF = true
         this.buscandoDadosCliente = true
         let cgcCpf = document.getElementById('inputCgcCpf').value
-        cgcCpf = cgcCpf.replace('/','').replace('-','').replace('.','').replace('.','')
+        cgcCpf = cgcCpf.replace('/', '').replace('-', '').replace('.', '').replace('.', '')
         const cliente = this.clientes.find(cli => cli.cgcCpf === cgcCpf)
         this.clienteExistente = false
         if (cliente) this.clienteExistente = true
         else {
           if (this.cadCliTipCli === 'F' && cgcCpf.length === 11 ||
-              this.cadCliTipCli === 'J' && cgcCpf.length === 14) {
+            this.cadCliTipCli === 'J' && cgcCpf.length === 14) {
             document.getElementsByTagName('body')[0].style.cursor = 'auto'
             let clienteSearched = await api.getCliente(null, cgcCpf)
               .then((response) => {
                 return response.data
               })
-              .catch(() => {})
+              .catch(() => { })
               .finally(() => {
                 document.getElementsByTagName('body')[0].style.cursor = 'auto'
               })
-            if(clienteSearched) {
+            if (clienteSearched) {
               alert('Cliente encontrado com cadastro em outra filial. Favor atualizar o cadastro para incluir na filial atual.')
               this.preencherDadosCadastroCliente(clienteSearched)
             }
@@ -2073,28 +2345,28 @@ export default {
 
         await api.consultarCEP(numCep)
           .then((response) => {
-              const retornoCEP = response.data
-              this.cadCliEndCli = retornoCEP.logradouro
-              this.cadCliBaiCli = retornoCEP.bairro
-              this.cadCliCidCli = retornoCEP.localidade
-              this.cadCliSigUfs = retornoCEP.uf
-              this.cadCliCodRai = retornoCEP.ibge
-            })
-            .catch((err) => {
-              console.log(err)
-              alert('Não foi possível localizar as informações para o CEP informado.')
-            })
-            .finally(() => {
-              document.getElementsByTagName('body')[0].style.cursor = 'auto'
-              document.getElementById('inputCadCliCepCli').disabled = false
-              document.getElementById('inputCadCliCepCli').focus()
-              this.buscandoCEP = false
-            })
+            const retornoCEP = response.data
+            this.cadCliEndCli = retornoCEP.logradouro
+            this.cadCliBaiCli = retornoCEP.bairro
+            this.cadCliCidCli = retornoCEP.localidade
+            this.cadCliSigUfs = retornoCEP.uf
+            this.cadCliCodRai = retornoCEP.ibge
+          })
+          .catch((err) => {
+            console.log(err)
+            alert('Não foi possível localizar as informações para o CEP informado.')
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            document.getElementById('inputCadCliCepCli').disabled = false
+            document.getElementById('inputCadCliCepCli').focus()
+            this.buscandoCEP = false
+          })
       }
     },
 
     async cadastrarCliente() {
-      if(this.validarCamposCliente()) {
+      if (this.validarCamposCliente()) {
         const cliente = {
           codCli: this.cadCliCodCli !== '' ? this.cadCliCodCli : '0',
           tipCli: this.cadCliTipCli,
@@ -2117,11 +2389,11 @@ export default {
         this.setEverythingDisabled('cadastro-cliente', true)
         await api.postCliente(cliente)
           .then((response) => {
-            alert('Cliente cadastrado com sucesso.')    
+            alert('Cliente cadastrado com sucesso.')
             this.clientes = []
             sessionStorage.removeItem('clientes')
             this.beginCliente()
-            
+
             const newCli = {
               codCli: response.data.codCli,
               nomCli: cliente.nomCli.toUpperCase(),
@@ -2148,7 +2420,7 @@ export default {
           .catch((err) => {
             console.log(err)
             shared.handleRequestError(err)
-            if(err.response.data) {
+            if (err.response.data) {
               document.getElementById('selectTipCli').focus()
             }
           })
@@ -2195,7 +2467,7 @@ export default {
       return true
     },
 
-    /* Produtos */    
+    /* Produtos */
     beginProduto() {
       this.codBar = ''
       this.produtosFiltro = ''
@@ -2219,7 +2491,7 @@ export default {
       } else {
         const newItem = Object.create(row)
         const itemDoCarrinho = this.itensCarrinho.find(itemCar => itemCar.codPro === newItem.codPro && itemCar.codDer === newItem.codDer)
-        if (itemDoCarrinho)  {
+        if (itemDoCarrinho) {
           itemDoCarrinho.qtdPed += qtde
           itemDoCarrinho.obsIpd = obsIpd
           itemDoCarrinho.tipOpeVlrIpd = tipOpeVlrIpd
@@ -2279,7 +2551,7 @@ export default {
         produto.preBas = 0
         produto.vlrTot = 0
         produto.vlrLiq = 0
-        alert ('Preço não encontrado para quantidade comprada.')
+        alert('Preço não encontrado para quantidade comprada.')
       }
     },
 
@@ -2311,18 +2583,18 @@ export default {
     },
 
     async calcularValorLiqItens() {
-      for(let i = 0; i < this.itensCarrinho.length; i++) {
+      for (let i = 0; i < this.itensCarrinho.length; i++) {
         const item = this.itensCarrinho[i]
         if (item.tipDsc === 'valor') {
-          const vlrDsc = Number(item.vlrDsc.replace('.','').replace(',','.').trim())
-          if(vlrDsc > item.vlrTot) {
+          const vlrDsc = Number(item.vlrDsc.replace('.', '').replace(',', '.').trim())
+          if (vlrDsc > item.vlrTot) {
             alert('O desconto não pode ser maior que o valor do produto!')
             this.limparDescontoItem(item)
             return false
           }
           item.vlrLiq = item.vlrTot - vlrDsc
         } else if (item.tipDsc === 'porcentagem') {
-          const perDsc = Number(item.perDsc.replace(',','.').trim())
+          const perDsc = Number(item.perDsc.replace(',', '.').trim())
           item.vlrLiq = await this.calcularItemComDescontoAPI(item.vlrTot, (perDsc / 100))
         } else {
           item.vlrLiq = item.vlrTot
@@ -2345,23 +2617,23 @@ export default {
       item.vlrDsc = ''
       item.perDsc = ''
     },
-    
+
     filtrarProdutos(filter) {
       if (filter.includes(' ')) {
         const terms = filter.toUpperCase().split(' ').filter(term => term !== '')
         this.produtosFiltrados = this.produtosTabelaPreco.filter(pro => {
           let matches = 0
-          
+
           terms.forEach(term => {
             pro.desPro.toUpperCase().split(' ').forEach(desc => {
               if (desc.startsWith(term)) matches++
             })
           })
 
-          if (terms.length === 1) {  
+          if (terms.length === 1) {
             if (pro.codPro.toUpperCase().includes(terms[0])) matches++
           }
-          else if (terms.length === 2) {  
+          else if (terms.length === 2) {
             if (pro.codPro.toUpperCase().includes(terms[0])) matches++
             if (pro.codDer.toUpperCase().includes(terms[1])) matches++
           }
@@ -2369,9 +2641,9 @@ export default {
           return matches === terms.length
         })
       } else {
-      this.produtosFiltrados = this.produtosTabelaPreco.filter(pro => (pro.codBar === filter ||
-                  pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
-                  pro.desPro.toUpperCase().includes(filter.toUpperCase())))
+        this.produtosFiltrados = this.produtosTabelaPreco.filter(pro => (pro.codBar === filter ||
+          pro.codPro.toUpperCase().includes(filter.toUpperCase()) ||
+          pro.desPro.toUpperCase().includes(filter.toUpperCase())))
       }
 
       this.tableIndexPro = 0
@@ -2420,10 +2692,10 @@ export default {
     },
 
     navegarModalProdutos(key) {
-      if (key.keyCode === 37){
+      if (key.keyCode === 37) {
         this.changePagePro(-1)
         key.preventDefault()
-      } 
+      }
       else if (key.keyCode === 38) {
         this.focusTablePro(-1)
         key.preventDefault()
@@ -2440,13 +2712,13 @@ export default {
     },
 
     filtrarModalProdutos(key) {
-      if(key.keyCode !== 37 && key.keyCode !== 38 && key.keyCode !== 39 && key.keyCode !== 40 && key.keyCode !== 13)
+      if (key.keyCode !== 37 && key.keyCode !== 38 && key.keyCode !== 39 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarProdutos(this.produtosFiltro)
     },
 
     focusTablePro(value) {
       this.tableIndexPro += value
-      if (this.tableIndexPro < 0) 
+      if (this.tableIndexPro < 0)
         this.tableIndexPro = 0
       else if (this.tableIndexPro >= this.produtosFiltrados.length)
         this.tableIndexPro = (this.produtosFiltrados.length - 1)
@@ -2454,11 +2726,11 @@ export default {
       let elementToScroll
       if (this.tableIndexPro > 0)
         elementToScroll = document.getElementById('tabPro' + this.tableIndexPro)
-      else 
+      else
         elementToScroll = document.getElementById('inputProdutosFiltro')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     proListHit() {
       const pro = this.produtosFiltrados.find(proFil => proFil.tabIndex === this.tableIndexPro && proFil.numPag === this.numPagPro)
@@ -2467,7 +2739,7 @@ export default {
 
     focusTableCar(value) {
       this.tableIndexCar += value
-      if (this.tableIndexCar < 0) 
+      if (this.tableIndexCar < 0)
         this.tableIndexCar = 0
       else if (this.tableIndexCar >= this.itensCarrinho.length)
         this.tableIndexCar = (this.itensCarrinho.length - 1)
@@ -2475,11 +2747,11 @@ export default {
       let elementToScroll
       if (this.tableIndexCar > 0)
         elementToScroll = document.getElementById('tabCar' + this.tableIndexCar)
-      else 
+      else
         elementToScroll = document.getElementById('cart-head')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     editarCarrinho() {
       this.editandoCarrinho = true
@@ -2499,13 +2771,13 @@ export default {
         this.gerarPedido = false
         await this.removerItemPedido(item)
       }
-    },  
+    },
 
     async removerItemPedido(item) {
       item.excluir = true
       const itens = []
       itens.push(item)
-      
+
       this.comPedido = true
       this.enviarPedido(itens, false)
     },
@@ -2518,7 +2790,7 @@ export default {
         document.getElementById('inputEditarCarrinho').focus()
         document.getElementById('inputEditarCarrinho').select()
       })
-    },  
+    },
 
     async alterarQuantidadeItem() {
       this.newValue = Number(this.newValue)
@@ -2614,28 +2886,28 @@ export default {
         this.comPedido = true
         await this.enviarVenda(false)
       }
-      this.itemEditando = null  
+      this.itemEditando = null
     },
 
     /* Tabelas Preco */
     async initTabelasPreco() {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       await api.getTabelasPreco(this.codRep)
-      .then((response) => {
-        this.tabelasPreco = response.data
-        this.tabelasPrecoFiltrados = this.tabelasPreco
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-      .finally(() => {
-        document.getElementsByTagName('body')[0].style.cursor = 'auto'
-      })
+        .then((response) => {
+          this.tabelasPreco = response.data
+          this.tabelasPrecoFiltrados = this.tabelasPreco
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        })
     },
 
     beginTabelasPreco() {
-      if(!this.codRep.length) {
+      if (!this.codRep.length) {
         alert('Favor informar um representante!')
         document.getElementById('inputIdeRep').focus()
       } else {
@@ -2657,7 +2929,7 @@ export default {
       } else {
         if (this.paramsPDV.codTpr !== '') {
           alert('Nenhuma tabela encontrada para o representante. Utilizando tabela padrão.')
-          await this.selectTabelaPreco({codTpr: this.paramsPDV.codTpr}, openModal)
+          await this.selectTabelaPreco({ codTpr: this.paramsPDV.codTpr }, openModal)
         } else {
           alert('Nenhuma tabela encontrada para o representante!')
         }
@@ -2673,11 +2945,11 @@ export default {
           this.showMsgPedidoFechado()
         } else {
           document.getElementById('closeModalTabelasPreco').click()
-          
+
           await this.preencherTabelaPrecoECarregarProdutos(row.codTpr)
-          
+
           if (this.pedidoSelected) {
-            if(this.checarItensCarrinhoNovaTabela()) {
+            if (this.checarItensCarrinhoNovaTabela()) {
               if (atualizar) {
                 this.status = 'a_precos'
                 this.atualizarPrecosCarrinho()
@@ -2705,9 +2977,9 @@ export default {
     },
 
     async checarItensCarrinhoNovaTabela() {
-      for(let i = 0; i < this.itensCarrinho.length; i++) {
-        if (!this.produtosTabelaPreco.some(produto => produto.codPro === this.itensCarrinho[i].codPro 
-                                  && produto.codDer === this.itensCarrinho[i].codDer)) {
+      for (let i = 0; i < this.itensCarrinho.length; i++) {
+        if (!this.produtosTabelaPreco.some(produto => produto.codPro === this.itensCarrinho[i].codPro
+          && produto.codDer === this.itensCarrinho[i].codDer)) {
           alert('Existem produtos no carrinho que não estão presentes na tabela de preço selecionada. Favor selecionar uma tabela válida!')
           return false
         }
@@ -2726,14 +2998,14 @@ export default {
       this.produtosTabelaPreco = []
       const codTpr = this.codTpr
       await api.getProdutosTabelaPreco(codTpr)
-      .then((response) => {
-        this.produtosTabelaPreco = response.data
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
-      .finally(() => this.buscandoProdutos = false)
+        .then((response) => {
+          this.produtosTabelaPreco = response.data
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
+        .finally(() => this.buscandoProdutos = false)
     },
 
     filtrarTabelasPreco(filter) {
@@ -2766,13 +3038,13 @@ export default {
     },
 
     filtrarModalTabelasPreco(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+      if (key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarTabelasPreco(this.tabelasPrecoFiltro)
     },
 
     focusTableTpr(value) {
       this.tableIndexTpr += value
-      if (this.tableIndexTpr < 0) 
+      if (this.tableIndexTpr < 0)
         this.tableIndexTpr = 0
       else if (this.tableIndexTpr >= this.tabelasPrecoFiltrados.length)
         this.tableIndexTpr = (this.tabelasPrecoFiltrados.length - 1)
@@ -2780,11 +3052,11 @@ export default {
       let elementToScroll
       if (this.tableIndexTpr > 0)
         elementToScroll = document.getElementById('tabTpr' + this.tableIndexTpr)
-      else 
+      else
         elementToScroll = document.getElementById('inputTabelasPrecoFiltro')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     tprListHit() {
       const tpr = this.tabelasPrecoFiltrados.find(tprFil => tprFil.tabIndex === this.tableIndexTpr)
@@ -2795,14 +3067,14 @@ export default {
     async initFormasPagto() {
       if (!sessionStorage.getItem('formasPagto')) {
         await api.getFormasPagto()
-        .then((response) => {
-          this.formasPagto = response.data
-          sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
-        })
-        .catch((err) => {
-          shared.handleRequestError(err)
-          console.log(err)
-        })
+          .then((response) => {
+            this.formasPagto = response.data
+            sessionStorage.setItem('formasPagto', JSON.stringify(this.formasPagto))
+          })
+          .catch((err) => {
+            shared.handleRequestError(err)
+            console.log(err)
+          })
       } else {
         this.formasPagto = JSON.parse(sessionStorage.getItem('formasPagto'))
       }
@@ -2812,35 +3084,35 @@ export default {
     async initParams() {
       if (!sessionStorage.getItem('paramsPDV')) {
         await api.getUserParams()
-        .then((response) => {
-          this.paramsPDV = {
-            codTpr: response.data.parametrosPDV.codTpr,
-            dscTot: response.data.parametrosPDV.dscTot,
-            depositos: response.data.parametrosPDV.depositos,
-            ramos: response.data.parametrosPDV.ramos,
-            depPad: response.data.parametrosPDV.codDep,
-            codEmp: response.data.parametrosPDV.codEmp,
-            codFil: response.data.parametrosPDV.codFil,
-            nomEmp: response.data.parametrosPDV.nomEmp,
-            nomFil: response.data.parametrosPDV.nomFil,
-            nomUsu: response.data.parametrosPDV.nomUsu,
-            codIp: response.data.parametrosPDV.codIp,
-            indImp: response.data.parametrosPDV.indImp,
-            qtdImp: response.data.parametrosPDV.qtdImp,
-            codCli: response.data.parametrosPDV.codCli,
-            botOrc: response.data.parametrosPDV.botOrc,
-            botPed: response.data.parametrosPDV.botPed,
-            botPnf: response.data.parametrosPDV.botPnf,
-            botNfc: response.data.parametrosPDV.botNfc
-          }
-          this.initDepositos()
-          sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
+          .then((response) => {
+            this.paramsPDV = {
+              codTpr: response.data.parametrosPDV.codTpr,
+              dscTot: response.data.parametrosPDV.dscTot,
+              depositos: response.data.parametrosPDV.depositos,
+              ramos: response.data.parametrosPDV.ramos,
+              depPad: response.data.parametrosPDV.codDep,
+              codEmp: response.data.parametrosPDV.codEmp,
+              codFil: response.data.parametrosPDV.codFil,
+              nomEmp: response.data.parametrosPDV.nomEmp,
+              nomFil: response.data.parametrosPDV.nomFil,
+              nomUsu: response.data.parametrosPDV.nomUsu,
+              codIp: response.data.parametrosPDV.codIp,
+              indImp: response.data.parametrosPDV.indImp,
+              qtdImp: response.data.parametrosPDV.qtdImp,
+              codCli: response.data.parametrosPDV.codCli,
+              botOrc: response.data.parametrosPDV.botOrc,
+              botPed: response.data.parametrosPDV.botPed,
+              botPnf: response.data.parametrosPDV.botPnf,
+              botNfc: response.data.parametrosPDV.botNfc
+            }
+            this.initDepositos()
+            sessionStorage.setItem('paramsPDV', JSON.stringify(this.paramsPDV))
 
-        })
-        .catch((err) => {
-          shared.handleRequestError(err)
-          console.log(err)
-        })
+          })
+          .catch((err) => {
+            shared.handleRequestError(err)
+            console.log(err)
+          })
       } else {
         this.paramsPDV = JSON.parse(sessionStorage.getItem('paramsPDV'))
         this.initDepositos()
@@ -2875,25 +3147,41 @@ export default {
         this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
         this.resetPagamento()
-        document.getElementById('btnOpenFinalizarVendaModal').click()
-        
         const modalElement = document.getElementById('confirmaVendaModal')
-        modalElement.addEventListener('shown.bs.modal', () => {
-          document.getElementById('selectFpg').focus()
-        })
-        modalElement.addEventListener('hidden.bs.modal', () => {
-          this.focusProduto()
-        })
+        if (modalElement) {
+          try {
+            if (window.bootstrap && window.bootstrap.Modal) {
+              const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement)
+              modal.show()
+            } else {
+              modalElement.classList.add('show')
+              modalElement.style.display = 'block'
+              document.body.classList.add('modal-open')
+              // create backdrop
+              const backdrop = document.createElement('div')
+              backdrop.className = 'modal-backdrop fade show'
+              document.body.appendChild(backdrop)
+            }
+          } catch (ex) {
+            console.error('openFinalizarVendaModal show error', ex)
+          }
+          // focus handled by mounted listener or manually focus once shown
+          // if bootstrap isn't available, focus selectFpg immediately
+          if (!(window.bootstrap && window.bootstrap.Modal)) {
+            document.getElementById('selectFpg')?.focus()
+          }
+        }
       }
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
         this.msgConfirmacao = 'Tem certeza que deseja inserir o pedido de orçamento?'
-        document.getElementById('btnOpenInserirPedidoModal').click()
+        const btn = document.getElementById('btnOpenInserirPedidoModal')
+        if (btn) btn.click()
       }
     },
 
     attemptToFillCondicaoPagto() {
-      this.aplicarDescontoFormaPagto() 
+      this.aplicarDescontoFormaPagto()
       if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length === 1) {
         this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
         this.calcValorPagto()
@@ -2903,12 +3191,13 @@ export default {
       }
     },
 
-    async calcValorPagto() { 
+    async calcValorPagto() {
       this.valorParcial = this.valorPendente
       if (this.prcDescontoForma !== '') {
-        this.valorDescontoParcial = await this.calcularDescontoAPI(this.valorParcial, (Number(this.prcDescontoForma.replace(',', '.')) / 100))
+        this.valorDescontoParcial = await this.calcularDescontoAPI(this.valorParcial, (this.prcDescontoForma.replace(',', '.') / 100))
+        this.valorDescontoParcial = this.valorDescontoParcial.toFixed(2)
         this.valorDescontoParcial = shared.toMoneyString(this.valorDescontoParcial)
-        this.valorParcial = this.valorParcial - this.valorDescontoParcial
+        this.valorParcial = (this.valorParcial - this.valorDescontoParcial)
       } else {
         this.valorDescontoParcial = 0
       }
@@ -2935,11 +3224,51 @@ export default {
       inputVlrPago.select()
     },
 
-    handleInputValorPago (event) {
+    handleInputValorPago(event) {
+
       if (event.key === 'Enter') {
         this.processarPagto()
-      } else if(!this.isPagamentoDifferentThanDinheiro()) {
+      } else if (!this.isPagamentoDifferentThanDinheiro()) {
         this.calcularTroco()
+      }
+
+    },
+
+    handleFinalizarClick() {
+      // Hide the confirmation modal immediately so processing continues in background
+      try {
+        const modalEl = document.getElementById('confirmaVendaModal')
+        if (modalEl) {
+          if (window.bootstrap && window.bootstrap.Modal) {
+            const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl)
+            modal.hide()
+          } else {
+            // fallback: manually hide
+            modalEl.classList.remove('show')
+            modalEl.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        }
+      } catch (ex) {
+        console.error('Error hiding confirmaVendaModal before processing:', ex)
+      }
+
+      // If there is still an outstanding amount, try to process a payment
+      if (this.valorPendente > 0) {
+        // If a payment form and condition are selected, process it
+        if (this.formaSelecionada && this.condicaoSelecionada) {
+          this.processarPagto()
+        } else {
+          // Otherwise ask user to inform payment and focus the payment selector
+          alert('Favor informar o pagamento!')
+          const selectFpg = document.getElementById('selectFpg')
+          if (selectFpg) selectFpg.focus()
+        }
+      } else {
+        // No pending value: finalize the sale
+        this.finalizarVenda()
       }
     },
 
@@ -2948,15 +3277,15 @@ export default {
         const vlrPago = document.getElementById('inputVlrPago').value
         const vlrPagoNbr = Number(vlrPago.replace('.', '').replace(',', '.'))
         const troco = (vlrPagoNbr - this.valorParcial)
-        if (troco <= 0) this.vlrTroco = 'R$ 0,00' 
+        if (troco <= 0) this.vlrTroco = 'R$ 0,00'
         else this.vlrTroco = shared.toMoneyString(troco)
       } catch (ex) {
-        this.vlrTroco = 'R$ 0,00'  
+        this.vlrTroco = 'R$ 0,00'
       }
     },
 
     aplicarDescontoFormaPagto() {
-      if(this.formaSelecionada.perDsc !== '0,00') {
+      if (this.formaSelecionada.perDsc !== '0,00') {
         this.prcDescontoForma = this.formaSelecionada.perDsc
       } else {
         this.prcDescontoForma = ''
@@ -2964,13 +3293,17 @@ export default {
     },
 
     isPagamentoCartao() {
-      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && !['30','31'].includes(this.formaSelecionada.tipFpg)
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['4','6', '7', '17','18','19','20','22','23','24'].includes(this.formaSelecionada.tipFpg)
+    },   
+    isPagamentoCartaoCredito() {
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['6','18',].includes(this.formaSelecionada.tipFpg)
     },
-
+    isPagamentoCartaoDebito() {
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['7', '19'].includes(this.formaSelecionada.tipFpg)
+    },    
     isPagamentoPIXQrCode() {
-      return this.formaSelecionada && ['1','2'].includes(this.formaSelecionada.tipInt) && ['31'].includes(this.formaSelecionada.tipFpg)
+      return this.formaSelecionada && ['1', '2'].includes(this.formaSelecionada.tipInt) && ['30', '31'].includes(this.formaSelecionada.tipFpg)
     },
-
     isPagamentoDifferentThanDinheiro() {
       return this.formaSelecionada && this.formaSelecionada.tipFpg !== '01'
     },
@@ -2978,35 +3311,127 @@ export default {
     isPagamentoDinheiro() {
       return this.formaSelecionada && this.formaSelecionada.tipFpg === '01'
     },
-
+    isTEF() {
+      //return true      
+      return this.formaSelecionada.tipInt === '1'
+    },
     processarPagto() {
+
       if (!this.valorExcede()) {
-        if((this.isPagamentoCartao() && this.confirmarDadosCartao()) || 
-           (this.isPagamentoPIXQrCode() && this.confirmarDadosPIXQrCode()) ||
-           (this.isPagamentoCartao() === false && this.isPagamentoPIXQrCode() === false)) {
-          this.pagamentos.push({
-            forma: this.formaSelecionada,
-            condicao: this.condicaoSelecionada,
-            valorPago: this.valorPagoNumber(),
-            valorTroco: this.valorTrocoNumber(),
-            valorDesconto: Number(this.valorDescontoParcial),
-            valorTotalPago: shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial)),
-            banOpe: this.cartao.banOpe,
-            cgcCre: this.cartao.cgcCpf,
-            catTef: this.cartao.catTef,
-            nsuTef: this.cartao.nsuTef,
-          })
-          this.resetPagamento()
-          this.updateValorPendente()
-          if (this.valorPendente > 0)
-            document.getElementById('selectFpg').focus()
-          else
-            document.getElementById('btnProcessarVenda').disabled = false
-            document.getElementById('btnProcessarVenda').focus()
+
+        if (this.isTEF()) {
+          if (this.isPagamentoCartao() ) {
+            
+            const VALIDTEF = process.env.VUE_APP_VALIDTEF
+
+            if (this.isPagamentoPIXQrCode() ||              
+              (this.isPagamentoCartaoCredito() && (this.condicaoSelecionada.qtdParCpg === 1))) {
+
+              tef.payCredit(this.valorPagoNumber(), VALIDTEF, this.condicaoSelecionada.qtdParCpg, 1,
+                (resulcre) => {
+                  this.cartao.nsuTef = resulcre.administrativeCode
+                  this.cartao.catTef = resulcre.requestKey
+
+                  this.gravaPagto()
+                },
+                (erro) => {
+                  alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
+                }
+              )
+            }
+            else if ((this.isPagamentoCartaoCredito()) && (this.condicaoSelecionada.qtdParCpg > 1)) {
+
+              tef.payCredit(this.valorPagoNumber(), VALIDTEF, this.condicaoSelecionada.qtdParCpg, 2,
+                (resulcre) => {
+                  this.cartao.nsuTef = resulcre.administrativeCode
+                  this.cartao.catTef = resulcre.requestKey
+
+                  this.gravaPagto()
+                },
+                (erro) => {
+                  alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
+                }
+              )
+            }
+            else if (this.isPagamentoCartaoDebito()) {
+              tef.payDebit(this.valorPagoNumber(), VALIDTEF,
+                (resuldeb) => {
+
+                  this.cartao.nsuTef = resuldeb.administrativeCode
+                  this.cartao.catTef = resuldeb.requestKey
+                  this.gravaPagto()
+
+                },
+                (erro) => {
+                  alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
+                }
+              )
+            }
+          }
         }
+        else
+          this.gravaPagto()
+      }
+      else {
+        this.gravaPagto()
       }
     },
+    async fecharPagto() {
 
+      this.desfazerTransacaoTEF('F');
+      try {
+        const modalEl = document.getElementById('confirmaVendaModal')
+        if (modalEl) {
+          if (window.bootstrap && window.bootstrap.Modal) {
+            const modal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl)
+            modal.hide()
+          } else {
+            // fallback: manually hide
+            modalEl.classList.remove('show')
+            modalEl.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        }
+      } catch (ex) {
+        console.error('fecharPagto error', ex)
+      }
+
+      // Ensure the current pedido is cleared from the UI/state.
+      try {
+        this.clearPedido()
+      } catch (err) {
+        console.error('Failed to call clearPedido after fecharPagto', err)
+      }
+    },
+    gravaPagto() {
+      const vlrPago = this.valorPagoNumber()
+
+      this.valorPendente -= vlrPago
+
+      this.pagamentos.push({
+        forma: this.formaSelecionada,
+        condicao: this.condicaoSelecionada,
+        valorPago: vlrPago,
+        valorTroco: this.valorTrocoNumber(),
+        valorDesconto: Number(this.valorDescontoParcial),
+        valorTotalPago: shared.toMoneyThenNumber(vlrPago + Number(this.valorDescontoParcial)),
+        banOpe: this.cartao.banOpe,
+        cgcCre: this.cartao.cgcCpf,
+        catTef: this.cartao.catTef,
+        nsuTef: this.cartao.nsuTef,
+      })
+      this.resetPagamento()
+      this.updateValorPendente()
+      if (this.valorPendente > 0)
+        document.getElementById('selectFpg').focus()
+      else
+        document.getElementById('btnProcessarVenda').disabled = false
+      document.getElementById('btnProcessarVenda').focus()
+
+
+    },
     resetPagamento() {
       this.formaSelecionada = null
       this.condicaoSelecionada = null
@@ -3015,14 +3440,122 @@ export default {
       this.vlrTroco = 'R$ 0,00'
     },
 
+
+
     updateValorPendente() {
       shared.populateTabIndex(this.pagamentos)
       this.calcularValorPendente()
     },
 
-    removerPagto(pagto) {
-      this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)
-      this.updateValorPendente()
+    async removerPagto(pagto) {
+
+      const VALIDTEF = process.env.VUE_APP_VALIDTEF
+
+      try {
+                
+        if (this.isPagamentoCartao) {
+
+          await new Promise((resolve, reject) => {
+            // enviar data no formato DDMMYYYY (sem separadores)
+            const adate = (() => {
+              const d = new Date()
+              const dd = String(d.getDate()).padStart(2, '0')
+              const mm = String(d.getMonth() + 1).padStart(2, '0')
+              const yyyy = d.getFullYear()
+              return dd + mm + yyyy
+            })()
+
+            const isTipoPix = Boolean(['30','31'].includes(String(pagto?.forma?.tipFpg ?? '')));
+
+            tef.payCancel(
+              VALIDTEF,
+              pagto.nsuTef || '',
+              pagto.catTef || '',
+              pagto.valorPago || 0,
+              adate,
+              isTipoPix,
+              (res) => resolve(res),
+              (err) => reject(err)
+            )
+          })
+        }
+
+        this.pagamentos = this.pagamentos.filter(p => p !== pagto)
+        this.updateValorPendente()
+
+
+      } catch (err) {
+        const reason = (err && (err.reason || err.message)) ? (err.reason || err.message) : JSON.stringify(err)
+        alert(`Erro ao cancelar TEF (${pagto.catTef || pagto.nsuTef}): ${reason}`)
+      }
+
+      /* this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)*/
+      /* this.updateValorPendente()*/
+    },
+
+    async desfazerTransacaoTEF(operacao) {
+
+      if (operacao === 'F') {
+        return
+      }
+
+      if (!this.pagamentos || this.pagamentos.length === 0) {
+        return
+      }
+
+      const pagosTEF = this.pagamentos.filter(p => p && p.valorPago > 0)
+
+      if (!pagosTEF.length) {
+        return
+      }
+
+      if (!confirm(`Deseja cancelar ${pagosTEF.length} transação(ões)?`)) {
+        this.pagamentos = []
+        this.resetPagamento()
+        this.updateValorPendente()
+        return
+      }
+
+      const VALIDTEF = process.env.VUE_APP_VALIDTEF
+
+      for (const pagto of pagosTEF) {
+        try {
+
+          if (pagto.catTef || pagto.nsuTef) {
+
+            await new Promise((resolve, reject) => {
+              // enviar data no formato DDMMYYYY (sem separadores)
+              const adate = (() => {
+                const d = new Date()
+                const dd = String(d.getDate()).padStart(2, '0')
+                const mm = String(d.getMonth() + 1).padStart(2, '0')
+                const yyyy = d.getFullYear()
+                return dd + mm + yyyy
+              })()
+
+              tef.payCancel(
+                VALIDTEF,
+                pagto.nsuTef || '',
+                pagto.catTef || '',
+                pagto.valorPago || 0,
+                adate,
+                pagto.forma.codAta,
+                (res) => resolve(res),
+                (err) => reject(err)
+              )
+
+            })
+          }
+          this.pagamentos = this.pagamentos.filter(p => p !== pagto)
+          this.updateValorPendente()
+
+
+        } catch (err) {
+          const reason = (err && (err.reason || err.message)) ? (err.reason || err.message) : JSON.stringify(err)
+          alert(`Erro ao cancelar TEF (${pagto.catTef || pagto.nsuTef}): ${reason}`)
+        }
+      }
+
     },
 
     calcularValorPendente() {
@@ -3039,7 +3572,7 @@ export default {
     },
 
     valorExcede() {
-      if(this.isPagamentoDifferentThanDinheiro()) {
+      if (this.isPagamentoDifferentThanDinheiro()) {
         const valorPagoTotal = shared.toMoneyThenNumber(this.valorPagoNumber() + Number(this.valorDescontoParcial))
         if (valorPagoTotal > shared.toMoneyThenNumber(this.valorPendente)) {
           alert('O valor pago não deve exceder o valor pendente!')
@@ -3059,33 +3592,35 @@ export default {
     },
 
     valorTrocoNumber() {
-      return Number(this.vlrTroco.replace('R$', '').replace('.','').replace(',','.').trim())
+      return Number(this.vlrTroco.replace('R$', '').replace('.', '').replace(',', '.').trim())
     },
 
     async finalizarVenda() {
       if ((this.fecharVenda || this.gerarPedido) && this.valorPendente > 0) {
         alert('Favor informar o pagamento!')
       } else {
-        document.getElementById('closeModalConfirmaVenda').click()
+
+        //this.gravaPagto()
         await this.enviarVenda(true)
       }
-    },  
+    },
 
     confirmarDadosCartao() {
+
       if (this.cartao.banOpe.trim() === '') {
         alert('Selecione a bandeira do cartão!')
         return false
       }
       else if (this.cartao.catTef.trim() === '') {
-        alert('Preencha o número da autorização!') 
+        alert('Preencha o número da autorização!')
         return false
       }
-      else if (this.cartao.nsuTef.trim() === '' && this.formaSelecionada.tipInt === '1') {
-        alert('Preencha o número da transação (TEF)!') 
+      /*else if ((!this.isTEF()) && (this.cartao.nsuTef.trim() === '' )) {
+        alert('Preencha o número da transação (TEF)!')
         return false
-      }
+      }*/
       else if (this.isOperadoraMissing()) {
-        alert('Selecione a operadora!') 
+        alert('Selecione a operadora!')
         return false
       }
       return true
@@ -3093,7 +3628,7 @@ export default {
 
     confirmarDadosPIXQrCode() {
       if (this.isOperadoraMissing()) {
-        alert('Selecione a operadora!') 
+        alert('Selecione a operadora!')
         return false
       }
       return true
@@ -3106,17 +3641,17 @@ export default {
     calcularVlrDar() {
       let vlrDarParc = Number(((this.vlrFinalNbr - this.getVlrCarrinho())))
       this.pagamentos.forEach(pagto => {
-        if(pagto.valorDesconto > 0) vlrDarParc -= pagto.valorDesconto
+        if (pagto.valorDesconto > 0) vlrDarParc -= pagto.valorDesconto
       })
-      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
+      return shared.toMoneyString(vlrDarParc).replace('R$', '').replace('.', '').replace(',', '.').replace('- ', '-').trim()
     },
 
     calcularVlrTro() {
       let vlrTroParc = 0
       this.pagamentos.forEach(pagto => {
-        if(pagto.valorTroco > 0) vlrTroParc += pagto.valorTroco
+        if (pagto.valorTroco > 0) vlrTroParc += pagto.valorTroco
       })
-      return shared.toMoneyString(vlrTroParc).replace('R$', '').replace('.','').replace(',','.').trim()
+      return shared.toMoneyString(vlrTroParc).replace('R$', '').replace('.', '').replace(',', '.').trim()
     },
 
     async enviarVenda(limpar) {
@@ -3154,7 +3689,7 @@ export default {
       let vlrDar = 0
       let perDs1 = 0
       if (this.pedidoSelected && this.pedidoSelected.perDs1 !== '0,00') {
-        perDs1 = shared.toMoneyString(this.vlrDesc).replace('R$', '').replace('.','').replace(',','.').replace('- ','-').trim()
+        perDs1 = shared.toMoneyString(this.vlrDesc).replace('R$', '').replace('.', '').replace(',', '.').replace('- ', '-').trim()
       } else {
         vlrDar = this.calcularVlrDar()
       }
@@ -3165,7 +3700,7 @@ export default {
           numPed: this.pedPrv,
           fechar: this.fecharVenda,
           gerar: this.gerarPedido,
-          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
+          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.', '').replace(',', '.').trim(),
           vlrDar: perDs1,
           perDs1: vlrDar,
           vlrTro: vlrTro,
@@ -3179,7 +3714,7 @@ export default {
           itens: itens,
           fechar: this.fecharVenda,
           gerar: this.gerarPedido,
-          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.','').replace(',','.').trim(),
+          vlrTot: shared.toMoneyString(this.vlrFinalNbr).replace('R$', '').replace('.', '').replace(',', '.').trim(),
           vlrDar: vlrDar,
           perDs1: perDs1,
           vlrTro: vlrTro,
@@ -3187,7 +3722,7 @@ export default {
           tnsPed: this.pedidoSelected ? this.pedidoSelected.codTns : ''
         }
       }
-      
+
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       this.setEverythingDisabled('disable-on-sale', true)
       shared.toggleHeaderLinksDisabled(true)
@@ -3202,7 +3737,7 @@ export default {
             if (this.fecharVenda) {
               await this.callNFCe(respostaPedido.numPed)
             } else {
-              document.getElementById('closeModalConfirmaVenda').click()
+              this.fecharPagto()
               if (limpar) {
                 alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
                 this.limparCamposAposVenda()
@@ -3212,9 +3747,9 @@ export default {
             const msg = 'NFC-e autorizada: ' + respostaPedido.nfce + '.'
             if (this.paramsPDV.indImp !== 'S') {
               this.limparCamposAposVenda()
-              if(this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
+              if (this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
             } else {
-              if(this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer, false)
+              if (this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer, false)
             }
           }
         })
@@ -3227,7 +3762,8 @@ export default {
           this.setEverythingDisabled('disable-on-sale', false)
           shared.toggleHeaderLinksDisabled(false)
           this.status = ''
-        }) 
+        })
+
     },
 
     async gerarNFCe(numPed) {
@@ -3235,25 +3771,25 @@ export default {
         .then((response) => {
           const resposta = response.data
           const msg = this.isPedidoSelectedAndFechado() ? 'NFC-e gerada: ' + resposta.nfce + '.' : 'Pedido ' + numPed + ' fechado com sucesso! NFC-e gerada: ' + resposta.nfce + '.'
-          
+
           if (this.paramsPDV.indImp !== 'S') {
             this.limparCamposAposVenda()
-            if(this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
+            if (this.print) this.imprimirNfce(resposta.pdfFile, resposta.printer)
           } else {
-            if(this.print) this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer, true)
+            if (this.print) this.openImprimirNFCeModal(msg, resposta.pdfFile, resposta.printer, true)
           }
         })
         .catch((err) => {
-          if(err.response.data.message.startsWith('ERRO')) {
-            const msg = this.isPedidoSelectedAndFechado() ? 
-              'Geração de NFC-e retornou o seguinte erro: \n' + err.response.data.message : 
+          if (err.response.data.message.startsWith('ERRO')) {
+            const msg = this.isPedidoSelectedAndFechado() ?
+              'Geração de NFC-e retornou o seguinte erro: \n' + err.response.data.message :
               'Pedido ' + numPed + ' fechado com sucesso, mas geração de NFC-e retornou o seguinte erro: \n' + err.response.data.message
             alert(msg)
           } else shared.handleRequestError(err)
           console.log(err)
         })
         .finally(() => {
-          document.getElementById('closeModalConfirmaVenda').click()
+          this.fecharPagto()
         })
     },
 
@@ -3261,10 +3797,10 @@ export default {
       this.paramsConfirmacaoImpressao.msg = msg + ' Deseja imprimir a NFC-e?'
       this.paramsConfirmacaoImpressao.pdfFile = pdfFile
       this.paramsConfirmacaoImpressao.printer = printer
-      
+
       const btnId = comPedido ? 'btnOpenConfirmarImpressaoModalComPedido' : 'btnOpenConfirmarImpressaoModalSemPedido'
       document.getElementById(btnId).click()
-      
+
       const modalElement = document.getElementById('confirmaImpressaoModal')
       modalElement.addEventListener('shown.bs.modal', () => {
         document.getElementById('btnConfirmaImpressao').focus()
@@ -3287,7 +3823,7 @@ export default {
       this.clearFocus()
       this.focusProduto()
     },
-    
+
     async imprimirNfce(pdf, printer) {
       await this.startQZConnection()
 
@@ -3296,12 +3832,14 @@ export default {
       const base64 = response.data
 
       const copies = this.paramsPDV.qtdImp && this.paramsPDV.qtdImp.trim() !== '' ? Number(this.paramsPDV.qtdImp.trim()) : 1
-      
+
       // Configure the printer
-      const config = qz.configs.create(printer, {copies: copies})
+      const config = qz.configs.create(printer, { copies: copies })
 
       // Send print job
       await qz.print(config, [{ type: 'pdf', format: 'base64', data: base64 }])
+
+
     },
 
     isOnVenda() {
@@ -3337,9 +3875,10 @@ export default {
     async aplicarDesconto(atualizar) {
       if (this.isPedidoSelectedAndFechado() && atualizar) {
         this.showMsgPedidoFechado()
-      } else if(this.tipDesc !== '') {
+      } else if (this.tipDesc !== '') {
         const valorTmp = this.getVlrCarrinho()
         this.vlrDescPedido = this.tipDesc === 'valor' ? Number(this.vlrDesc.replace('.', '').replace(',', '.')) : await this.calcularDescontoAPI(valorTmp, Number(this.vlrDesc.replace(',', '.')) / 100)
+        this.vlrDescPedido = Number(this.vlrDescPedido.toFixed(2))
 
         if (valorTmp < this.vlrDescPedido && this.tipOpeVlr === 'desconto') {
           alert('O desconto não pode ser maior que o valor total do pedido!')
@@ -3355,7 +3894,7 @@ export default {
           atualizar = false
         } else {
           const vlrCalc = this.tipOpeVlr === 'desconto' ? valorTmp - this.vlrDescPedido : valorTmp + this.vlrDescPedido
-          this.vlrComDesconto = shared.toMoneyString(vlrCalc)
+          this.vlrComDesconto = shared.toMoneyString(vlrCalc.toFixed(2))
           this.vlrFinalNbr = vlrCalc
           this.vlrFinal = this.vlrComDesconto
         }
@@ -3373,26 +3912,26 @@ export default {
     async calcularDescontoAPI(vlrPro, vlrDsc) {
       let vlrDesc = 0
       await api.calcularDesconto(vlrPro, vlrDsc)
-      .then((response) => {
-        vlrDesc = response.data
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
+        .then((response) => {
+          vlrDesc = response.data
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
       return vlrDesc
     },
 
     async calcularItemComDescontoAPI(vlrPro, vlrDsc) {
       let vlrDesc = 0
       await api.calcularItemComDesconto(vlrPro, vlrDsc)
-      .then((response) => {
-        vlrDesc = response.data
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
+        .then((response) => {
+          vlrDesc = response.data
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
       return vlrDesc
     },
 
@@ -3403,7 +3942,7 @@ export default {
           const descMax = vlrTmp * percMax / 100
           if (this.vlrDescPedido > descMax) return true
           else return false
-        } 
+        }
         else return false
       }
       return false
@@ -3445,27 +3984,27 @@ export default {
         codRep = this.codRep === '' ? null : this.codRep
       }
       await api.getPedidos('TODOS', 'ABERTOS_FECHADOS', numPed, null, null, 'ASC', codCli, codRep, false)
-      .then((response) => {
-        this.pedidos = response.data
-        this.preencherRepresentanteCliente()
-        this.pedidosFiltrados = this.pedidos
-        sessionStorage.setItem('pedidos', JSON.stringify(this.pedidos))
-      })
-      .catch((err) => {
-        console.log(err)
-        shared.handleRequestError(err)
-      })
+        .then((response) => {
+          this.pedidos = response.data
+          this.preencherRepresentanteCliente()
+          this.pedidosFiltrados = this.pedidos
+          sessionStorage.setItem('pedidos', JSON.stringify(this.pedidos))
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
     },
 
     preencherRepresentanteCliente() {
       this.pedidos.forEach(ped => {
         if (ped.codRep) {
           const rep = this.representantes.find(repRow => repRow.codRep === ped.codRep)
-          if(rep) ped.ideRep = ped.codRep + ' - ' + rep.nomRep
+          if (rep) ped.ideRep = ped.codRep + ' - ' + rep.nomRep
         }
         if (ped.codCli) {
           const cli = this.clientes.find(cliRow => cliRow.codCli === ped.codCli)
-          if(cli) ped.ideCli = ped.codCli + ' - ' + cli.nomCli
+          if (cli) ped.ideCli = ped.codCli + ' - ' + cli.nomCli
         }
       })
     },
@@ -3486,7 +4025,7 @@ export default {
 
       this.clearInputsCadCli()
       this.clearInputsCartao()
-      
+
       this.clearAfterVenda()
     },
 
@@ -3528,7 +4067,7 @@ export default {
 
       await this.carregarItensPedido(pedido)
 
-      const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)  
+      const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)
       if (this.depPad !== depPad) this.selectDeposito(depPad, false)
 
       const codTpr = pedido.itens[0].codTpr
@@ -3536,11 +4075,11 @@ export default {
         await this.searchTabelasPreco(false)
       }
       if (this.codTpr !== codTpr) {
-        await this.selectTabelaPreco({codTpr: codTpr}, false)
-        .then(async () => {
-          this.preencherItensPedido(pedido)
-          await this.preencherDadosDesconto(pedido)
-        })
+        await this.selectTabelaPreco({ codTpr: codTpr }, false)
+          .then(async () => {
+            this.preencherItensPedido(pedido)
+            await this.preencherDadosDesconto(pedido)
+          })
       } else {
         this.preencherItensPedido(pedido)
         await this.preencherDadosDesconto(pedido)
@@ -3549,14 +4088,14 @@ export default {
 
     async carregarItensPedido(pedido) {
       await api.getPedidoDetalhes(pedido.numPed)
-      .then((response) => {
-        pedido.itens = response.data.itens
-        pedido.parcelas = response.data.parcelas
-      })
-      .catch((err) => { 
-        console.log(err)
-        shared.handleRequestError(err)
-      })
+        .then((response) => {
+          pedido.itens = response.data.itens
+          pedido.parcelas = response.data.parcelas
+        })
+        .catch((err) => {
+          console.log(err)
+          shared.handleRequestError(err)
+        })
     },
 
     preencherItensPedido(pedido) {
@@ -3564,20 +4103,20 @@ export default {
         const prod = this.produtosTabelaPreco.find(pro => pro.codPro === item.codPro && pro.codDer === item.codDer)
         let tipOpeVlrIpd = ''
         let perDsc = ''
-        if (Number(item.perAcr.replace(',','.')) > 0) {
+        if (Number(item.perAcr.replace(',', '.')) > 0) {
           tipOpeVlrIpd = 'acrescimo'
           perDsc = item.perAcr
         } else {
           tipOpeVlrIpd = 'desconto'
           perDsc = item.perDsc
         }
-        if(prod) this.selectProduto(prod, Number(item.qtdPed.replace(',','.')), item.seqIpd, item.obsIpd, tipOpeVlrIpd, item.tipDsc, item.vlrDsc, perDsc, false, item.codDep)
+        if (prod) this.selectProduto(prod, Number(item.qtdPed.replace(',', '.')), item.seqIpd, item.obsIpd, tipOpeVlrIpd, item.tipDsc, item.vlrDsc, perDsc, false, item.codDep)
       })
     },
 
     async preencherDadosDesconto(pedido) {
-      if(pedido.vlrDar !== '0,00' || pedido.perDs1 !== '0,00') {
-        if(pedido.vlrDar !== '0,00') {
+      if (pedido.vlrDar !== '0,00' || pedido.perDs1 !== '0,00') {
+        if (pedido.vlrDar !== '0,00') {
           this.tipOpeVlr = pedido.vlrDar.includes('-') ? 'desconto' : 'acrescimo'
           const vlrDarTmp = pedido.vlrDar.replace('-', '')
           this.tipDesc = 'valor'
@@ -3588,7 +4127,7 @@ export default {
           this.tipDesc = 'porcentagem'
           this.vlrDesc = vlrDarTmp
         }
-     
+
         await this.atualizarValorTotalCompra()
       }
     },
@@ -3625,13 +4164,13 @@ export default {
     },
 
     filtrarModalPedidos(key) {
-      if(key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
+      if (key.keyCode !== 38 && key.keyCode !== 40 && key.keyCode !== 13)
         this.filtrarPedidos(this.pedidosFiltro, this.pedidosFiltroCliente, this.pedidosFiltroRepresentante)
     },
 
     focusTablePed(value) {
       this.tableIndexPed += value
-      if (this.tableIndexPed < 0) 
+      if (this.tableIndexPed < 0)
         this.tableIndexPed = 0
       else if (this.tableIndexPed >= this.pedidosFiltrados.length)
         this.tableIndexPed = (this.pedidosFiltrados.length - 1)
@@ -3639,11 +4178,11 @@ export default {
       let elementToScroll
       if (this.tableIndexPed > 0)
         elementToScroll = document.getElementById('tabPed' + this.tableIndexPed)
-      else 
+      else
         elementToScroll = document.getElementById('inputPedidosFiltro')
-      
+
       this.scrollToElement(elementToScroll)
-    },  
+    },
 
     pedListHit() {
       const ped = this.pedidosFiltrados.find(pedFil => pedFil.tabIndex === this.tableIndexPed)
@@ -3653,6 +4192,31 @@ export default {
     isPedidoSelectedAndFechado() {
       return this.pedidoSelected && this.staPedSelected === 'FECHADO'
     },
+  },
+  watch: {
+    valorPendente(newVal) {
+      if (Number(newVal) <= 0 && this.isConfirmaModalShown() && !this.autoCloseCanceled) {
+        this.startAutoCloseCountdown()
+      } else if (Number(newVal) > 0) {
+        this.cancelAutoCloseCountdown()
+      }
+    }
+  },
+  beforeDestroy() {
+    const modalEl = document.getElementById('confirmaVendaModal')
+    if (modalEl) {
+      modalEl.removeEventListener('shown.bs.modal', this._confirmaModalShownHandler)
+      modalEl.removeEventListener('hidden.bs.modal', this._confirmaModalHiddenHandler)
+    }
+    this.cancelAutoCloseCountdown()
+  },
+  beforeUnmount() {
+    const modalEl = document.getElementById('confirmaVendaModal')
+    if (modalEl) {
+      modalEl.removeEventListener('shown.bs.modal', this._confirmaModalShownHandler)
+      modalEl.removeEventListener('hidden.bs.modal', this._confirmaModalHiddenHandler)
+    }
+    this.cancelAutoCloseCountdown()
   }
 }
 </script>
