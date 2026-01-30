@@ -868,7 +868,7 @@
                   </div>
                 </div>
               </div>
-              <div class="row my-2" v-if="isPagamentoCartao() || isPagamentoPIXQrCode()">
+              <div class="row my-2" v-if="isPagamentoCartao()|| (formaSelecionada && formaSelecionada.tipInt === '2')">
                 <span>Informações da transação</span>
                 <div class="row mb-2">
                   <div class="input-group input-group-sm">
@@ -881,7 +881,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="row mb-2" v-if="isPagamentoCartao()">
+                <div class="row mb-2" v-if="isPagamentoCartao() || (formaSelecionada && formaSelecionada.tipInt === '2')">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Bandeira</span>
                     <select class="form-select" v-model="cartao.banOpe" id="selectBanOpe">
@@ -891,20 +891,20 @@
                     </select>
                   </div>
                 </div>
-                <div class="row mb-2" v-if="isPagamentoCartao()">
+                <div class="row mb-2" v-if="formaSelecionada && formaSelecionada.tipInt === '2'">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Autorização de Transação</span>
                     <input autocomplete="off" class="form-control" type="text" v-model="cartao.catTef"
                       v-on:keyup="handleInputValorPago" id="inputCatTef">
                   </div>
                 </div>
-                <div class="row mb-2" v-if="isTEF()">
+                <!--<div class="row mb-2" v-if="isTEF()">
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">Número da Transação (TEF)</span>
                     <input autocomplete="off" class="form-control" type="text" v-model="cartao.nsuTef"
                       v-on:keyup="handleInputValorPago" id="inputNsuTef">
                   </div>
-                </div>
+                </div>-->
               </div>
               <div class="row my-2">
                 <div class="col">
@@ -945,9 +945,9 @@
           <p v-else>{{ this.msgConfirmacao }}</p>
         </div>
         <div class="modal-footer" v-if="fecharVenda || gerarPedido">
-          <button type="button" class="btn btn-secondary" @click="handleFinalizarClick" id="btnProcessarVenda">{{
+          <button type="button" class="btn btn-secondary" :disabled="valorPendente !== 0" @click="handleFinalizarClick" id="btnProcessarVenda">{{
             autoCloseActive ? ('Finalizar (' + autoCloseCountdown + 's)') : 'Finalizar' }}</button>
-          <button type="button" class="btn btn-secondary" @click="closeConfirmaVendaModal">Cancelar</button>
+          <button type="button" class="btn btn-secondary" :disabled="pagamentos.length !== 0" @click="closeConfirmaVendaModal">Cancelar</button>
         </div>
         <div class="modal-footer" v-else>
           <button type="button" class="btn btn-secondary" @click="finalizarVenda">Sim</button>
@@ -3182,13 +3182,19 @@ export default {
 
     attemptToFillCondicaoPagto() {
       this.aplicarDescontoFormaPagto()
-      if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length === 1) {
-        this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
-        this.calcValorPagto()
-      } else {
-        this.condicaoSelecionada = null
-        this.vlrPago = ''
+      if (this.formaSelecionada && this.formaSelecionada.condicoes && this.formaSelecionada.condicoes.length >= 1) {
+        // auto-select the first condition when there's only one,
+        // or when the payment integration is DPOS (tipInt === '2')
+        if (this.formaSelecionada.condicoes.length === 1 || this.formaSelecionada.tipInt === '2') {
+          this.condicaoSelecionada = this.formaSelecionada.condicoes[0]
+          this.calcValorPagto()
+          return
+        }
       }
+
+      // default: clear selection so user chooses the condition manually
+      this.condicaoSelecionada = null
+      this.vlrPago = ''
     },
 
     async calcValorPagto() {
@@ -3212,8 +3218,10 @@ export default {
         this.cartao.banOpe = ((banOpe) && (banOpe.length > 0)) ? banOpe : ''
       }
 
-      if (this.isPagamentoCartao()) this.cartao.catTef = '0'
-      else this.cartao.catTef = ''
+      if (this.isPagamentoCartao()) 
+        this.cartao.catTef = '0'
+      else 
+        this.cartao.catTef = ''
     },
 
     focusValorPago() {
@@ -3307,20 +3315,23 @@ export default {
     isPagamentoDifferentThanDinheiro() {
       return this.formaSelecionada && this.formaSelecionada.tipFpg !== '01'
     },
-
+    isPagamentoDPOS(){    
+      
+      return this.formaSelecionada && this.formaSelecionada.tipInt === '2' && ['6', '7', '18', '19', '20', '22', '23', '24', '30', '31'].includes(this.formaSelecionada.tipFpg)
+    },
     isPagamentoDinheiro() {
       return this.formaSelecionada && this.formaSelecionada.tipFpg === '01'
     },
     isTEF() {
-      //return true      
-      return this.formaSelecionada.tipInt === '1'
+      // safe check: ensure formaSelecionada exists before accessing tipInt
+      return this.formaSelecionada && this.formaSelecionada.tipInt === '1'
     },
     processarPagto() {
 
       if (!this.valorExcede()) {
 
         if (this.isTEF()) {
-          if (this.isPagamentoCartao() ) {
+          if (this.isPagamentoCartao() || this.isPagamentoPIXQrCode() ) {
             
             const VALIDTEF = process.env.VUE_APP_VALIDTEF
 
@@ -3452,8 +3463,8 @@ export default {
       const VALIDTEF = process.env.VUE_APP_VALIDTEF
 
       try {
-                
-        if (this.isPagamentoCartao) {
+                         
+        if (pagto.forma && ['1', '2'].includes(pagto.forma.tipInt) && ['4','6', '7', '17','18','19','20','22','23','24','30','31'].includes(pagto.forma.tipFpg)) {
 
           await new Promise((resolve, reject) => {
             // enviar data no formato DDMMYYYY (sem separadores)
@@ -3465,7 +3476,7 @@ export default {
               return dd + mm + yyyy
             })()
 
-            const isTipoPix = Boolean(['30','31'].includes(String(pagto?.forma?.tipFpg ?? '')));
+            const isTipoPix = Boolean(['30','31'].includes(String(pagto.forma.tipFpg ?? '')));
 
             tef.payCancel(
               VALIDTEF,
@@ -3485,8 +3496,13 @@ export default {
 
 
       } catch (err) {
-        const reason = (err && (err.reason || err.message)) ? (err.reason || err.message) : JSON.stringify(err)
-        alert(`Erro ao cancelar TEF (${pagto.catTef || pagto.nsuTef}): ${reason}`)
+        let reason
+        try {
+          reason = err && (err.reason || err.message) ? (err.reason || err.message) : JSON.stringify(err)
+        } catch (ex) {
+          reason = String(err)
+        }
+        alert(`Erro ao cancelar TEF (${pagto?.catTef || pagto?.nsuTef}): ${reason}`)
       }
 
       /* this.pagamentos = this.pagamentos.filter(pagtoItem => pagtoItem !== pagto)*/
