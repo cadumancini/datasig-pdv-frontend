@@ -3382,7 +3382,7 @@ export default {
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
                   this.cartao.catTef = resulcre.requestKey
-                  this.cartao.banOpe = obterChavePorTexto(resulcre.cardBrandName, bandeiras)
+                  this.cartao.banOpe = this.obterChavePorTexto(resulcre.cardBrandName, this.bandeiras)
                   this.gravaPagto()
                 },
                 (erro) => {
@@ -3396,7 +3396,7 @@ export default {
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
                   this.cartao.catTef = resulcre.requestKey
-                  this.cartao.banOpe = obterChavePorTexto(resulcre.cardBrandName, bandeiras) 
+                  this.cartao.banOpe = this.obterChavePorTexto(resulcre.cardBrandName, this.bandeiras)
                   this.gravaPagto()
                 },
                 (erro) => {
@@ -3410,7 +3410,7 @@ export default {
 
                   this.cartao.nsuTef = resuldeb.administrativeCode
                   this.cartao.catTef = resuldeb.requestKey
-                  this.cartao.banOpe = obterChavePorTexto(resulcre.cardBrandName, bandeiras)
+                  this.cartao.banOpe = this.obterChavePorTexto(resuldeb.cardBrandName, this.bandeiras)
                   this.gravaPagto()
                 },
                 (erro) => {
