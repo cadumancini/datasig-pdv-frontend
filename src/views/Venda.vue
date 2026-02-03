@@ -1144,10 +1144,45 @@ import { CERT, PRIVATE_KEY } from '../utils/printCerts'
 
 
 export default {
+
+// Dados de exemplo
+
+
+
   name: 'Venda',
   components: { Navbar, Footer, vueMask },
   data() {
     return {
+      bandeiras: [ //bandeiras   chaveResultante.value = obterChavePorTexto(textoBusca.value, bandeiras)
+        { id: '01', nome: 'Visa' },
+        { id: '02', nome: 'Mastercard' },
+        { id: '03', nome: 'American Express' },
+		    { id: '04', nome: 'Sorocred' },
+        { id: '05', nome: 'Diners Club' },
+        { id: '06', nome: 'Elo' },
+		    { id: '07', nome: 'Hipercard' },
+        { id: '08', nome: 'Aura' },
+        { id: '09', nome: 'Cabal' },
+		    { id: '10', nome: 'Banes Card' },
+        { id: '11', nome: 'Cabal' },
+        { id: '12', nome: 'CalCard' },
+		    { id: '13', nome: 'Credz' },
+        { id: '14', nome: 'Discover' },
+        { id: '15', nome: 'GoodCard' },
+		    { id: '16', nome: 'GreenCard' },
+        { id: '17', nome: 'Hiper' },
+        { id: '18', nome: 'Jcb' },
+        { id: '19', nome: 'Mais' },
+        { id: '20', nome: 'MaxVan' },
+        { id: '21', nome: 'Policard' },
+		    { id: '22', nome: 'RedeCompras' },
+        { id: '23', nome: 'Sodexo' },
+        { id: '24', nome: 'ValeCard' },
+		    { id: '25', nome: 'Verocheque' },
+        { id: '26', nome: 'VR' },
+        { id: '27', nome: 'Ticket' },
+		    { id: '99', nome: 'Outros' }	
+      ],
       // representantes
       ideRep: '',
       codRep: '',
@@ -1228,7 +1263,6 @@ export default {
 
       //produtos
       codBar: '',
-      produtos: [],
       produtosFiltro: '',
       produtosFiltrados: [],
       itensCarrinho: [],
@@ -1424,6 +1458,11 @@ export default {
       this.clearEverything()
       this.initEverything()
     },
+    obterChavePorTexto(busca, lista) {
+      if (!busca || !lista || !Array.isArray(lista)) return 'Não encontrado'
+      const item = lista.find(obj => (obj.nome || '').toLowerCase() === busca.toLowerCase())
+      return item ? (item.id !== undefined ? item.id : 'Não encontrado') : 'Não encontrado'
+    },
     isConfirmaModalShown() {
       const modalEl = document.getElementById('confirmaVendaModal')
       return modalEl ? modalEl.classList.contains('show') : false
@@ -1492,6 +1531,7 @@ export default {
       this.clearInputsCartao()
       this.clearFocus()
     },
+    
     emptyStorage() {
       sessionStorage.removeItem('representantes')
       sessionStorage.removeItem('clientes')
@@ -3342,7 +3382,7 @@ export default {
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
                   this.cartao.catTef = resulcre.requestKey
-                  //this.cartao.banOpe = resuldeb.cardBrandName
+                  this.cartao.banOpe = obterChavePorTexto(resulcre.cardBrandName, bandeiras)
                   this.gravaPagto()
                 },
                 (erro) => {
@@ -3356,7 +3396,7 @@ export default {
                 (resulcre) => {
                   this.cartao.nsuTef = resulcre.administrativeCode
                   this.cartao.catTef = resulcre.requestKey
-                  //this.cartao.banOpe = resuldeb.cardBrandName  
+                  this.cartao.banOpe = obterChavePorTexto(resulcre.cardBrandName, bandeiras) 
                   this.gravaPagto()
                 },
                 (erro) => {
@@ -3370,9 +3410,8 @@ export default {
 
                   this.cartao.nsuTef = resuldeb.administrativeCode
                   this.cartao.catTef = resuldeb.requestKey
-                  //this.cartao.banOpe = resuldeb.cardBrandName
+                  this.cartao.banOpe = obterChavePorTexto(resulcre.cardBrandName, bandeiras)
                   this.gravaPagto()
-
                 },
                 (erro) => {
                   alert('erro:' + erro.reasonCode + ' - ' + erro.reason)
