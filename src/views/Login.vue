@@ -8,11 +8,13 @@
       <button id="btnLogin" :disabled="this.user === '' || this.password === ''" class="btn btn-lg btn-block btn-secondary">Login</button>
       <h5 class="mt-3 text-danger" v-if="base !== ''"><em>{{ base }}</em></h5>
     </form>
+    
   </div>
 </template>
 
 <script>
 import api from '../utils/api'
+
 export default {
   name: 'Login',
   data () {
@@ -20,7 +22,8 @@ export default {
       user: '',
       password: '',
       api_url: '',
-      base: ''
+      base: '',
+      checkout: null
     }
   },
   created () {
@@ -64,7 +67,8 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnLogin').disabled = false
         })
-    }
+    },
+    
   }
 }
 </script>
