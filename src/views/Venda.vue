@@ -1698,7 +1698,7 @@ export default {
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
-        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido, this.comPedido)
+        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido, this.comPedido, this.gerarNota)
       })
     },
 
