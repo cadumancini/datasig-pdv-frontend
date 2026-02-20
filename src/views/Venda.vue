@@ -288,7 +288,7 @@
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
                 <button id="btnGerarPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, false, true, true)"
+                  @click="triggerFinalizandoVenda(true, true, true, true)"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Pedido
                   (F9)</button>
               </div>
