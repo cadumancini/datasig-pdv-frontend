@@ -108,6 +108,12 @@
                 data-bs-target="#clientesModal">...</button>
             </div>
           </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Obs. Pedido</span>
+              <textarea id="inputObsPed" class="form-control input-sale disable-on-sale" rows="5" v-model="obsPed" disabled ></textarea>
+            </div>
+          </div>
         </div>
         <div class="col-8">
           <span class="fw-bold subtitle">Carrinho</span>
@@ -268,7 +274,7 @@
             <div class="col">
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botNfc === 'S'">
                 <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, true, true, false)"
+                  @click="triggerFinalizandoVenda(true, true, true, false, true)"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal"
                   data-bs-target="#confirmaVendaModal">.</button>
@@ -277,7 +283,7 @@
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPnf === 'S'">
                 <button id="btnFinalizarVenda" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, true, true, true)"
+                  @click="triggerFinalizandoVenda(true, true, true, true,true)"
                   :disabled="!this.itensCarrinho.length || isOnVenda()">Gerar Pedido com NFC (F4)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal"
                   data-bs-target="#confirmaVendaModal">.</button>
@@ -288,13 +294,13 @@
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
                 <button id="btnGerarPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, true, true, true)"
+                  @click="triggerFinalizandoVenda(true, false, true, true,false)"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Pedido
                   (F9)</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botOrc === 'S'">
                 <button id="btnInserirPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
+                  @click="triggerFinalizandoVenda(true, false, false, true, false)" v-if="!this.pedidoSelected"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Orçamento (Alt +
                   Z)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal"
@@ -1181,7 +1187,7 @@ export default {
 		    { id: '25', nome: 'Verocheque' },
         { id: '26', nome: 'VR' },
         { id: '27', nome: 'Ticket' },
-		    { id: '99', nome: 'Outros' }	
+        { id: '99', nome: 'Outros' } 	
       ],
       // representantes
       ideRep: '',
@@ -1580,6 +1586,7 @@ export default {
       this.prcDescontoForma = ''
       this.newValue = ''
       this.obsIpd = ''
+      this.obsPed = ''
       this.limparDesconto(false)
     },
     clearAfterVenda() {
@@ -1606,6 +1613,7 @@ export default {
       this.prcDescontoForma = ''
       this.newValue = ''
       this.obsIpd = ''
+      this.obsPed = ''
       this.limparDesconto(false)
     },
     clearInputsCadCli() {
@@ -3159,11 +3167,12 @@ export default {
       }
     },
 
-    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido, comPedido) {
+    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido, comPedido, gerarnota) {
       this.finalizandoVenda = finalizandoVenda
       this.fecharVenda = fechar
       this.gerarPedido = gerarPedido
       this.comPedido = comPedido
+      this.gerarNota = gerarnota
       if (this.isPedidoSelectedAndFechado()) {
         document.getElementById('btnOpenConfirmarNFCeModal').click()
       }
@@ -3790,10 +3799,10 @@ export default {
         .then(async (response) => {
           const respostaPedido = response.data
           if (this.comPedido) {
-            if (this.fecharVenda) {
+            if (this.gerarNota) {
               await this.callNFCe(respostaPedido.numPed)
             } else {
-              this.fecharPagto()
+              this.fecharPagto()              
               if (limpar) {
                 alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
                 this.limparCamposAposVenda()
@@ -3817,7 +3826,7 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           this.setEverythingDisabled('disable-on-sale', false)
           shared.toggleHeaderLinksDisabled(false)
-          this.status = ''
+          this.status = ''          
         })
 
     },
@@ -3963,6 +3972,7 @@ export default {
         this.comPedido = true
         this.enviarPedido(itens, false)
       }
+      
     },
 
     async calcularDescontoAPI(vlrPro, vlrDsc) {
@@ -4119,8 +4129,8 @@ export default {
       this.codRep = pedido.codRep
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
-      this.ideCli = pedido.ideCli
-
+      this.ideCli = pedido.ideCli         
+      
       await this.carregarItensPedido(pedido)
 
       const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)
@@ -4147,6 +4157,7 @@ export default {
         .then((response) => {
           pedido.itens = response.data.itens
           pedido.parcelas = response.data.parcelas
+          this.obsPed = response.data.obsPed
         })
         .catch((err) => {
           console.log(err)
