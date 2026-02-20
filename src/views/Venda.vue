@@ -1345,6 +1345,7 @@ export default {
       fecharVenda: false,
       gerarPedido: false,
       comPedido: false,
+      gerarNota: false,
       msgConfirmacao: '',
       tipOpeVlr: 'desconto',
       tipDesc: '',
