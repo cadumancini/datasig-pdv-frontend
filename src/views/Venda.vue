@@ -15,6 +15,12 @@
             <button id="btnRecarregar" class="btn btn-secondary disable-on-sale" @click="restartRecords">Recarregar
               Registros</button>
           </div>
+          <!--<div class="float-end">
+            <button id="btnRecarregarFechado" class="btn btn-warning mx-2 disable-on-sale"
+              v-if="isPedidoSelectedAndFechado()" @click="triggerFormasPagamentoClick()" title="Recarregar registros (pedido fechado)">
+              Formas Pagamento
+          </button>
+          </div> -->
         </div>
       </div>
       <div class="row">
@@ -106,6 +112,12 @@
                   icon="fa-circle-xmark" /></button>
               <button id="btnBuscaClientes" class="btn-busca" data-bs-toggle="modal"
                 data-bs-target="#clientesModal">...</button>
+            </div>
+          </div>
+          <div class="row margin-y-fields">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Obs. Pedido</span>
+              <textarea id="inputObsPed" class="form-control input-sale disable-on-sale" rows="5" v-model="obsPed" disabled ></textarea>
             </div>
           </div>
         </div>
@@ -243,9 +255,9 @@
             </div>
             <div class="col" v-if="tipDesc !== ''">
               <button id="btnAplicarDesconto" class="btn btn-secondary btn-sm mx-2 disable-on-sale"
-                @click="aplicarDesconto(true)">Aplicar</button>
+                @click="aplicarDesconto(false)">Aplicar</button>
               <button id="btnCancelarDesconto" :disabled="vlrComDesconto === ''"
-                class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto(true)">Limpar</button>
+                class="btn btn-secondary btn-sm mx-2 disable-on-sale" @click="limparDesconto(false)">Limpar</button>
             </div>
           </div>
           <div class="row margin-y-fields" v-if="vlrDescPedido > 0">
@@ -268,7 +280,7 @@
             <div class="col">
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botNfc === 'S'">
                 <button id="btnFinalizarVendaSemPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, true, true, false)"
+                  @click="triggerFinalizandoVenda(true, true, true, false, true)"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar NFC (F8)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal"
                   data-bs-target="#confirmaVendaModal">.</button>
@@ -277,7 +289,7 @@
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPnf === 'S'">
                 <button id="btnFinalizarVenda" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, true, true, true)"
+                  @click="triggerFinalizandoVenda(true, true, true, true,true)"
                   :disabled="!this.itensCarrinho.length || isOnVenda()">Gerar Pedido com NFC (F4)</button>
                 <button id="btnOpenFinalizarVendaModal" class="btn-busca" data-bs-toggle="modal"
                   data-bs-target="#confirmaVendaModal">.</button>
@@ -288,13 +300,13 @@
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botPed === 'S'">
                 <button id="btnGerarPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, false, true, true)"
+                  @click="triggerFinalizandoVenda(true, false, true, true,false)"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Pedido
                   (F9)</button>
               </div>
               <div class="float-end mx-2" v-if="paramsPDV && paramsPDV.botOrc === 'S'">
                 <button id="btnInserirPedido" class="btn btn-secondary"
-                  @click="triggerFinalizandoVenda(true, false, false, true)" v-if="!this.pedidoSelected"
+                  @click="triggerFinalizandoVenda(true, false, false, true, false)" v-if="!this.pedidoSelected"
                   :disabled="!this.itensCarrinho.length || this.pedidoSelected || isOnVenda()">Gerar Orçamento (Alt +
                   Z)</button>
                 <button id="btnOpenInserirPedidoModal" class="btn-busca" data-bs-toggle="modal"
@@ -813,7 +825,7 @@
               <div class="col-6">
                 <div class="input-group input-group-sm">
                   <span class="input-group-text">Valor Pago</span>
-                  <input class="form-control" disabled :value="toMoneyString(valorPago)">
+                  <input class="form-control" :value="toMoneyString(valorPago)">
                 </div>
               </div>
             </div>
@@ -1181,8 +1193,9 @@ export default {
 		    { id: '25', nome: 'Verocheque' },
         { id: '26', nome: 'VR' },
         { id: '27', nome: 'Ticket' },
-		    { id: '99', nome: 'Outros' }	
+        { id: '99', nome: 'Outros' } 	
       ],
+      obsPed: '',
       // representantes
       ideRep: '',
       codRep: '',
@@ -1339,6 +1352,8 @@ export default {
       fecharVenda: false,
       gerarPedido: false,
       comPedido: false,
+      gerarNota: false,
+      alterapagamento: false,
       msgConfirmacao: '',
       tipOpeVlr: 'desconto',
       tipDesc: '',
@@ -1457,6 +1472,102 @@ export default {
     restartRecords() {
       this.clearEverything()
       this.initEverything()
+    },
+    showModal(modalId) {
+      const modalElement = document.getElementById(modalId)
+      if (!modalElement) return
+      try {
+        if (window.bootstrap && window.bootstrap.Modal) {
+          const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement)
+          modal.show()
+        } else {
+          modalElement.classList.add('show')
+          modalElement.style.display = 'block'
+          document.body.classList.add('modal-open')
+          const backdrop = document.createElement('div')
+          backdrop.className = 'modal-backdrop fade show'
+          document.body.appendChild(backdrop)
+        }
+      } catch (ex) {
+        console.error('showModal error for', modalId, ex)
+      }
+    },
+
+    hideModal(modalId) {
+      const modalElement = document.getElementById(modalId)
+      if (!modalElement) return
+      try {
+        if (window.bootstrap && window.bootstrap.Modal) {
+          const modalInst = window.bootstrap.Modal.getInstance(modalElement)
+          if (modalInst) modalInst.hide()
+          else {
+            modalElement.classList.remove('show')
+            modalElement.style.display = 'none'
+            document.body.classList.remove('modal-open')
+            const backdrop = document.querySelector('.modal-backdrop')
+            if (backdrop) backdrop.remove()
+          }
+        } else {
+          modalElement.classList.remove('show')
+          modalElement.style.display = 'none'
+          document.body.classList.remove('modal-open')
+          const backdrop = document.querySelector('.modal-backdrop')
+          if (backdrop) backdrop.remove()
+        }
+      } catch (ex) {
+        console.error('hideModal error for', modalId, ex)
+      }
+    },
+    triggerFormasPagamentoClick() { 
+      this.alterapagamento = true    
+      this.fecharVenda = true
+      this.gerarPedido = true
+      this.comPedido = true
+      this.gerarNota = false      
+      
+      // convert formatted money string to numeric value
+      this.valorPendente = this.toMoneyThenNumber(this.vlrTot)
+      this.valorPago = 0
+      
+      this.confirmaVendaTitle = 'Processar pagamento'
+      this.pagamentos = []
+      if (this.fecharVenda || this.gerarPedido) {
+            
+        
+        this.resetPagamento()        
+        const modalElement = document.getElementById('confirmaVendaModal')
+        if (modalElement) {
+          try {
+            if (window.bootstrap && window.bootstrap.Modal) {
+              
+              const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement)              
+              modal.show()
+            } else {       
+                
+              modalElement.classList.add('show')
+              modalElement.style.display = 'block'
+              document.body.classList.add('modal-open')
+              // create backdrop
+              const backdrop = document.createElement('div')
+              backdrop.className = 'modal-backdrop fade show'
+              document.body.appendChild(backdrop)
+            }
+          } catch (ex) {
+            console.error('openFinalizarVendaModal show error', ex)
+          }
+          // focus handled by mounted listener or manually focus once shown
+          // if bootstrap isn't available, focus selectFpg immediately
+          if (!(window.bootstrap && window.bootstrap.Modal)) {
+            document.getElementById('selectFpg')?.focus()
+          }
+        }
+      }
+      else {
+        this.confirmaVendaTitle = 'Confirmar orçamento'
+        this.msgConfirmacao = 'Tem certeza que deseja inserir o pedido de orçamento?'
+        this.showModal('confirmaVendaModal')
+      }
+        
     },
     obterChavePorTexto(busca, lista) {
       if (!busca || !lista || !Array.isArray(lista)) return 'Não encontrado'
@@ -1580,6 +1691,7 @@ export default {
       this.prcDescontoForma = ''
       this.newValue = ''
       this.obsIpd = ''
+      this.obsPed = ''
       this.limparDesconto(false)
     },
     clearAfterVenda() {
@@ -1606,6 +1718,7 @@ export default {
       this.prcDescontoForma = ''
       this.newValue = ''
       this.obsIpd = ''
+      this.obsPed = ''
       this.limparDesconto(false)
     },
     clearInputsCadCli() {
@@ -1689,7 +1802,7 @@ export default {
 
       const modalFinalizarVenda = document.getElementById('confirmaVendaModal')
       modalFinalizarVenda.addEventListener('focusout', (event) => {
-        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido, this.comPedido)
+        this.triggerFinalizandoVenda(false, this.fecharVenda, this.gerarPedido, this.comPedido, this.gerarNota)
       })
     },
 
@@ -3159,22 +3272,24 @@ export default {
       }
     },
 
-    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido, comPedido) {
+    async triggerFinalizandoVenda(finalizandoVenda, fechar, gerarPedido, comPedido, gerarnota) {
       this.finalizandoVenda = finalizandoVenda
       this.fecharVenda = fechar
       this.gerarPedido = gerarPedido
       this.comPedido = comPedido
-      if (this.isPedidoSelectedAndFechado()) {
-        document.getElementById('btnOpenConfirmarNFCeModal').click()
+      this.gerarNota = gerarnota
+      if (this.isPedidoSelectedAndFechado() && (this.alterapagamento === false)) {
+        this.showModal('confirmaNFCeModal')
       }
-      else if (this.finalizandoVenda) {
+      else 
+      if (this.finalizandoVenda) {      
         if (this.allFieldsArePopulated()) this.openFinalizarVendaModal()
         else this.finalizandoVenda = false
       }
     },
 
     async callNFCe(numPed) {
-      document.getElementById('closeModalConfirmaNFCe').click()
+      this.hideModal('confirmaNFCeModal')
       this.status = 'nfce'
       await this.gerarNFCe(numPed)
       this.status = ''
@@ -3183,17 +3298,19 @@ export default {
     openFinalizarVendaModal() {
       this.pagamentos = []
       if (this.fecharVenda || this.gerarPedido) {
-        this.valorPendente = this.vlrFinalNbr
+        this.valorPendente =  this.vlrFinalNbr        
         this.valorPago = 0
         this.confirmaVendaTitle = 'Processar pagamento'
-        this.resetPagamento()
+        this.resetPagamento()        
         const modalElement = document.getElementById('confirmaVendaModal')
         if (modalElement) {
           try {
             if (window.bootstrap && window.bootstrap.Modal) {
-              const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement)
+              
+              const modal = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement)              
               modal.show()
-            } else {
+            } else {       
+                
               modalElement.classList.add('show')
               modalElement.style.display = 'block'
               document.body.classList.add('modal-open')
@@ -3215,8 +3332,7 @@ export default {
       else {
         this.confirmaVendaTitle = 'Confirmar orçamento'
         this.msgConfirmacao = 'Tem certeza que deseja inserir o pedido de orçamento?'
-        const btn = document.getElementById('btnOpenInserirPedidoModal')
-        if (btn) btn.click()
+        this.showModal('confirmaVendaModal')
       }
     },
 
@@ -3246,11 +3362,12 @@ export default {
         this.valorParcial = (this.valorParcial - this.valorDescontoParcial)
       } else {
         this.valorDescontoParcial = 0
-      }
+      }      
       this.vlrPago = shared.toMoneyString(this.valorParcial).replace('R$', '').trim()
       this.vlrTroco = 'R$ 0,00'
       this.clearInputsCartao()
       this.focusValorPago()
+      
 
       if (this.condicaoSelecionada.operadoras.length === 1) {
         this.cartao.cgcCpf = this.condicaoSelecionada.operadoras[0].cgcCpf
@@ -3790,10 +3907,10 @@ export default {
         .then(async (response) => {
           const respostaPedido = response.data
           if (this.comPedido) {
-            if (this.fecharVenda) {
+            if (this.gerarNota) {
               await this.callNFCe(respostaPedido.numPed)
             } else {
-              this.fecharPagto()
+              this.fecharPagto()              
               if (limpar) {
                 alert('Pedido ' + respostaPedido.numPed + ' ' + operacao + ' com sucesso!')
                 this.limparCamposAposVenda()
@@ -3801,23 +3918,24 @@ export default {
             }
           } else {
             const msg = 'NFC-e autorizada: ' + respostaPedido.nfce + '.'
-            if (this.paramsPDV.indImp !== 'S') {
+            if (this.paramsPDV.indImp !== 'S') {              
               this.limparCamposAposVenda()
               if (this.print) this.imprimirNfce(respostaPedido.pdfFile, respostaPedido.printer)
             } else {
               if (this.print) this.openImprimirNFCeModal(msg, respostaPedido.pdfFile, respostaPedido.printer, false)
             }
           }
+          
         })
         .catch((err) => {
           shared.handleRequestError(err)
           console.log(err)
         })
-        .finally(() => {
-          document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          this.setEverythingDisabled('disable-on-sale', false)
-          shared.toggleHeaderLinksDisabled(false)
-          this.status = ''
+        .finally(() => {          
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'          
+          this.setEverythingDisabled('disable-on-sale', false)          
+          shared.toggleHeaderLinksDisabled(false)         
+          this.status = ''                     
         })
 
     },
@@ -3854,8 +3972,8 @@ export default {
       this.paramsConfirmacaoImpressao.pdfFile = pdfFile
       this.paramsConfirmacaoImpressao.printer = printer
 
-      const btnId = comPedido ? 'btnOpenConfirmarImpressaoModalComPedido' : 'btnOpenConfirmarImpressaoModalSemPedido'
-      document.getElementById(btnId).click()
+      // Open confirmaImpressaoModal safely
+      this.showModal('confirmaImpressaoModal')
 
       const modalElement = document.getElementById('confirmaImpressaoModal')
       modalElement.addEventListener('shown.bs.modal', () => {
@@ -3867,7 +3985,7 @@ export default {
     },
 
     callImpressao() {
-      document.getElementById('closeModalConfirmaImpressao').click()
+      this.hideModal('confirmaImpressaoModal')
       this.imprimirNfce(this.paramsConfirmacaoImpressao.pdfFile, this.paramsConfirmacaoImpressao.printer)
     },
 
@@ -3963,6 +4081,7 @@ export default {
         this.comPedido = true
         this.enviarPedido(itens, false)
       }
+      
     },
 
     async calcularDescontoAPI(vlrPro, vlrDsc) {
@@ -4119,8 +4238,8 @@ export default {
       this.codRep = pedido.codRep
       this.ideRep = pedido.ideRep
       this.codCli = pedido.codCli
-      this.ideCli = pedido.ideCli
-
+      this.ideCli = pedido.ideCli         
+      
       await this.carregarItensPedido(pedido)
 
       const depPad = this.depositos.find(dep => dep.codDep === pedido.itens[0].codDep)
@@ -4147,6 +4266,7 @@ export default {
         .then((response) => {
           pedido.itens = response.data.itens
           pedido.parcelas = response.data.parcelas
+          this.obsPed = response.data.obsPed
         })
         .catch((err) => {
           console.log(err)
